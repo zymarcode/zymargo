@@ -17,7 +17,7 @@
     --spotify:#1db954; --spotify-hover:#1ed760;
     --muted:#808080; --border:#2a2a2a; --text:#fff;
     --safe-x: clamp(16px, 4vw, 64px);
-    --card-w: clamp(148px, 15.5vw, 250px);
+    --card-w: clamp(190px, 20vw, 320px);
     --card-ratio: 16/9;
     --nav-h: 68px;
     --row-pb: 30px;
@@ -563,7 +563,7 @@
   .card-overlay{
     position:absolute; left:0; right:0; bottom:0; padding:22px 11px 9px;
     background:linear-gradient(0deg, rgba(0,0,0,.92), rgba(0,0,0,.45) 60%, transparent);
-    font-size:clamp(11.5px,1.2vw,13px); font-weight:600;
+    font-size:clamp(12.5px,1.3vw,15px); font-weight:600;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     pointer-events:none; z-index:4;
   }
@@ -589,11 +589,7 @@
     background:radial-gradient(120% 120% at 50% 0%, #33333b 0%, #0c0c0e 75%);
   }
   .card.card-logo .card-overlay{ padding:26px 11px 8px; white-space:normal; }
-  .card-title, .card-sub{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .card-sub{
-    margin-top:2px; font-size:.78em; font-weight:700; letter-spacing:.6px;
-    text-transform:uppercase; color:#b9b9c2;
-  }
+  .card-title{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .card-live{
     position:absolute; top:8px; right:8px; z-index:5;
     display:flex; align-items:center; gap:5px;
@@ -614,7 +610,6 @@
     .card-live{ top:5px; right:5px; font-size:7.5px; padding:2px 5px; gap:3px; }
     .card-live i{ width:5px; height:5px; }
     .card.card-logo .card-overlay{ padding:18px 7px 5px; }
-    .card-sub{ font-size:.72em; letter-spacing:.3px; }
   }
 
   .empty-state{
@@ -1609,7 +1604,7 @@
   }
 
   @media (max-width:640px){
-    :root{ --card-w:clamp(110px, 33vw, 150px); --row-pb:18px; }
+    :root{ --card-w:clamp(140px, 43vw, 200px); --row-pb:18px; }
 
     /* ---- Nav ---- */
     .nav{ gap:8px; }
@@ -1692,7 +1687,7 @@
   }
 
   @media (max-width:380px){
-    :root{ --safe-x:12px; --card-w:clamp(100px, 32vw, 130px); --nav-h:54px; }
+    :root{ --safe-x:12px; --card-w:clamp(130px, 42vw, 170px); --nav-h:54px; }
     .hero-title{ font-size:16px; }
     .hero-actions .btn{ padding:7px 14px; font-size:12px; }
     .row-title{ font-size:13px; }
@@ -2991,8 +2986,7 @@
       '<div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>' : '';
 
     var overlay = kind
-      ? '<div class="card-overlay"><span class="card-title">'+esc(m.nombre)+'</span>' +
-          (m.categoria ? '<span class="card-sub">'+esc(m.categoria)+'</span>' : '') + '</div>'
+      ? '<div class="card-overlay"><span class="card-title">'+esc(m.nombre)+'</span></div>'
       : '<div class="card-overlay">'+esc(m.nombre)+'</div>';
 
     // SIN onclick inline, SIN onkeydown inline — binding por delegation
