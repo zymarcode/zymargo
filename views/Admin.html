@@ -581,7 +581,7 @@
     background:radial-gradient(120% 120% at 50% 0%, #26262c 0%, #101013 70%);
   }
   .card.card-logo.fit-contain img{
-    box-sizing:border-box; padding:10% 12% 26%;
+    box-sizing:border-box; padding:3% 3% 15%;
     filter:drop-shadow(0 6px 14px rgba(0,0,0,.55));
   }
   .card.card-logo .placeholder{
@@ -3020,11 +3020,10 @@
   function applyCardFit_(card, img){
     var w = img.naturalWidth, h = img.naturalHeight;
     if(!w || !h) return;
-    var isLogo = card.classList.contains('card-logo');
     var cw = card.clientWidth, ch = card.clientHeight;
     var cardRatio = (cw && ch) ? cw / ch : 2 / 3;
     var r = (w / h) / cardRatio;
-    if(isLogo || !CARD_FIT_ENABLED || (!CARD_FIT_ALWAYS && r >= 0.8 && r <= 1.25)){ card.classList.remove('fit-contain'); return; }
+    if(!CARD_FIT_ENABLED || (!CARD_FIT_ALWAYS && r >= 0.8 && r <= 1.25)){ card.classList.remove('fit-contain'); return; }
     var src = (img.currentSrc || img.src || '').replace(/"/g, '%22');
     card.style.setProperty('--card-bg', 'url("' + src + '")');
     card.classList.add('fit-contain');
