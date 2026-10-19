@@ -9,3 +9,8 @@
    - APPS_SCRIPT_URL = URL /exec
    - APPS_SCRIPT_SECRET = el mismo SECRET
 4. Redeploy. Abre `/?page=admin` (contraseña inicial `admin123`).
+
+## Modo app (PWA)
+- `api/index.js` inyecta `viewport`, color de tema y meta de app en todas las vistas.
+- `/manifest.webmanifest` (api/manifest.js) y `/sw.js` (api/sw.js) hacen la app instalable.
+- Iconos en `public/icons/`. En el celular: menú del navegador > "Instalar app" / "Agregar a pantalla de inicio".
