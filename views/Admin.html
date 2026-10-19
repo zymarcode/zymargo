@@ -17,7 +17,7 @@
     --spotify:#1db954; --spotify-hover:#1ed760;
     --muted:#808080; --border:#2a2a2a; --text:#fff;
     --safe-x: clamp(16px, 4vw, 64px);
-    --card-w: clamp(132px, 12vw, 200px);
+    --card-w: clamp(112px, 10.2vw, 168px);
     --card-ratio: 2/3;
     --nav-h: 68px;
     --row-pb: 30px;
@@ -1462,7 +1462,7 @@
     .card-overlay{ font-size:15px; padding:10px 14px; }
   }
   @media (min-width:2200px){
-    :root{ --safe-x:6vw; --card-w:12.5vw; }
+    :root{ --safe-x:6vw; --card-w:10.8vw; }
     body{ font-size:22px; }
     .nav-logo-name{ font-size:28px; }
     .hero-title{ font-size:64px; }
@@ -1604,7 +1604,7 @@
   }
 
   @media (max-width:640px){
-    :root{ --card-w:clamp(104px, 31vw, 138px); --row-pb:18px; }
+    :root{ --card-w:clamp(88px, 26vw, 116px); --row-pb:18px; }
 
     /* ---- Nav ---- */
     .nav{ gap:8px; }
@@ -1687,7 +1687,7 @@
   }
 
   @media (max-width:380px){
-    :root{ --safe-x:12px; --card-w:clamp(98px, 30vw, 124px); --nav-h:54px; }
+    :root{ --safe-x:12px; --card-w:clamp(82px, 25vw, 104px); --nav-h:54px; }
     .hero-title{ font-size:16px; }
     .hero-actions .btn{ padding:7px 14px; font-size:12px; }
     .row-title{ font-size:13px; }
@@ -1987,12 +1987,12 @@
 
   <div class="rows" id="rowsWrap"></div>
 
-  <!-- ===== FOOTER: texto editable desde el admin + redes sociales ===== -->
-  <? if (brand.footerText || brand.socialYoutubeUrl || brand.socialFacebookUrl || brand.socialWhatsappUrl || brand.socialTelegramUrl || brand.socialTiktokUrl || brand.socialInstagramUrl) { ?>
+  <!-- ===== FOOTER: derechos de autor + nombre del sistema + texto editable + redes ===== -->
   <footer class="site-footer" id="siteFooter">
-    <? if (brand.footerText) { ?>
-    <div class="site-footer-text"><?= brand.footerText ?></div>
-    <? } ?>
+    <div class="site-footer-text">
+      <? if (brand.footerText) { ?><div><?= brand.footerText ?></div><? } ?>
+      <div>© <?= new Date().getFullYear() ?> <b><?= brand.brandName ?></b>. Todos los derechos reservados.</div>
+    </div>
     <? if (brand.socialYoutubeUrl || brand.socialFacebookUrl || brand.socialWhatsappUrl || brand.socialTelegramUrl || brand.socialTiktokUrl || brand.socialInstagramUrl) { ?>
     <div class="site-footer-social">
   <? if (brand.socialYoutubeUrl) { ?>
@@ -2016,7 +2016,6 @@
     </div>
     <? } ?>
   </footer>
-  <? } ?>
 
   <div class="player-overlay" id="playerOverlay">
     <div class="player-box">
@@ -3016,6 +3015,8 @@
   // muy distinta (horizontal, cuadrada...) -> contain sobre fondo desenfocado (no se corta).
   // Pon false para que SIEMPRE llene la card (cover) aunque se recorte.
   var CARD_FIT_ENABLED = true;
+  // true = la imagen SIEMPRE se ve completa (contain + fondo desenfocado). false = solo si la proporción es muy distinta.
+  var CARD_FIT_ALWAYS = true;
   function applyCardFit_(card, img){
     var w = img.naturalWidth, h = img.naturalHeight;
     if(!w || !h) return;
@@ -3023,7 +3024,7 @@
     var cw = card.clientWidth, ch = card.clientHeight;
     var cardRatio = (cw && ch) ? cw / ch : 2 / 3;
     var r = (w / h) / cardRatio;
-    if(isLogo || !CARD_FIT_ENABLED || (r >= 0.8 && r <= 1.25)){ card.classList.remove('fit-contain'); return; }
+    if(isLogo || !CARD_FIT_ENABLED || (!CARD_FIT_ALWAYS && r >= 0.8 && r <= 1.25)){ card.classList.remove('fit-contain'); return; }
     var src = (img.currentSrc || img.src || '').replace(/"/g, '%22');
     card.style.setProperty('--card-bg', 'url("' + src + '")');
     card.classList.add('fit-contain');
