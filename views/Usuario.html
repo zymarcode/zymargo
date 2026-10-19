@@ -575,8 +575,8 @@
      desenfocado de la misma imagen, en vez de recortarse. */
   .card.card-logo{
     /* Tamaño propio: cuadrada y más compacta que la card de película (16:9).
-       Ajusta --logo-scale (0.72 = 72% del ancho de una card de película). */
-    --logo-scale:.72;
+       Ajusta --logo-scale (0.92 = 92% del ancho de una card de película). */
+    --logo-scale:.92;
     width:calc(var(--card-w) * var(--logo-scale)); aspect-ratio:1/1;
     background:radial-gradient(120% 120% at 50% 0%, #26262c 0%, #101013 70%);
   }
@@ -2987,7 +2987,6 @@
     }
 
     var badge = m.destacado ? '<div class="card-badge">★ Destacado</div>' : '';
-    var live = (kind && kind.live) ? '<div class="card-live"><i></i>EN VIVO</div>' : '';
     var playIcon = m.tipo !== 'image' ?
       '<div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>' : '';
 
@@ -3001,7 +3000,6 @@
       '<div class="card'+(kind ? ' card-logo' : '')+'" tabindex="0" role="button" aria-label="'+esc(m.nombre)+'" title="'+esc(m.nombre)+'" ' +
         'data-media-id="'+esc(m.id)+'"'+previewAttr+'>' +
         badge +
-        live +
         inner +
         playIcon +
         overlay +
@@ -3025,8 +3023,8 @@
     var w = img.naturalWidth, h = img.naturalHeight;
     if(!w || !h) return;
     var isLogo = card.classList.contains('card-logo');
-    var r = (w / h) / (isLogo ? 1 : 16 / 9);
-    if((!FIT_CONTAIN_ENABLED && !isLogo) || (r >= 0.8 && r <= 1.25)){ card.classList.remove('fit-contain'); return; }
+    var r = (w / h) / 16 * 9;
+    if(isLogo || !FIT_CONTAIN_ENABLED || (r >= 0.8 && r <= 1.25)){ card.classList.remove('fit-contain'); return; }
     var src = (img.currentSrc || img.src || '').replace(/"/g, '%22');
     card.style.setProperty('--card-bg', 'url("' + src + '")');
     card.classList.add('fit-contain');
