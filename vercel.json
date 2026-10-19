@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/api/index" },
+    { "source": "/rpc", "destination": "/api/rpc" }
+  ],
+  "functions": {
+    "api/*.js": { "includeFiles": "{views,lib}/**", "maxDuration": 30 }
+  }
+}
