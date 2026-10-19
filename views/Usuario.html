@@ -4565,9 +4565,7 @@
     ["Telegram", "✈️  Únete a Telegram", "#229ed9", "<?= brand.socialTelegramUrl ?>"],
     ["WhatsApp", "💬  Únete por WhatsApp", "#25d366", "<?= brand.socialWhatsappUrl ?>"]
   ].filter(function(n){ return n[3]; });
-  var KEY = "sf_gate_ok";
   if (!NETS.length) return;
-  try { if (sessionStorage.getItem(KEY)) return; } catch (e) {}
 
   var gate = document.getElementById("sfGate"), list = document.getElementById("sfGateList");
   var enter = document.getElementById("sfGateEnter"), bar = document.getElementById("sfGateBar");
@@ -4616,7 +4614,6 @@
   });
   enter.onclick = function () {
     if (enter.disabled) return;
-    try { sessionStorage.setItem(KEY, "1"); } catch (e) {}
     gate.style.display = "none";
     document.body.style.overflow = "";
   };
