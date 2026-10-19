@@ -68,7 +68,7 @@ module.exports = async function (req, res) {
 
     if (page === 'admin') {
       const token = params.token || '';
-      if (token && await S.isValidSession_(token)) html = view('Admin', { baseUrl: baseUrl, token: token, brand: brand });
+      if (token && await S.isValidSession_(token)) html = view('Admin', { baseUrl: baseUrl, token: token, brand: brand, userToken: '', userName: '' });
       else html = view('Login', { baseUrl: baseUrl, brand: brand });
     } else if (page === 'login') {
       const utoken = params.utoken || '';
