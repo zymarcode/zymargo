@@ -4542,66 +4542,81 @@
   bootUsuario();
 </script>
 
-<? if (brand.gateEnabled) { ?>
+<? if (brand.gateEnabled !== false) { ?>
 <!-- ===== PUERTA SOCIAL: pide visitar las redes antes de entrar ===== -->
-<div id="sfGate" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:rgba(0,0,0,.94);align-items:center;justify-content:center;padding:20px;overflow:auto">
-  <div style="max-width:420px;width:100%;background:#141414;border:1px solid #333;border-radius:14px;padding:26px 22px;color:#fff;text-align:center;font-family:inherit">
-    <h2 style="margin:0 0 6px;font-size:22px">Antes de entrar</h2>
-    <p style="margin:0 0 18px;color:#aaa;font-size:14px;line-height:1.4">Apóyanos visitando nuestras redes. Pulsa cada botón y espera unos segundos.</p>
+<div id="sfGate" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:rgba(0,0,0,.92);align-items:center;justify-content:center;padding:18px;overflow:auto">
+  <div style="max-width:380px;width:100%;background:linear-gradient(180deg,#1b1b1f,#101013);border:1px solid #2c2c34;border-radius:18px;padding:28px 22px;color:#fff;text-align:center;font-family:inherit;box-shadow:0 20px 60px rgba(0,0,0,.6)">
+    <div style="font-size:38px;line-height:1;margin-bottom:8px">🎬</div>
+    <h2 style="margin:0 0 6px;font-size:22px">Bienvenido</h2>
+    <p style="margin:0 0 20px;color:#a9a9b3;font-size:14px;line-height:1.45">Toca nuestras redes para apoyarnos y luego pulsa <b>Entrar</b>.</p>
     <div id="sfGateList" style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px"></div>
-    <button id="sfGateEnter" disabled style="width:100%;padding:13px;border:0;border-radius:10px;font-size:16px;font-weight:700;background:#444;color:#888;cursor:not-allowed">Entrar</button>
+    <div style="height:6px;background:#2a2a32;border-radius:6px;overflow:hidden;margin-bottom:14px"><div id="sfGateBar" style="height:100%;width:0;background:#e50914;transition:width 1s linear"></div></div>
+    <button id="sfGateEnter" disabled style="width:100%;padding:14px;border:0;border-radius:12px;font-size:16px;font-weight:700;background:#33333b;color:#888;cursor:not-allowed">Entrar</button>
   </div>
 </div>
 <script>
 (function(){
-  var USER = "<?= userToken ?>";
-  var SECS = Number("<?= brand.gateSeconds ?>") || 8;
+  var SECS = Number("<?= brand.gateSeconds ?>") || 5;
   var NETS = [
-    ["YouTube", "Suscríbete en YouTube", "<?= brand.socialYoutubeUrl ?>"],
-    ["Facebook", "Sigue en Facebook", "<?= brand.socialFacebookUrl ?>"],
-    ["Instagram", "Sigue en Instagram", "<?= brand.socialInstagramUrl ?>"],
-    ["TikTok", "Sigue en TikTok", "<?= brand.socialTiktokUrl ?>"],
-    ["Telegram", "Únete a Telegram", "<?= brand.socialTelegramUrl ?>"],
-    ["WhatsApp", "Únete por WhatsApp", "<?= brand.socialWhatsappUrl ?>"]
-  ].filter(function(n){ return n[2]; });
-  var KEY = "sf_gate_ok", DAYS = 7;
-  if (USER || !NETS.length) return;
-  try { var t = Number(localStorage.getItem(KEY) || 0); if (t && Date.now() - t < DAYS * 86400000) return; } catch (e) {}
+    ["YouTube", "▶  Suscríbete en YouTube", "#ff0000", "<?= brand.socialYoutubeUrl ?>"],
+    ["Facebook", "👍  Sigue en Facebook", "#1877f2", "<?= brand.socialFacebookUrl ?>"],
+    ["Instagram", "📷  Sigue en Instagram", "#d62976", "<?= brand.socialInstagramUrl ?>"],
+    ["TikTok", "🎵  Sigue en TikTok", "#111111", "<?= brand.socialTiktokUrl ?>"],
+    ["Telegram", "✈️  Únete a Telegram", "#229ed9", "<?= brand.socialTelegramUrl ?>"],
+    ["WhatsApp", "💬  Únete por WhatsApp", "#25d366", "<?= brand.socialWhatsappUrl ?>"]
+  ].filter(function(n){ return n[3]; });
+  var KEY = "sf_gate_ok";
+  if (!NETS.length) return;
+  try { if (sessionStorage.getItem(KEY)) return; } catch (e) {}
 
-  var gate = document.getElementById("sfGate"), list = document.getElementById("sfGateList"), enter = document.getElementById("sfGateEnter");
-  var pending = NETS.length;
-  function unlock() {
-    enter.disabled = false;
-    enter.style.background = "#e50914"; enter.style.color = "#fff"; enter.style.cursor = "pointer";
+  var gate = document.getElementById("sfGate"), list = document.getElementById("sfGateList");
+  var enter = document.getElementById("sfGateEnter"), bar = document.getElementById("sfGateBar");
+  var pending = NETS.length, timerDone = false, timerStarted = false;
+
+  function refresh() {
+    if (pending <= 0 && timerDone) {
+      enter.disabled = false;
+      enter.style.background = "#e50914"; enter.style.color = "#fff"; enter.style.cursor = "pointer";
+      enter.textContent = "Entrar";
+    } else if (timerStarted && !timerDone) {
+      enter.textContent = "Espera…";
+    } else if (pending > 0) {
+      enter.textContent = timerStarted ? "Falta " + pending + " red" + (pending > 1 ? "es" : "") : "Entrar";
+    }
+  }
+  function startTimer() {
+    if (timerStarted) return;
+    timerStarted = true;
+    var left = SECS;
+    bar.style.width = (100 / SECS) + "%";
+    var iv = setInterval(function () {
+      left--;
+      bar.style.width = (100 * (SECS - left) / SECS) + "%";
+      if (left <= 0) { clearInterval(iv); timerDone = true; }
+      refresh();
+    }, 1000);
+    refresh();
   }
   NETS.forEach(function (n) {
     var b = document.createElement("button");
     b.type = "button";
     b.textContent = n[1];
-    b.style.cssText = "padding:12px;border:1px solid #444;border-radius:10px;background:#222;color:#fff;font-size:15px;cursor:pointer";
-    var started = false;
+    b.style.cssText = "padding:13px;border:0;border-radius:12px;background:" + n[2] + ";color:#fff;font-size:15px;font-weight:600;cursor:pointer";
+    var done = false;
     b.onclick = function () {
-      if (started) return;
-      started = true;
-      try { window.open(n[2], "_blank", "noopener"); } catch (e) {}
-      var left = SECS;
-      b.disabled = true; b.style.opacity = ".7";
-      b.textContent = n[0] + ": espera " + left + "s…";
-      var iv = setInterval(function () {
-        left--;
-        if (left > 0) { b.textContent = n[0] + ": espera " + left + "s…"; return; }
-        clearInterval(iv);
-        b.textContent = "✓ " + n[0] + " listo";
-        b.style.background = "#1f6f3a"; b.style.borderColor = "#1f6f3a"; b.style.opacity = "1";
-        pending--;
-        if (pending <= 0) unlock();
-      }, 1000);
+      try { window.open(n[3], "_blank", "noopener"); } catch (e) {}
+      if (done) return;
+      done = true; pending--;
+      b.textContent = "✓  " + n[0];
+      b.style.opacity = ".55";
+      startTimer();
+      refresh();
     };
     list.appendChild(b);
   });
   enter.onclick = function () {
     if (enter.disabled) return;
-    try { localStorage.setItem(KEY, String(Date.now())); } catch (e) {}
+    try { sessionStorage.setItem(KEY, "1"); } catch (e) {}
     gate.style.display = "none";
     document.body.style.overflow = "";
   };
