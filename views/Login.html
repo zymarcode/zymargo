@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="UTF-8">
+<title>Acceso · <?= brand.brandName ?></title>
+<? if (brand.brandLogoUrl) { ?>
+<link rel="icon" href="<?= brand.brandLogoUrl ?>">
+<? } else { ?>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%AC%3C/text%3E%3C/svg%3E">
+<? } ?>
+<style>
+  :root{ --bg:#0f0f12; --red:#e50914; --red-hover:#f6121d; --red-glow:rgba(229,9,20,.35); --muted:#8a8a92; --border:#26262c; --spotify:#1db954; --spotify-hover:#1ed760; }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+  @keyframes cardIn{
+    from{ opacity:0; transform:translateY(18px) scale(.98); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+  @keyframes markIn{
+    from{ opacity:0; transform:scale(.6) rotate(-8deg); }
+    to{ opacity:1; transform:scale(1) rotate(0); }
+  }
+  @keyframes shake{
+    10%,90%{ transform:translateX(-1px); }
+    20%,80%{ transform:translateX(2px); }
+    30%,50%,70%{ transform:translateX(-4px); }
+    40%,60%{ transform:translateX(4px); }
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  body{
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    background:var(--bg);
+    min-height:100%;
+    display:flex; align-items:center; justify-content:center;
+    color:#fff;
+    position:relative;
+    overflow-x:hidden;
+  }
+  body::before, body::after{
+    content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+  }
+  body::before{
+    background-position:center; background-size:cover;
+    transform:scale(1.08);
+  }
+  body::after{
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(229,9,20,0.18) 0%, transparent 45%),
+      radial-gradient(ellipse at 80% 80%, rgba(229,9,20,0.12) 0%, transparent 45%),
+      rgba(10,10,13,0.5);
+  }
+  .login-card{
+    position:relative; z-index:1;
+    background:rgba(15,15,18,0.85);
+    padding:clamp(20px,5vw,32px) clamp(16px,4vw,28px);
+    border-radius:12px;
+    border:1px solid var(--border);
+    width:100%; max-width:320px;
+    box-shadow:0 20px 60px rgba(0,0,0,.65);
+    margin:16px;
+    animation:cardIn .5s cubic-bezier(.2,.8,.2,1);
+  }
+  .brand{ display:flex; align-items:center; gap:9px; margin-bottom:20px; }
+  .brand-mark{
+    width:34px; height:34px; border-radius:9px; flex:0 0 auto; overflow:hidden;
+    background:linear-gradient(135deg, var(--red), var(--red-hover));
+    display:flex; align-items:center; justify-content:center; font-size:17px;
+    box-shadow:0 5px 14px rgba(229,9,20,.4);
+    animation:markIn .5s .1s cubic-bezier(.2,.8,.2,1) backwards;
+  }
+  .brand-mark img{ display:block; width:100%; height:100%; object-fit:cover; border-radius:9px; }
+  .brand-info{ min-width:0; }
+  .brand-title{ font-size:15px; font-weight:900; color:#fff; letter-spacing:.4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .brand-sub{ font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  h1{ font-size:15px; margin:0 0 16px; font-weight:600; color:#fff; }
+  .field{ margin-bottom:11px; }
+  .input-wrap{ position:relative; }
+  .input-wrap svg.icon{
+    position:absolute; left:12px; top:50%; transform:translateY(-50%);
+    width:14px; height:14px; fill:var(--muted); pointer-events:none; transition:.15s;
+  }
+  .input-wrap:focus-within svg.icon{ fill:var(--red); }
+  .toggle-pass{
+    position:absolute; right:9px; top:50%; transform:translateY(-50%);
+    width:24px; height:24px; border:none; background:transparent; color:var(--muted);
+    cursor:pointer; display:flex; align-items:center; justify-content:center; border-radius:6px;
+  }
+  .toggle-pass:hover{ color:#fff; background:#1c1c20; }
+  .toggle-pass svg{ width:14px; height:14px; fill:currentColor; }
+  input[type=password]{
+    width:100%; padding:11px 34px 11px 36px; border-radius:7px; border:1px solid var(--border);
+    background:#131317; color:#fff; font-size:13px; transition:.15s;
+  }
+  input:focus{ outline:none; border-color:var(--red); box-shadow:0 0 0 3px var(--red-glow); }
+  button{
+    width:100%; padding:11px; border:none; border-radius:7px;
+    background:linear-gradient(135deg, var(--red), var(--red-hover)); color:#fff; font-size:14px; font-weight:700; cursor:pointer; margin-top:6px;
+    transition:.2s; display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  button:hover{ transform:translateY(-1px); box-shadow:0 10px 26px rgba(229,9,20,.45); }
+  button:active{ transform:translateY(0); }
+  button:disabled{ opacity:.75; cursor:not-allowed; transform:none; }
+  .spinner{
+    width:16px; height:16px; border-radius:50%;
+    border:2px solid rgba(255,255,255,.4); border-top-color:#fff;
+    animation:spin .7s linear infinite; display:none;
+  }
+  button.loading .spinner{ display:inline-block; }
+  .error{ color:#ff6b6b; font-size:13px; margin-top:12px; min-height:16px; }
+  .error.show{ animation:shake .4s; }
+  .hint{ color:var(--muted); font-size:12px; margin-top:22px; text-align:center; line-height:1.5; }
+</style>
+<? if (brand.loginBgUrl) { ?>
+<style>
+  body::before{
+    background-image:url('<?= brand.loginBgUrl ?>');
+    filter: blur(9px) brightness(.55) saturate(1.15);
+  }
+</style>
+<? } ?>
+</head>
+<body>
+  <div class="login-card">
+    <div class="brand">
+      <div class="brand-mark">
+        <? if (brand.brandLogoUrl) { ?>
+          <img src="<?= brand.brandLogoUrl ?>" alt="Logo" onerror="this.parentNode.textContent='<?= String(brand.brandName || 'S').charAt(0).toUpperCase() ?>';" />
+        <? } else { ?>
+          <?= String(brand.brandName || 'S').charAt(0).toUpperCase() ?>
+        <? } ?>
+      </div>
+      <div class="brand-info">
+        <div class="brand-title" title="<?= brand.brandName ?>"><?= brand.brandName ?></div>
+        <div class="brand-sub" title="<?= brand.brandSubname ?>"><?= brand.brandSubname ?> · Admin</div>
+      </div>
+    </div>
+    <h1>Ingresa la contraseña de administrador</h1>
+    <div class="field">
+      <div class="input-wrap">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5Zm-3 8V6a3 3 0 0 1 6 0v3Z"/></svg>
+        <input type="password" id="pass" placeholder="Contraseña" autofocus />
+        <button type="button" class="toggle-pass" id="togglePass" title="Mostrar/ocultar contraseña">
+          <svg viewBox="0 0 24 24"><path d="M12 5c-7 0-11 7-11 7s4 7 11 7 11-7 11-7-4-7-11-7Zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Zm0-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg>
+        </button>
+      </div>
+    </div>
+    <button id="btn" onclick="login()"><span class="spinner"></span><span id="btnLabel">Ingresar</span></button>
+    <div class="error" id="err"></div>
+    <p class="hint">Contraseña inicial por defecto: <b>admin123</b><br>Cámbiala desde el panel apenas ingreses.</p>
+  </div>
+
+<script>
+  var BASE_URL = "<?= baseUrl ?>";
+
+  // Identificador propio de ESTE navegador. Vive en localStorage,
+  // nunca viaja en la URL, así que copiar el link a otro navegador
+  // no copia este identificador (ver checkSessionDevice en Admin/Usuario).
+  function getDeviceId_(){
+    var KEY = 'sf_device_id';
+    try {
+      var id = localStorage.getItem(KEY);
+      if(!id){
+        id = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,12);
+        localStorage.setItem(KEY, id);
+      }
+      return id;
+    } catch(e){
+      try {
+        var sid = sessionStorage.getItem(KEY);
+        if(!sid){
+          sid = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,12);
+          sessionStorage.setItem(KEY, sid);
+        }
+        return sid;
+      } catch(e2){
+        return 'dev_nostorage_' + Date.now().toString(36);
+      }
+    }
+  }
+
+  function login(){
+    var pass = document.getElementById('pass').value;
+    var btn = document.getElementById('btn');
+    var btnLabel = document.getElementById('btnLabel');
+    var err = document.getElementById('err');
+    err.textContent = ''; err.classList.remove('show');
+    if(!pass){ showError('Escribe la contraseña.'); return; }
+    btn.disabled = true; btn.classList.add('loading'); btnLabel.textContent = 'Verificando...';
+
+    google.script.run
+      .withSuccessHandler(function(res){
+        if(res.ok){
+          btnLabel.textContent = '¡Listo!';
+          window.top.location.href = BASE_URL + '?page=admin&token=' + res.token;
+        } else {
+          btn.disabled = false; btn.classList.remove('loading'); btnLabel.textContent = 'Ingresar';
+          showError(res.error || 'Error al iniciar sesión.');
+        }
+      })
+      .withFailureHandler(function(e){
+        btn.disabled = false; btn.classList.remove('loading'); btnLabel.textContent = 'Ingresar';
+        showError('Error: ' + e.message);
+      })
+      .verifyLogin(pass, getDeviceId_());
+  }
+
+  function showError(msg){
+    var err = document.getElementById('err');
+    err.textContent = msg;
+    err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
+  }
+
+  var togglePass = document.getElementById('togglePass');
+  if(togglePass){
+    togglePass.addEventListener('click', function(){
+      var p = document.getElementById('pass');
+      p.type = (p.type === 'password') ? 'text' : 'password';
+    });
+  }
+
+  document.getElementById('pass').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') login();
+  });
+</script>
+</body>
+</html>
