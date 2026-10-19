@@ -1804,6 +1804,42 @@
 </style>
 </head>
 <body>
+<!-- ===== LOADING ===== -->
+<style>
+#sfLoad{position:fixed;top:0;left:0;right:0;bottom:0;z-index:100000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:radial-gradient(ellipse at 50% 40%,#1c0f14 0%,#0a0a0d 65%);transition:opacity .45s ease,visibility .45s ease}
+#sfLoad.sfHide{opacity:0;visibility:hidden}
+#sfLoad .sfLogo{width:72px;height:72px;object-fit:contain;border-radius:16px;animation:sfPulse 1.4s ease-in-out infinite}
+#sfLoad .sfName{margin:0;font-size:clamp(30px,9vw,54px);font-weight:800;letter-spacing:.14em;text-transform:uppercase;text-align:center;padding:0 16px;
+  color:#e50914;background:linear-gradient(100deg,#e50914 20%,#ff8a3d 40%,#fff 50%,#ff8a3d 60%,#e50914 80%);background-size:250% 100%;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:sfShine 1.8s linear infinite}
+#sfLoad .sfBar{width:min(220px,60vw);height:3px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden}
+#sfLoad .sfBar i{display:block;height:100%;width:40%;border-radius:3px;background:linear-gradient(90deg,#e50914,#ff8a3d);animation:sfSlide 1.1s ease-in-out infinite}
+@keyframes sfShine{from{background-position:150% 0}to{background-position:-100% 0}}
+@keyframes sfSlide{0%{transform:translateX(-110%)}100%{transform:translateX(280%)}}
+@keyframes sfPulse{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.07);opacity:1}}
+@media (prefers-reduced-motion:reduce){#sfLoad .sfName,#sfLoad .sfBar i,#sfLoad .sfLogo{animation:none}}
+</style>
+<div id="sfLoad">
+<? if (brand.brandLogoUrl) { ?><img class="sfLogo" src="<?= brand.brandLogoUrl ?>" alt="" onerror="this.style.display='none'"><? } ?>
+  <h1 class="sfName"><?= brand.brandName ?></h1>
+  <div class="sfBar"><i></i></div>
+</div>
+<script>
+(function(){
+  var t0 = Date.now(), el = document.getElementById("sfLoad"), done = false;
+  function hide(){
+    if (done || !el) return; done = true;
+    var wait = Math.max(0, 600 - (Date.now() - t0));
+    setTimeout(function(){
+      el.className = "sfHide";
+      setTimeout(function(){ if (el.parentNode) el.parentNode.removeChild(el); }, 600);
+    }, wait);
+  }
+  if (document.readyState === "complete") hide(); else window.addEventListener("load", hide);
+  setTimeout(hide, 8000);
+})();
+</script>
+
 
   <? if (userToken) { ?>
   <div class="device-check-overlay" id="deviceCheckOverlay">
