@@ -17,7 +17,7 @@
     --spotify:#1db954; --spotify-hover:#1ed760;
     --muted:#808080; --border:#2a2a2a; --text:#fff;
     --safe-x: clamp(16px, 4vw, 64px);
-    --card-w: clamp(200px, 17vw, 300px);
+    --card-w: clamp(150px, 12.5vw, 220px);
     --card-ratio: 16/9;
     --nav-h: 68px;
     --row-pb: 30px;
@@ -556,7 +556,7 @@
   .card-title{
     display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2;
     overflow:hidden; text-overflow:ellipsis;
-    font-size:14px; font-weight:500; line-height:1.35; color:#f1f1f1;
+    font-size:13px; font-weight:500; line-height:1.35; color:#f1f1f1;
   }
   .card:hover .card-title{ color:#fff; }
   .card-live{
@@ -1430,7 +1430,7 @@
     .card-title{ font-size:16px; }
   }
   @media (min-width:2200px){
-    :root{ --safe-x:6vw; --card-w:15vw; }
+    :root{ --safe-x:6vw; --card-w:11vw; }
     body{ font-size:22px; }
     .nav-logo-name{ font-size:28px; }
     .hero-title{ font-size:64px; }
@@ -1569,7 +1569,7 @@
   }
 
   @media (max-width:640px){
-    :root{ --card-w:clamp(160px, 46vw, 230px); --row-pb:18px; }
+    :root{ --card-w:clamp(125px, 36vw, 170px); --row-pb:18px; }
 
     /* ---- Nav ---- */
     .nav{ gap:8px; }
@@ -1652,7 +1652,7 @@
   }
 
   @media (max-width:380px){
-    :root{ --safe-x:12px; --card-w:clamp(148px, 45vw, 190px); --nav-h:54px; }
+    :root{ --safe-x:12px; --card-w:clamp(115px, 35vw, 145px); --nav-h:54px; }
     .hero-title{ font-size:16px; }
     .hero-actions .btn{ padding:7px 14px; font-size:12px; }
     .row-title{ font-size:13px; }
