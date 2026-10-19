@@ -3315,6 +3315,7 @@
     v.setAttribute('playsinline','');
     mount.appendChild(v);
     pcVideo = v;
+    pcBindVolume_(v);
 
     // Se limpia el menú de calidad del stream anterior; se reconstruye
     // (si corresponde) cuando hls.js entregue los niveles disponibles.
@@ -3337,11 +3338,8 @@
         var pp = v.play();
         if(pp && pp.catch){
           pp.catch(function(){
-            v.muted = true;
-            v.volume = 0;
+            pcForceMuted_();
             v.play().catch(function(){});
-            document.getElementById('pcVolume').value = 0;
-            pcUpdateVolumeIcon();
           });
         }
       });
@@ -3372,11 +3370,8 @@
       var pp = v.play();
       if(pp && pp.catch){
         pp.catch(function(){
-          v.muted = true;
-          v.volume = 0;
+          pcForceMuted_();
           v.play().catch(function(){});
-          document.getElementById('pcVolume').value = 0;
-          pcUpdateVolumeIcon();
         });
       }
     }
@@ -3470,6 +3465,7 @@
           },
           onLoad: function(){
             if(radioPlayerInstance !== radioInst) return;
+            pcApplyVolume_();
             spinner.classList.remove('show');
             pcIsLive = true;
             stage.classList.add('is-live');
@@ -3535,6 +3531,7 @@
     v.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;';
     mount.appendChild(v);
     pcVideo = v;
+    pcBindVolume_(v);
 
     spinner.classList.add('show');
     v.src = url;
@@ -3560,11 +3557,8 @@
       if(autoStarted) return;
       autoStarted = true;
       v.play().catch(function(){
-        v.muted = true;
-        v.volume = 0;
+        pcForceMuted_();
         v.play().catch(function(){});
-        document.getElementById('pcVolume').value = 0;
-        pcUpdateVolumeIcon();
       });
     });
     v.addEventListener('error', function(){
@@ -3980,47 +3974,80 @@
     if(!pcVideo || pcIsLive) return;
     pcVideo.currentTime = Math.max(0, Math.min(pcVideo.duration || 0, pcVideo.currentTime + sec));
   }
-  function playerToggleMute(){
+  // ------------------------------------------------------------
+  // VOLUMEN: un único estado (nivel + silencio) que se aplica siempre
+  // al elemento que esté sonando (radio Icecast o <video>/<audio>).
+  // ARREGLOS:
+  //  - Si el autoplay fallaba se ponía volume=0 además de muted=true;
+  //    al quitar el silencio seguía sin sonar. Ahora solo se silencia.
+  //  - Las flechas arriba/abajo leían pcVideo.volume aun en radio
+  //    (pcVideo es null) y el volumen se quedaba en 1.
+  //  - Acumulación de decimales (0.15000000000000002) al subir/bajar.
+  //  - Al reproducir otro contenido el volumen se reiniciaba.
+  var pcVolLevel = 1, pcVolMuted = false, pcLastVol = 1;
+  function pcMediaEl_(){
     if(radioPlayerInstance){
-      try {
-        var ae = radioPlayerInstance.audioElement;
-        if(ae){ ae.muted = !ae.muted; document.getElementById('pcVolume').value = ae.muted ? 0 : ae.volume; }
-      } catch(e){}
-      pcUpdateVolumeIcon();
-      return;
+      try { return radioPlayerInstance.audioElement || null; } catch(e){ return null; }
     }
-    if(!pcVideo) return;
-    pcVideo.muted = !pcVideo.muted;
+    return pcVideo || null;
+  }
+  function pcApplyVolume_(){
+    var el = pcMediaEl_();
+    if(el){
+      try { el.volume = pcVolLevel; } catch(e){}
+      try { el.muted = pcVolMuted || pcVolLevel === 0; } catch(e){}
+    }
+    pcSyncVolumeUi_();
+  }
+  function pcSyncVolumeUi_(){
+    var slider = document.getElementById('pcVolume');
+    if(slider) slider.value = (pcVolMuted || pcVolLevel === 0) ? 0 : pcVolLevel;
     pcUpdateVolumeIcon();
-    document.getElementById('pcVolume').value = pcVideo.muted ? 0 : pcVideo.volume;
+  }
+  // Silencia sin tocar el nivel (para cuando el navegador bloquea el autoplay).
+  function pcForceMuted_(){
+    pcVolMuted = true;
+    pcApplyVolume_();
+  }
+  // Se llama al crear un <video>/<audio> nuevo: hereda el volumen actual
+  // y mantiene la interfaz sincronizada si cambia desde fuera.
+  function pcBindVolume_(v){
+    try { v.volume = pcVolLevel; v.muted = pcVolMuted || pcVolLevel === 0; } catch(e){}
+    v.addEventListener('volumechange', function(){
+      if(pcVideo !== v || radioPlayerInstance) return;
+      pcVolLevel = v.volume;
+      pcVolMuted = v.muted;
+      if(pcVolLevel > 0) pcLastVol = pcVolLevel;
+      pcSyncVolumeUi_();
+    });
+    pcSyncVolumeUi_();
+  }
+  function playerToggleMute(){
+    if(pcVolMuted || pcVolLevel === 0){
+      pcVolMuted = false;
+      if(pcVolLevel === 0) pcVolLevel = pcLastVol > 0 ? pcLastVol : 0.5;
+    } else {
+      pcVolMuted = true;
+    }
+    pcApplyVolume_();
   }
   function playerSetVolume(val){
     val = parseFloat(val);
-    var slider = document.getElementById('pcVolume');
-    if(slider) slider.value = val;
-    if(radioPlayerInstance){
-      try {
-        var ae = radioPlayerInstance.audioElement;
-        if(ae){ ae.volume = val; ae.muted = val === 0; }
-      } catch(e){}
-      pcUpdateVolumeIcon();
-      return;
-    }
-    if(!pcVideo) return;
-    pcVideo.volume = val;
-    pcVideo.muted = val === 0;
-    pcUpdateVolumeIcon();
+    if(isNaN(val)) return;
+    val = Math.round(Math.max(0, Math.min(1, val)) * 100) / 100;
+    pcVolLevel = val;
+    pcVolMuted = (val === 0);
+    if(val > 0) pcLastVol = val;
+    pcApplyVolume_();
+  }
+  function playerVolumeStep_(delta){
+    var base = (pcVolMuted ? 0 : pcVolLevel);
+    playerSetVolume(base + delta);
   }
   function pcUpdateVolumeIcon(){
     var icon = document.getElementById('pcVolIcon');
     if(!icon) return;
-    var muted = false, vol = 1;
-    if(radioPlayerInstance){
-      try {
-        var ae = radioPlayerInstance.audioElement;
-        if(ae){ vol = ae.volume; muted = ae.muted || vol === 0; }
-      } catch(e){}
-    } else if(pcVideo){ vol = pcVideo.volume; muted = pcVideo.muted || vol === 0; }
+    var muted = pcVolMuted || pcVolLevel === 0, vol = pcVolLevel;
     if(muted){
       icon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3l2.5-2.5-1.4-1.4-2.5 2.5-2.5-2.5-1.4 1.4 2.5 2.5-2.5 2.5 1.4 1.4 2.5-2.5 2.5 2.5 1.4-1.4-2.5-2.5z"/>';
     } else if(vol < 0.5){
@@ -4278,12 +4305,18 @@
         if(pcVideo && !pcIsLive){ e.preventDefault(); playerSkip(5); }
         break;
       case 'ArrowUp':
+      case 'AudioVolumeUp':
+      case '+':
+      case '=':
         e.preventDefault();
-        playerSetVolume(Math.min(1, (pcVideo ? pcVideo.volume : 1) + 0.05));
+        playerVolumeStep_(0.05);
         break;
       case 'ArrowDown':
+      case 'AudioVolumeDown':
+      case '-':
+      case '_':
         e.preventDefault();
-        playerSetVolume(Math.max(0, (pcVideo ? pcVideo.volume : 1) - 0.05));
+        playerVolumeStep_(-0.05);
         break;
       case 'f': playerToggleFullscreen(); break;
       case 'm': playerToggleMute(); break;
