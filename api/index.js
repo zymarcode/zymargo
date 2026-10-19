@@ -38,7 +38,8 @@ function appHead(brand) {
     '<link rel="apple-touch-icon" href="' + logo + '">' +
     '<style>' +
     'html{-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;text-size-adjust:100%}' +
-    'body{overscroll-behavior-y:none}' +
+    'html body{overflow-x:visible;overflow-x:clip;overflow-y:visible}' +
+    'html body .row-track{touch-action:pan-x pan-y}' +
     '@media (display-mode:standalone){' +
     'body{-webkit-touch-callout:none}' +
     'body :not(input):not(textarea):not([contenteditable]){-webkit-user-select:none;user-select:none}' +
