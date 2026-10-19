@@ -1,0 +1,2219 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="UTF-8">
+<title>Panel · <?= brand.brandName ?></title>
+<? if (brand.brandLogoUrl) { ?>
+<link rel="icon" href="<?= brand.brandLogoUrl ?>">
+<? } else { ?>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%AC%3C/text%3E%3C/svg%3E">
+<? } ?>
+<style>
+  :root{
+    --bg:#0f0f12; --panel:#16161a; --card:#1a1a1f; --card-hover:#1f1f25;
+    --red:#e50914; --red-hover:#f6121d; --spotify:#1db954; --spotify-hover:#1ed760;
+    --text:#fff; --text-2:#c8c8cd; --muted:#8a8a92; --border:#26262c; --border-2:#32323a;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--bg); color:var(--text); font-family:'Helvetica Neue',Arial,sans-serif; }
+  a{ color:inherit; text-decoration:none; }
+  html{ -webkit-text-size-adjust:100%; }
+
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+    padding:14px clamp(14px,3vw,28px);
+    background:linear-gradient(180deg, #14141a 0%, #0f0f12 100%);
+    position:sticky; top:0; z-index:50; border-bottom:1px solid var(--border);
+  }
+  .brand{ display:flex; align-items:center; gap:12px; min-width:0; }
+  .brand-mark{
+    width:38px; height:38px; border-radius:9px; flex:0 0 auto; overflow:hidden;
+    background:linear-gradient(135deg, var(--red), var(--red-hover));
+    display:flex; align-items:center; justify-content:center; font-size:19px;
+    box-shadow:0 4px 14px rgba(229,9,20,.35);
+  }
+  .brand-mark img{ display:block; width:100%; height:100%; object-fit:cover; border-radius:9px; }
+  .brand-info{ min-width:0; }
+  .brand-name{
+    font-weight:900; font-size:clamp(15px,2vw,18px); color:#fff; letter-spacing:.5px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .brand-sub{
+    font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1.2px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;
+  }
+  .brand-sub .dot{ color:var(--red); margin:0 6px; }
+
+  .top-actions{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+
+  .btn{
+    padding:9px 16px; border-radius:6px; border:none; cursor:pointer; font-size:13px; font-weight:600;
+    display:inline-flex; align-items:center; gap:6px; transition:.15s;
+  }
+  .btn-primary{ background:var(--red); color:#fff; }
+  .btn-primary:hover{ background:var(--red-hover); box-shadow:0 4px 14px rgba(229,9,20,.35); }
+  .btn-outline{ background:transparent; border:1px solid var(--border-2); color:#fff; }
+  .btn-outline:hover{ border-color:#555; background:#1a1a1f; }
+  .btn-ghost{ background:#1c1c22; color:#e8e8ea; border:1px solid var(--border); }
+  .btn-ghost:hover{ background:#26262e; }
+  .btn-danger{ background:#2a1414; color:#ff8080; border:1px solid #4a1e1e; }
+  .btn-danger:hover{ background:#3a1a1a; }
+  .btn-small{ padding:6px 10px; font-size:12px; }
+
+  .wrap{ max-width:1300px; margin:0 auto; padding:20px clamp(14px,3vw,28px) 60px; }
+
+  .tabs{
+    display:flex; gap:6px; margin-bottom:20px;
+    border-bottom:1px solid var(--border);
+    overflow-x:auto;
+  }
+  .tab{
+    padding:12px 20px; background:transparent; border:none;
+    color:var(--muted); font-size:14px; font-weight:600; cursor:pointer;
+    border-bottom:2px solid transparent; transition:.15s; white-space:nowrap;
+    display:inline-flex; align-items:center; gap:8px;
+  }
+  .tab:hover{ color:#e8e8ea; }
+  .tab.active{ color:#fff; border-bottom-color:var(--red); }
+
+  .stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:22px; }
+  .stat-card{
+    background:linear-gradient(180deg, #17171c, #131317);
+    border:1px solid var(--border); border-radius:10px; padding:16px 18px;
+    position:relative; overflow:hidden;
+  }
+  .stat-card::before{
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, var(--red), transparent);
+    opacity:.5;
+  }
+  .stat-value{ font-size:clamp(20px,3vw,26px); font-weight:800; letter-spacing:-.5px; }
+  .stat-label{ font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-top:6px; }
+
+  .toolbar{
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:16px;
+    background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:12px;
+  }
+  .toolbar input[type=text], .toolbar select{
+    background:#131317; border:1px solid var(--border-2); color:#fff; padding:10px 12px; border-radius:6px; font-size:13px;
+  }
+  .toolbar input[type=text]:focus, .toolbar select:focus{ outline:none; border-color:var(--red); }
+  .toolbar input[type=text]{ flex:1 1 200px; min-width:0; }
+  .toolbar select{ flex:1 1 160px; min-width:0; }
+  .spacer{ flex:1; display:none; }
+  @media (min-width:900px){ .spacer{ display:block; } }
+
+  .chip-row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+  .chip{
+    padding:7px 16px; border-radius:20px; font-size:12px; font-weight:600; cursor:pointer;
+    background:var(--panel); border:1px solid var(--border); color:var(--muted);
+    transition:.15s;
+  }
+  .chip:hover{ border-color:#3a3a42; color:#e8e8ea; }
+  .chip.active{ background:var(--red); border-color:var(--red); color:#fff; box-shadow:0 4px 14px rgba(229,9,20,.3); }
+
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(min(190px,100%),1fr)); gap:14px; }
+  .item-card{
+    background:var(--card); border:1px solid var(--border); border-radius:10px; overflow:hidden;
+    display:flex; flex-direction:column; transition:.18s;
+  }
+  .item-card:hover{ border-color:var(--border-2); background:var(--card-hover); transform:translateY(-2px); }
+  .item-thumb{
+    height:130px; background:#000; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;
+  }
+  .item-thumb img, .item-thumb video{ width:100%; height:100%; object-fit:cover; }
+  .item-thumb .placeholder-icon{ font-size:36px; opacity:.6; }
+  .badge-destacado{
+    position:absolute; top:8px; left:8px; background:var(--red); color:#fff; font-size:10px; font-weight:700;
+    padding:3px 8px; border-radius:10px; text-transform:uppercase; letter-spacing:.5px;
+    box-shadow:0 2px 8px rgba(229,9,20,.4);
+  }
+  .badge-tipo{
+    position:absolute; top:8px; right:8px; background:rgba(0,0,0,.75); backdrop-filter:blur(4px);
+    font-size:10px; padding:3px 8px; border-radius:10px; border:1px solid rgba(255,255,255,.08);
+  }
+  .badge-external{
+    position:absolute; bottom:8px; right:8px; background:rgba(0,0,0,.75); backdrop-filter:blur(4px);
+    font-size:10px; padding:3px 8px; border-radius:10px; border:1px solid rgba(255,255,255,.08);
+  }
+  .item-body{ padding:12px 14px; flex:1; display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .item-name{
+    font-weight:700; font-size:14px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .item-meta{
+    font-size:12px; color:var(--muted);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .item-actions{ display:flex; gap:8px; padding:0 14px 14px; flex-wrap:wrap; }
+  .item-actions .btn{ flex:1 1 auto; justify-content:center; }
+
+  .empty{ text-align:center; padding:60px 20px; color:var(--muted); }
+
+  /* Tabla usuarios */
+  .table-scroll{
+    width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;
+    border-radius:10px; border:1px solid var(--border);
+  }
+  .users-table{
+    width:100%; min-width:820px; border-collapse:collapse; background:var(--panel);
+    table-layout:fixed;
+    font-size:13px;
+  }
+  .users-table th{
+    text-align:left; padding:14px 16px; font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:.8px; color:var(--muted);
+    background:#131317; border-bottom:1px solid var(--border);
+    white-space:nowrap;
+  }
+  .users-table td{
+    padding:14px 16px; border-bottom:1px solid var(--border);
+    vertical-align:middle; overflow:hidden;
+  }
+  .users-table tr:last-child td{ border-bottom:none; }
+  .users-table tr:hover td{ background:#1a1a1f; }
+  /* La columna "Acciones" es siempre la última. En pantallas angostas la
+     tabla escrollea horizontal y esa columna quedaba cortada al borde
+     (había que escrollear del todo para verla). Se deja fija (sticky)
+     al borde derecho para que los botones siempre estén visibles. */
+  .users-table th:last-child, .users-table td:last-child{
+    position:sticky; right:0; box-shadow:-8px 0 10px rgba(0,0,0,.35);
+  }
+  .users-table td:last-child{ background:var(--panel); }
+  .users-table th:last-child{ background:#131317; }
+  .users-table tr:hover td:last-child{ background:#1a1a1f; }
+  .users-table th:nth-child(1), .users-table td:nth-child(1){ width:22%; }
+  .users-table th:nth-child(2), .users-table td:nth-child(2){ width:18%; }
+  .users-table th:nth-child(3), .users-table td:nth-child(3){ width:9%; }
+  .users-table th:nth-child(4), .users-table td:nth-child(4){ width:12%; }
+  .users-table th:nth-child(5), .users-table td:nth-child(5){ width:11%; }
+  .users-table th:nth-child(6), .users-table td:nth-child(6){ width:8%; }
+  /* Antes las columnas 1-6 ya sumaban 100%, así que a esta 7ma columna
+     (Acciones, siempre la última) le quedaba 0% de ancho con
+     table-layout:fixed: por eso se veía como un recuadro negro vacío
+     sin botones visibles. Ahora tiene su propio ancho real. */
+  .users-table th:nth-child(7), .users-table td:nth-child(7){ width:12%; }
+  .users-table td:nth-child(2){ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .user-cell{ display:flex; align-items:center; gap:10px; min-width:0; }
+  .user-avatar{
+    width:34px; height:34px; border-radius:50%; flex:0 0 auto;
+    background:linear-gradient(135deg, #8a0410, #e50914);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; color:#fff; font-size:14px;
+  }
+  .user-info{ min-width:0; }
+  .user-name{
+    font-weight:700; color:#fff;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .user-username{
+    font-size:11px; color:var(--muted);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .role-badge{
+    display:inline-flex; align-items:center; padding:4px 10px; border-radius:20px;
+    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px;
+  }
+  .role-admin{ background:rgba(229,9,20,.15); color:#ff8a8a; border:1px solid rgba(229,9,20,.35); }
+  .role-user{ background:#1c1c20; color:#cfcfd4; border:1px solid #2c2c32; }
+  .estado-badge{
+    display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px;
+    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px;
+  }
+  .estado-activo{ background:rgba(46,204,113,.12); color:#5cd65c; border:1px solid rgba(46,204,113,.3); }
+  .estado-suspendido{ background:rgba(255,107,107,.12); color:#ff6b6b; border:1px solid rgba(255,107,107,.3); }
+  .estado-dot{ width:6px; height:6px; border-radius:50%; background:currentColor; }
+
+  .device-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:12px 14px; border:1px solid var(--border); border-radius:8px; margin-bottom:8px;
+    background:var(--card);
+  }
+  .device-row:last-child{ margin-bottom:0; }
+  .device-info{ min-width:0; }
+  .device-id{ font-family:monospace; font-size:12px; color:#e8e8ea; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .device-since{ font-size:11px; color:var(--muted); margin-top:2px; }
+
+  /* Modal */
+  .modal-overlay{
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,.82); backdrop-filter:blur(4px); z-index:200;
+    align-items:center; justify-content:center; padding:16px;
+  }
+  .modal-overlay.open{ display:flex; animation:mfade .2s ease; }
+  @keyframes mfade{ from{opacity:0} to{opacity:1} }
+  .modal{
+    background:linear-gradient(180deg, #17171c, #131317);
+    border-radius:12px; width:100%; max-width:540px; max-height:92vh; overflow-y:auto;
+    border:1px solid var(--border-2);
+    box-shadow:0 30px 80px rgba(0,0,0,.7);
+  }
+  @media (max-width:520px){
+    .modal-overlay{ padding:0; align-items:flex-end; }
+    .modal{ max-width:100%; max-height:94vh; border-radius:14px 14px 0 0; }
+    .row-2{ grid-template-columns:1fr !important; }
+  }
+  .modal-header{ display:flex; justify-content:space-between; align-items:center; padding:18px 22px; border-bottom:1px solid var(--border); }
+  .modal-header h2{ margin:0; font-size:17px; font-weight:700; }
+  .modal-close{ background:none; border:none; color:var(--muted); font-size:22px; cursor:pointer; transition:.15s; }
+  .modal-close:hover{ color:#fff; }
+  .modal-body{ padding:22px; display:flex; flex-direction:column; gap:14px; }
+  .field label{ display:block; font-size:12px; color:var(--muted); margin-bottom:6px; font-weight:600; letter-spacing:.3px; }
+  .field input, .field select, .field textarea{
+    width:100%; padding:11px 12px; border-radius:6px; border:1px solid var(--border-2); background:#131317; color:#fff; font-size:14px;
+    transition:.15s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{ outline:none; border-color:var(--red); }
+  .field textarea{ resize:vertical; min-height:70px; }
+  .row-2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .checkbox-row{ display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); }
+  .modal-footer{ display:flex; justify-content:flex-end; gap:10px; padding:18px 22px; border-top:1px solid var(--border); }
+  .form-error{ color:#ff6b6b; font-size:13px; }
+  .form-success{ color:#5cd65c; font-size:13px; }
+  .field-hint{ font-size:11px; color:var(--muted); margin-top:4px; line-height:1.5; }
+
+  .toast{
+    position:fixed; bottom:24px; right:24px; background:#1c1c22; border:1px solid var(--border-2);
+    padding:14px 20px; border-radius:8px; font-size:13px; z-index:300; display:none;
+    box-shadow:0 12px 30px rgba(0,0,0,.5);
+  }
+  .toast.show{ display:block; animation:mslide .25s ease; }
+  @keyframes mslide{ from{transform:translateY(10px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+  /* ===== Modal de confirmación (reemplaza window.confirm) ===== */
+  #confirmModalOverlay .modal{ max-width:420px; }
+  .confirm-icon{
+    width:52px; height:52px; border-radius:50%; margin:2px auto 4px;
+    background:#2a1414; border:1px solid #4a1e1e; color:#ff8080;
+    display:flex; align-items:center; justify-content:center; font-size:24px;
+  }
+  .confirm-text{ text-align:center; color:var(--text-2); font-size:14.5px; line-height:1.6; margin:0; }
+  .confirm-modal-footer{ display:flex; justify-content:center; gap:10px; padding:18px 22px; border-top:1px solid var(--border); }
+  .confirm-modal-footer .btn{ flex:1; justify-content:center; }
+
+  input[type=file]{ color:#fff; font-size:12px; }
+
+  .brand-preview{
+    background:linear-gradient(180deg, #14141a, #0f0f12);
+    border:1px solid var(--border); border-radius:10px;
+    padding:16px 18px; display:flex; align-items:center; gap:12px;
+  }
+  .brand-preview .bp-mark{
+    width:44px; height:44px; border-radius:11px; flex:0 0 auto; overflow:hidden;
+    background:linear-gradient(135deg, var(--red), var(--red-hover));
+    display:flex; align-items:center; justify-content:center; font-size:22px;
+  }
+  .brand-preview .bp-mark img{ display:block; width:100%; height:100%; object-fit:cover; border-radius:11px; }
+  .brand-preview .bp-info{ min-width:0; }
+  .brand-preview .bp-name{ font-weight:900; font-size:16px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .brand-preview .bp-sub{ font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1.2px; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  .modal-section-title{
+    font-size:12px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:1px;
+    margin:22px 0 10px; padding-top:16px; border-top:1px solid var(--border);
+  }
+  .item-modal-grid{ display:grid; grid-template-columns:1fr 240px; gap:20px; align-items:start; }
+  @media (max-width:680px){ .item-modal-grid{ grid-template-columns:1fr; } }
+  .item-text-col{ display:flex; flex-direction:column; gap:14px; min-width:0; }
+  .item-image-col{ display:flex; flex-direction:column; gap:10px; }
+  .item-image-preview{
+    width:100%; aspect-ratio:90/100; border-radius:10px; overflow:hidden;
+    background:linear-gradient(180deg, #14141a, #0f0f12); border:1px dashed var(--border-2);
+    display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px;
+    text-align:center; padding:10px; line-height:1.5;
+  }
+  .item-image-preview img{ width:100%; height:100%; object-fit:cover; display:block; }
+  /* Vista previa del carrusel: horizontal 16:9 (igual que el banner real) */
+  .item-image-preview-wide{ aspect-ratio:16/9; position:relative; padding:0; }
+  .item-image-preview-wide .preview-msg{ padding:10px; }
+  .item-image-preview-wide .preview-dims{
+    position:absolute; right:8px; bottom:8px; z-index:2;
+    background:rgba(0,0,0,.72); color:#fff; font-size:11px; font-weight:600;
+    padding:3px 8px; border-radius:999px; line-height:1.4; pointer-events:none;
+  }
+  .item-image-preview-wide .preview-dims.low{ background:rgba(229,9,20,.9); }
+  #loginBgPreviewBox{ position:relative; }
+  #loginBgPreviewBox img{ filter:blur(5px) brightness(.6) saturate(1.15); transform:scale(1.1); }
+  #loginBgPreviewBox::after{
+    content:'Vista previa con el efecto aplicado'; position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center; text-align:center; padding:10px;
+    font-size:11px; color:rgba(255,255,255,.75); pointer-events:none;
+  }
+  #loginBgPreviewBox:empty::after, #loginBgPreviewBox:not(:has(img))::after{ content:none; }
+  .player-logo-preview{
+    background:linear-gradient(180deg, #14141a, #0f0f12);
+    border:1px solid var(--border); border-radius:10px;
+    padding:12px 16px; display:flex; align-items:center; gap:10px; margin-bottom:14px;
+  }
+  .player-logo-preview .plp-mark{
+    width:32px; height:32px; border-radius:8px; flex:0 0 auto; overflow:hidden;
+    background:rgba(229,9,20,.08); border:1px solid rgba(229,9,20,.25); color:var(--red);
+    display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:900;
+  }
+  .player-logo-preview .plp-mark img{ display:block; width:100%; height:100%; object-fit:cover; border-radius:8px; }
+  .player-logo-preview .plp-label{ font-size:12px; color:var(--muted); }
+
+  /* Overlay que cubre TODO mientras se confirma que esta sesión
+     pertenece a este navegador (evita mostrar el panel si el link
+     se copió/pegó desde otro navegador). */
+  .device-check-overlay{
+    position:fixed; inset:0; z-index:9999; background:var(--bg);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:14px; color:var(--muted); font-size:13px;
+  }
+  .device-check-spinner{
+    width:34px; height:34px; border-radius:50%;
+    border:3px solid var(--border-2); border-top-color:var(--red);
+    animation:dcspin .8s linear infinite;
+  }
+  @keyframes dcspin{ to{ transform:rotate(360deg); } }
+  /* Pestañas dentro de un modal */
+  .modal-tabs{ display:flex; gap:4px; padding:0 18px; border-bottom:1px solid var(--border); overflow-x:auto; }
+  .modal-tab{
+    padding:11px 14px; background:transparent; border:none; border-bottom:2px solid transparent;
+    color:var(--muted); font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; transition:.15s;
+  }
+  .modal-tab:hover{ color:#e8e8ea; }
+  .modal-tab.active{ color:#fff; border-bottom-color:var(--red); }
+  .mt-hide{ display:none !important; }
+</style>
+</head>
+<body>
+
+  <div class="device-check-overlay" id="deviceCheckOverlay">
+    <div class="device-check-spinner"></div>
+    <div>Verificando sesión...</div>
+  </div>
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark" id="brandMarkTop">
+        <? if (brand.brandLogoUrl) { ?>
+          <img src="<?= brand.brandLogoUrl ?>" alt="Logo" onerror="this.parentNode.textContent='<?= String(brand.brandName || 'S').charAt(0).toUpperCase() ?>';" />
+        <? } else { ?>
+          <?= String(brand.brandName || 'S').charAt(0).toUpperCase() ?>
+        <? } ?>
+      </div>
+      <div class="brand-info">
+        <div class="brand-name" id="brandNameTop" title="<?= brand.brandName ?>"><?= brand.brandName ?></div>
+        <div class="brand-sub" id="brandSubTop" title="<?= brand.brandSubname ?>">
+          <?= brand.brandSubname ?><span class="dot">•</span>Panel de administración
+        </div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="btn btn-ghost" id="refreshAdminBtn" onclick="refreshAdminData()">🔄 Actualizar</button>
+      <a class="btn btn-outline" href="<?= baseUrl ?>" target="_blank">👁️ Ver como usuario</a>
+      <button class="btn btn-ghost" onclick="openBrandModal()">🎨 Personalizar</button>
+      <button class="btn btn-ghost" onclick="openNotifModal()">🔔 Notificar</button>
+      <button class="btn btn-ghost" onclick="openPasswordModal()">🔒 Contraseña</button>
+      <button class="btn btn-outline" onclick="doLogout()">Salir</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <div class="tabs">
+      <button class="tab active" id="tabContent" onclick="switchTab('content')">🎬 Contenido</button>
+      <button class="tab" id="tabUsers" onclick="switchTab('users')">👥 Usuarios</button>
+      <button class="tab" id="tabAds" onclick="switchTab('ads')">📢 Publicidad</button>
+    </div>
+
+    <!-- ===== SECCIÓN CONTENIDO ===== -->
+    <div id="contentSection">
+      <div class="stats" id="statsRow"></div>
+
+      <div class="toolbar">
+        <input type="text" id="searchInput" placeholder="🔍 Buscar por nombre, categoría o descripción..." oninput="renderGrid()" />
+        <select id="categoryFilter" onchange="renderGrid()">
+          <option value="">Todas las categorías</option>
+        </select>
+        <select id="sortModeSelect" title="Cómo se ordena el contenido para los usuarios">
+          <option value="manual">↕️ Orden manual</option>
+          <option value="name_asc">🔤 Nombre (A-Z)</option>
+          <option value="name_desc">🔤 Nombre (Z-A)</option>
+          <option value="date_desc">🗓️ Más reciente primero</option>
+          <option value="date_asc">🗓️ Más antiguo primero</option>
+          <option value="featured_first">⭐ Destacados primero</option>
+        </select>
+        <button class="btn btn-outline" onclick="applyBulkSort()">🔀 Aplicar orden</button>
+        <div class="spacer"></div>
+        <label class="btn btn-outline">⬆️ Importar JSON<input type="file" id="importInput" accept="application/json" hidden onchange="handleImport(event)"></label>
+        <button class="btn btn-outline" onclick="exportJson()">⬇️ Exportar</button>
+        <button class="btn btn-primary" onclick="openItemModal()">➕ Agregar contenido</button>
+      </div>
+      <p class="field-hint" style="margin:-10px 0 16px;">
+        El orden elegido aquí es el que verán los usuarios en el catálogo (dentro de cada categoría). También puedes fijar un orden manual desde "Editar" en cada elemento.
+      </p>
+
+      <div class="chip-row" id="typeChips">
+        <span class="chip active" data-type="all" onclick="setTypeFilter('all')">Todos</span>
+        <span class="chip" data-type="video" onclick="setTypeFilter('video')">🎬 Videos</span>
+        <span class="chip" data-type="audio" onclick="setTypeFilter('audio')">🎵 Audios</span>
+        <span class="chip" data-type="image" onclick="setTypeFilter('image')">🖼️ Imágenes</span>
+        <span class="chip" data-type="other" onclick="setTypeFilter('other')">📄 Otros</span>
+      </div>
+
+      <div id="gridWrap">
+        <div class="grid" id="grid"></div>
+        <div class="empty" id="emptyState" style="display:none;">No hay contenido que coincida con el filtro. Agrega el primero con "➕ Agregar contenido".</div>
+      </div>
+    </div>
+
+    <!-- ===== SECCIÓN PUBLICIDAD ===== -->
+    <div id="adsSection" style="display:none;">
+      <div style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:18px;">
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px;">⚙️ Configuración de publicidad</div>
+        <p class="field-hint" style="margin:0 0 14px;">Los anuncios se muestran dentro del reproductor (como en YouTube): el audio/video se detiene con un efecto, entra el anuncio y al terminar continúa donde estaba.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:18px;margin-bottom:14px;">
+          <label class="checkbox-row"><input type="checkbox" id="adsCfgEnabled" /> Publicidad activada</label>
+          <label class="checkbox-row"><input type="checkbox" id="adsCfgPreRoll" /> Anuncio al iniciar (pre-roll)</label>
+          <label class="checkbox-row"><input type="checkbox" id="adsCfgRandom" /> Modo aleatorio (anuncio e intervalo al azar)</label>
+          <label class="checkbox-row"><input type="checkbox" id="adsCfgGuests" /> Mostrar a visitantes sin cuenta</label>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:12px;">
+          <div class="field"><label>Cada (min) — mínimo</label><input type="number" id="adsCfgMin" min="0.2" step="0.1" value="10" /></div>
+          <div class="field"><label>Cada (min) — máximo</label><input type="number" id="adsCfgMax" min="0.2" step="0.1" value="20" /></div>
+          <div class="field"><label>Saltar tras (seg)</label><input type="number" id="adsCfgSkip" min="0" max="60" step="1" value="5" /></div>
+          <div class="field"><label>Duración imagen (seg)</label><input type="number" id="adsCfgImgDur" min="2" max="120" step="1" value="8" /></div>
+        </div>
+        <p class="field-hint" style="margin:0 0 12px;">Para elegir a qué usuarios se les muestra, edita cada usuario en la pestaña Usuarios (casilla "Mostrar publicidad"; 📢 en su nombre = recibe anuncios). Intervalo = minutos de reproducción real entre anuncios. En modo aleatorio se elige un valor al azar entre mínimo y máximo cada vez; sin aleatorio se usa el mínimo y los anuncios rotan en orden. "Saltar tras" en 0 = no se puede saltar.</p>
+        <div class="form-error" id="adsCfgError"></div>
+        <button class="btn btn-primary" id="adsCfgSaveBtn" onclick="saveAdsConfig()">💾 Guardar configuración</button>
+      </div>
+
+      <div class="toolbar">
+        <div id="adsCount" style="font-size:13px;color:var(--muted);"></div>
+        <div class="spacer"></div>
+        <button class="btn btn-primary" onclick="openAdModal()">➕ Agregar anuncio</button>
+      </div>
+      <div id="adsList" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+
+    <!-- ===== SECCIÓN USUARIOS ===== -->
+    <div id="usersSection" style="display:none;">
+      <div class="stats" id="userStatsRow"></div>
+
+      <div class="toolbar">
+        <input type="text" id="userSearchInput" placeholder="🔍 Buscar por nombre, usuario o email..." oninput="renderUsers()" />
+        <select id="userRoleFilter" onchange="renderUsers()">
+          <option value="">Todos los roles</option>
+          <option value="admin">Administradores</option>
+          <option value="usuario">Usuarios</option>
+        </select>
+        <select id="userEstadoFilter" onchange="renderUsers()">
+          <option value="">Todos los estados</option>
+          <option value="activo">Activos</option>
+          <option value="suspendido">Suspendidos</option>
+        </select>
+        <div class="spacer"></div>
+        <button class="btn btn-primary" onclick="openUserModal()">➕ Crear usuario</button>
+      </div>
+
+      <div id="usersWrap">
+        <div class="table-scroll">
+          <table class="users-table" id="usersTable">
+            <thead>
+              <tr>
+                <th>Usuario</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Dispositivos</th>
+                <th>Creado</th>
+                <th style="text-align:right;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="usersEmptyState" style="display:none;">No hay usuarios que coincidan con el filtro.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== Modal Agregar/Editar Contenido ===== -->
+  <div class="modal-overlay" id="itemModalOverlay">
+    <div class="modal" style="max-width:760px;">
+      <div class="modal-header">
+        <h2 id="itemModalTitle">Agregar contenido</h2>
+        <button class="modal-close" onclick="closeItemModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="itemId" />
+        <div class="item-modal-grid">
+          <div class="item-text-col">
+            <div class="field">
+              <label>Nombre</label>
+              <input type="text" id="itemNombre" placeholder="Ej: Capítulo 1 - Piloto" />
+            </div>
+            <div class="field">
+              <label>URL del archivo o enlace externo</label>
+              <input type="url" id="itemUrl" placeholder="https://... (video, audio, imagen, m3u8, Drive, Dropbox...)" onblur="autoDetect()" />
+              <div class="field-hint">💡 Acepta cualquier URL http(s). Dropbox se convierte a descarga directa.</div>
+            </div>
+            <div class="row-2">
+              <div class="field">
+                <label>Tipo</label>
+                <select id="itemTipo">
+                  <option value="video">🎬 Video</option>
+                  <option value="audio">🎵 Audio</option>
+                  <option value="image">🖼️ Imagen</option>
+                  <option value="other">📄 Otro (enlace externo)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Categoría</label>
+                <input type="text" id="itemCategoria" list="categoryList" placeholder="Ej: Series, Promos..." />
+                <datalist id="categoryList"></datalist>
+              </div>
+            </div>
+            <div class="field">
+              <label>Descripción (opcional)</label>
+              <select id="itemDescripcionExisting" onchange="applyExistingDescription()" style="margin-bottom:8px;">
+                <option value="">↺ Reutilizar una descripción ya ingresada...</option>
+              </select>
+              <textarea id="itemDescripcion" placeholder="Sinopsis... También puedes pegar URLs (https://...) y se mostrarán como enlaces clicables, o URLs de imagen (.jpg, .png, .gif, .webp...) y se mostrarán como imagen."></textarea>
+              <div class="field-hint">🖼️ Si pegas una URL que termina en .jpg, .png, .gif, .webp, etc. se mostrará como imagen dentro de la descripción (además de la miniatura de la derecha).</div>
+            </div>
+            <div class="row-2">
+              <div class="field">
+                <label>Orden (menor = primero)</label>
+                <input type="number" id="itemOrden" value="0" />
+              </div>
+              <div class="checkbox-row" style="margin-top:26px;">
+                <input type="checkbox" id="itemDestacado" />
+                <label style="margin:0;">Mostrar en el banner destacado</label>
+              </div>
+            </div>
+          </div>
+          <div class="item-image-col">
+            <div class="field">
+              <label>Imagen / miniatura (URL, opcional)</label>
+              <input type="url" id="itemMiniatura" placeholder="https://..." oninput="updateItemMiniaturaPreview()" />
+              <div class="field-hint">Se muestra como miniatura del contenido. Déjalo vacío si no quieres imagen.</div>
+            </div>
+            <div class="item-image-preview" id="itemMiniaturaPreview">Sin imagen</div>
+            <div class="field" style="margin-top:14px;">
+              <label>Imagen del carrusel (URL, opcional)</label>
+              <input type="url" id="itemMiniaturaCarrusel" placeholder="https://..." oninput="updateItemMiniaturaCarruselPreview()" />
+              <div class="field-hint">Imagen horizontal y grande (ej. 1920×1080) para el banner destacado. Si la dejas vacía, el carrusel usa la imagen de arriba.</div>
+            </div>
+            <div class="item-image-preview item-image-preview-wide" id="itemMiniaturaCarruselPreview">Sin imagen</div>
+          </div>
+        </div>
+        <div class="form-error" id="itemFormError"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeItemModal()">Cancelar</button>
+        <button class="btn btn-primary" id="itemSaveBtn" onclick="saveItem()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modal Crear/Editar Usuario ===== -->
+  <div class="modal-overlay" id="userModalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="userModalTitle">Crear usuario</h2>
+        <button class="modal-close" onclick="closeUserModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="userId" />
+        <div class="field">
+          <label>Nombre completo</label>
+          <input type="text" id="userNombre" placeholder="Ej: Juan Pérez" />
+        </div>
+        <div class="field">
+          <label>Email (opcional)</label>
+          <input type="email" id="userEmail" placeholder="juan@ejemplo.com" />
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Usuario (para login)</label>
+            <input type="text" id="userUsuario" placeholder="juanperez" autocomplete="off" />
+            <div class="field-hint">3-32 caracteres. Letras, números, punto, guion o guion bajo.</div>
+          </div>
+          <div class="field">
+            <label id="userPassLabel">Contraseña</label>
+            <input type="password" id="userPassword" placeholder="••••••" autocomplete="new-password" />
+            <div class="field-hint" id="userPassHint">Mínimo 4 caracteres.</div>
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Rol</label>
+            <select id="userRol">
+              <option value="usuario">Usuario</option>
+              <option value="admin">Administrador</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Estado</label>
+            <select id="userEstado">
+              <option value="activo">Activo</option>
+              <option value="suspendido">Suspendido</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Límite de dispositivos conectados a la vez</label>
+          <input type="number" id="userDeviceLimit" min="0" step="1" placeholder="Por defecto" />
+          <div class="field-hint">Vacío = usa el límite general del sistema. 0 = sin límite. Ej: 1 para permitir solo un dispositivo por vez y evitar que otras personas entren con la misma cuenta.</div>
+        </div>
+        <div class="field">
+          <label class="checkbox-row"><input type="checkbox" id="userPublicidad" checked /> 📢 Mostrar publicidad a este usuario</label>
+          <div class="field-hint">Si lo desmarcas, este usuario nunca verá anuncios (aunque la publicidad esté activada).</div>
+        </div>
+        <div class="form-error" id="userFormError"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeUserModal()">Cancelar</button>
+        <button class="btn btn-primary" id="userSaveBtn" onclick="saveUser()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modal Dispositivos conectados ===== -->
+  <div class="modal-overlay" id="devicesModalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Dispositivos conectados<br><span style="font-size:12px;color:var(--muted);font-weight:400;" id="devicesModalUser"></span></h2>
+        <button class="modal-close" onclick="closeDevicesModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="devicesModalList"></div>
+        <div class="form-error" id="devicesModalError"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" id="devicesModalCloseAllBtn" onclick="closeAllDevicesForCurrentUser()">Cerrar todas las sesiones</button>
+        <button class="btn btn-outline" onclick="closeDevicesModal()">Listo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modal Anuncio ===== -->
+  <div class="modal-overlay" id="adModalOverlay">
+    <div class="modal" style="max-width:500px;">
+      <div class="modal-header">
+        <h2 id="adModalTitle">📢 Agregar anuncio</h2>
+        <button class="modal-close" onclick="closeAdModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="adId" />
+        <div class="field"><label>Nombre del anuncio *</label><input type="text" id="adNombre" maxlength="80" placeholder="Ej: Promo verano" /></div>
+        <div class="field">
+          <label>URL del video o imagen *</label>
+          <input type="text" id="adUrl" placeholder="https://..." />
+          <div class="field-hint">Link directo (mp4, jpg, png...) o link de compartir de Drive/Dropbox. Puedes crear varios anuncios con distintas URL.</div>
+        </div>
+        <div class="row-2" style="display:grid;gap:14px;">
+          <div class="field"><label>Tipo</label>
+            <select id="adTipo"><option value="auto">Automático</option><option value="video">🎬 Video</option><option value="image">🖼️ Imagen</option></select>
+          </div>
+          <div class="field"><label>Duración (seg)</label><input type="number" id="adDuracion" min="0" max="600" step="1" value="0" />
+            <div class="field-hint">Imagen: 0 = usa la general. Video: 0 = completo.</div></div>
+        </div>
+        <div class="field"><label>Enlace al hacer clic (opcional)</label><input type="text" id="adEnlace" placeholder="https://..." /></div>
+        <div class="row-2" style="display:grid;gap:14px;">
+          <div class="field"><label>Estado</label>
+            <select id="adEstado"><option value="activo">Activo</option><option value="pausado">Pausado</option></select>
+          </div>
+          <div class="field"><label>Orden</label><input type="number" id="adOrden" step="1" value="0" /></div>
+        </div>
+        <div class="form-error" id="adFormError"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeAdModal()">Cancelar</button>
+        <button class="btn btn-primary" id="adSaveBtn" onclick="saveAd()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modal Notificaciones ===== -->
+  <div class="modal-overlay" id="notifModalOverlay">
+    <div class="modal" style="max-width:480px;">
+      <div class="modal-header">
+        <h2>🔔 Notificar a usuarios</h2>
+        <button class="modal-close" onclick="closeNotifModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label>Mensaje para todos los usuarios</label>
+          <textarea id="notifMensaje" placeholder="Ej: Nuevo capítulo disponible esta noche 🎬" maxlength="300"></textarea>
+        </div>
+        <div class="form-error" id="notifFormError"></div>
+        <button class="btn btn-primary" id="notifSendBtn" onclick="sendNotificacion()" style="align-self:flex-start;">Enviar notificación</button>
+        <div style="margin-top:10px;border-top:1px solid var(--border);padding-top:14px;">
+          <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:8px;">Historial enviado</label>
+          <div id="notifList" style="display:flex;flex-direction:column;gap:8px;max-height:240px;overflow-y:auto;"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeNotifModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modal Cambiar contraseña admin ===== -->
+  <div class="modal-overlay" id="passModalOverlay">
+    <div class="modal" style="max-width:400px;">
+      <div class="modal-header">
+        <h2>Cambiar contraseña de admin</h2>
+        <button class="modal-close" onclick="closePasswordModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="field"><label>Contraseña actual</label><input type="password" id="oldPass" /></div>
+        <div class="field"><label>Nueva contraseña</label><input type="password" id="newPass" /></div>
+        <div class="field"><label>Confirmar nueva contraseña</label><input type="password" id="newPass2" /></div>
+        <div class="form-error" id="passFormError"></div>
+        <div class="form-success" id="passFormSuccess"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closePasswordModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="savePassword()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modal Personalizar marca ===== -->
+  <div class="modal-overlay" id="brandModalOverlay">
+    <div class="modal" style="max-width:560px;">
+      <div class="modal-header">
+        <h2>🎨 Personalizar marca</h2>
+        <button class="modal-close" onclick="closeBrandModal()">×</button>
+      </div>
+      <div class="modal-body" id="brandModalBody">
+        <div class="brand-preview">
+          <div class="bp-mark" id="bpMark">
+            <? if (brand.brandLogoUrl) { ?>
+              <img src="<?= brand.brandLogoUrl ?>" alt="Logo" onerror="this.parentNode.textContent='<?= String(brand.brandName || 'S').charAt(0).toUpperCase() ?>';" />
+            <? } else { ?>
+              <?= String(brand.brandName || 'S').charAt(0).toUpperCase() ?>
+            <? } ?>
+          </div>
+          <div class="bp-info">
+            <div class="bp-name" id="brandPreviewName"><?= brand.brandName ?></div>
+            <div class="bp-sub" id="brandPreviewSub"><?= brand.brandSubname ?></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Nombre del sistema</label>
+          <input type="text" id="brandNameInput" maxlength="40" value="<?= brand.brandName ?>" oninput="updateBrandPreview()" />
+        </div>
+        <div class="field">
+          <label>Sub-nombre / lema</label>
+          <input type="text" id="brandSubnameInput" maxlength="60" value="<?= brand.brandSubname ?>" oninput="updateBrandPreview()" />
+        </div>
+        <div class="field">
+          <label>URL del ícono / logo (opcional)</label>
+          <input type="url" id="brandLogoInput" maxlength="500" value="<?= brand.brandLogoUrl ?>" oninput="updateBrandPreview()" placeholder="https://.../logo.png" />
+          <div class="field-hint">Si se deja vacío, se usará la inicial de tu marca por defecto.</div>
+        </div>
+        <div id="brandLogoWarning" style="display:none;color:#ff8080;font-size:12px;">
+          ⚠️ No se pudo cargar la imagen. Verifica que la URL sea pública.
+        </div>
+
+        <div class="modal-section-title">🎞️ Logo del reproductor</div>
+        <div class="player-logo-preview">
+          <div class="plp-mark" id="plpMark">
+            <? if (brand.playerLogoUrl) { ?>
+              <img src="<?= brand.playerLogoUrl ?>" alt="Logo reproductor" onerror="this.parentNode.textContent='<?= String(brand.brandName || 'S').charAt(0).toUpperCase() ?>';" />
+            <? } else { ?>
+              <?= String(brand.brandName || 'S').charAt(0).toUpperCase() ?>
+            <? } ?>
+          </div>
+          <div class="plp-label">Así se verá en la barra del reproductor</div>
+        </div>
+        <div class="field">
+          <label>URL del logo del reproductor (opcional)</label>
+          <input type="url" id="playerLogoInput" maxlength="500" value="<?= brand.playerLogoUrl ?>" oninput="updatePlayerLogoPreview()" placeholder="https://.../logo-reproductor.png" />
+          <div class="field-hint">Independiente del logo principal del sistema. Si se deja vacío, se usará el logo principal (o la inicial de tu marca por defecto).</div>
+        </div>
+        <div id="playerLogoWarning" style="display:none;color:#ff8080;font-size:12px;">
+          ⚠️ No se pudo cargar la imagen. Verifica que la URL sea pública.
+        </div>
+
+        <div class="modal-section-title">🔑 Página de inicio de sesión</div>
+        <div class="item-image-preview" id="loginBgPreviewBox" style="aspect-ratio:16/7;margin-bottom:14px;">
+          <? if (brand.loginBgUrl) { ?>
+            <img src="<?= brand.loginBgUrl ?>" alt="Fondo de login" />
+          <? } else { ?>
+            Sin imagen de fondo
+          <? } ?>
+        </div>
+        <div class="field">
+          <label>URL de imagen de fondo del login (opcional)</label>
+          <input type="url" id="loginBgInput" maxlength="500" value="<?= brand.loginBgUrl ?>" oninput="updateLoginBgPreview()" placeholder="https://.../fondo.jpg" />
+          <div class="field-hint">Se aplica en las pantallas de acceso (admin y usuarios). Si se deja vacío, se usa el degradado por defecto.</div>
+        </div>
+        <div id="loginBgWarning" style="display:none;color:#ff8080;font-size:12px;">
+          ⚠️ No se pudo cargar la imagen. Verifica que la URL sea pública.
+        </div>
+        <div class="field">
+          <label>Texto de ayuda en el login de usuarios (opcional)</label>
+          <input type="text" id="loginHintInput" maxlength="200" value="<?= brand.loginHintText ?>" placeholder="Ej: ¿No tienes cuenta? Pídele acceso al administrador." />
+          <div class="field-hint">Aparece debajo del formulario de inicio de sesión de usuarios. Bórralo y guarda para quitarlo por completo.</div>
+        </div>
+
+        <div class="modal-section-title">📱 Redes sociales (login de usuarios)</div>
+        <div class="field-hint" style="margin-bottom:10px;">Todas son opcionales. Solo se muestra el ícono de las redes que tengan una URL cargada, debajo del formulario de inicio de sesión de usuarios.</div>
+        <div class="field">
+          <label>▶️ YouTube</label>
+          <input type="url" id="socialYoutubeInput" maxlength="300" value="<?= brand.socialYoutubeUrl ?>" placeholder="https://youtube.com/@tucanal" />
+        </div>
+        <div class="field">
+          <label>📘 Facebook</label>
+          <input type="url" id="socialFacebookInput" maxlength="300" value="<?= brand.socialFacebookUrl ?>" placeholder="https://facebook.com/tupagina" />
+        </div>
+        <div class="field">
+          <label>💬 WhatsApp</label>
+          <input type="url" id="socialWhatsappInput" maxlength="300" value="<?= brand.socialWhatsappUrl ?>" placeholder="https://wa.me/51927027986" />
+        </div>
+        <div class="field">
+          <label>✈️ Telegram</label>
+          <input type="url" id="socialTelegramInput" maxlength="300" value="<?= brand.socialTelegramUrl ?>" placeholder="https://t.me/tucanal" />
+        </div>
+        <div class="field">
+          <label>🎵 TikTok</label>
+          <input type="url" id="socialTiktokInput" maxlength="300" value="<?= brand.socialTiktokUrl ?>" placeholder="https://tiktok.com/@tuusuario" />
+        </div>
+        <div class="field">
+          <label>📷 Instagram</label>
+          <input type="url" id="socialInstagramInput" maxlength="300" value="<?= brand.socialInstagramUrl ?>" placeholder="https://instagram.com/tuusuario" />
+        </div>
+
+        <div class="form-error" id="brandFormError"></div>
+        <div class="form-success" id="brandFormSuccess"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeBrandModal()">Cancelar</button>
+        <button class="btn btn-primary" id="brandSaveBtn" onclick="saveBrand()">Guardar marca</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="confirmModalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="confirmModalTitle">Confirmar acción</h2>
+        <button class="modal-close" onclick="closeConfirmModal(false)">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="confirm-icon" id="confirmModalIcon">⚠️</div>
+        <p class="confirm-text" id="confirmModalMsg"></p>
+      </div>
+      <div class="confirm-modal-footer">
+        <button class="btn btn-outline" onclick="closeConfirmModal(false)">Cancelar</button>
+        <button class="btn btn-danger" id="confirmModalOkBtn" onclick="closeConfirmModal(true)">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+  // (aquí va TODO el JavaScript — bloque 4B)
+    var TOKEN = "<?= token ?>";
+  var BASE_URL = "<?= baseUrl ?>";
+
+  // ============================================================
+  //  EVITAR VISTA CACHEADA AL VOLVER CON "ATRÁS" (bfcache)
+  //  Si el navegador restaura esta página desde su caché (por
+  //  ejemplo tras cerrar sesión y pulsar "atrás"), forzamos una
+  //  recarga real contra el servidor para que vuelva a validar
+  //  el token. Si ya no es válido, doGet() mostrará el login.
+  // ============================================================
+  window.addEventListener('pageshow', function(event){
+    if (event.persisted){
+      window.location.reload();
+    }
+  });
+
+  var allMedia = [];
+  var allUsers = [];
+  var deviceSummary = null;
+  var typeFilter = 'all';
+  var currentTab = 'content';
+
+  // ============================================================
+  //  ANTI-COPIA DE SESIÓN ENTRE NAVEGADORES
+  //  El token de sesión llega por la URL, así que copiar el link
+  //  a otro navegador también "copiaba" la sesión iniciada. Para
+  //  evitarlo, cada sesión queda atada a un identificador propio
+  //  del navegador (guardado en localStorage, NO en la URL). Si
+  //  el navegador que abre el link no tiene ese identificador, la
+  //  sesión se cierra automáticamente.
+  // ============================================================
+  function getDeviceId_(){
+    var KEY = 'sf_device_id';
+    try {
+      var id = localStorage.getItem(KEY);
+      if(!id){
+        id = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,12);
+        localStorage.setItem(KEY, id);
+      }
+      return id;
+    } catch(e){
+      try {
+        var sid = sessionStorage.getItem(KEY);
+        if(!sid){
+          sid = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,12);
+          sessionStorage.setItem(KEY, sid);
+        }
+        return sid;
+      } catch(e2){
+        return 'dev_nostorage_' + Date.now().toString(36);
+      }
+    }
+  }
+
+  function bootAdmin(){
+    google.script.run
+      .withSuccessHandler(function(match){
+        if(!match){
+          // No coincide el dispositivo: NO se revela el panel, se
+          // manda directo al login manteniendo el overlay encima.
+          window.top.location.href = BASE_URL + '?page=admin';
+          return;
+        }
+        var overlay = document.getElementById('deviceCheckOverlay');
+        if(overlay) overlay.remove();
+        loadAll();
+      })
+      .withFailureHandler(function(){
+        window.top.location.href = BASE_URL + '?page=admin';
+      })
+      .checkSessionDevice(TOKEN, getDeviceId_());
+  }
+
+  function toast(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(function(){ t.classList.remove('show'); }, 2600);
+  }
+
+  // ============================================================
+  //  MODAL DE CONFIRMACIÓN (reemplaza window.confirm, que se ve
+  //  como un popup feo del navegador). Uso:
+  //    customConfirm('¿Seguro?', function(){ ...acción... });
+  //  Opcional tercer parámetro para personalizar título/botón:
+  //    customConfirm('¿Seguro?', cb, {title:'...', okText:'...'});
+  // ============================================================
+  var _confirmCallback = null;
+  function customConfirm(msg, onConfirm, opts){
+    opts = opts || {};
+    document.getElementById('confirmModalMsg').textContent = msg;
+    document.getElementById('confirmModalTitle').textContent = opts.title || 'Confirmar acción';
+    var okBtn = document.getElementById('confirmModalOkBtn');
+    okBtn.textContent = opts.okText || 'Confirmar';
+    okBtn.className = 'btn ' + (opts.okClass || 'btn-danger');
+    _confirmCallback = (typeof onConfirm === 'function') ? onConfirm : null;
+    document.getElementById('confirmModalOverlay').classList.add('open');
+  }
+  function closeConfirmModal(confirmed){
+    document.getElementById('confirmModalOverlay').classList.remove('open');
+    var cb = _confirmCallback;
+    _confirmCallback = null;
+    if(confirmed && cb) cb();
+  }
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+    });
+  }
+
+  // Espejo de normalizeImageUrl_ en Code.gs: convierte links de "compartir"
+  // de Drive/Dropbox al formato que sirve como src de una <img>. Se usa
+  // aquí para que la vista previa (mientras el admin escribe la URL) sea
+  // fiel a lo que realmente se va a guardar y mostrar; si no se hiciera
+  // esta misma conversión en el cliente, la vista previa probaba la URL
+  // "cruda" (la página de Drive/Dropbox), fallaba, y mostraba la
+  // advertencia de "no se pudo cargar" aunque la URL guardada sí
+  // funcionara para los usuarios.
+  function normalizeImageUrlPreview_(url){
+    url = String(url || '').trim();
+    if(!url) return url;
+    if(url.indexOf('dropbox.com') !== -1){
+      if(/[?&]dl=0\b/.test(url)) return url.replace(/([?&])dl=0\b/, '$1dl=1');
+      if(!/[?&]dl=1\b/.test(url)) return url + (url.indexOf('?') === -1 ? '?dl=1' : '&dl=1');
+      return url;
+    }
+    if(url.indexOf('drive.google.com') !== -1){
+      var m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if(m && m[1]) return 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w1000';
+    }
+    return url;
+  }
+
+  // ===== TABS =====
+  function switchTab(tab){
+    currentTab = tab;
+    document.getElementById('tabContent').classList.toggle('active', tab === 'content');
+    document.getElementById('tabUsers').classList.toggle('active', tab === 'users');
+    document.getElementById('tabAds').classList.toggle('active', tab === 'ads');
+    document.getElementById('contentSection').style.display = tab === 'content' ? '' : 'none';
+    document.getElementById('usersSection').style.display = tab === 'users' ? '' : 'none';
+    document.getElementById('adsSection').style.display = tab === 'ads' ? '' : 'none';
+    if(tab === 'users' && allUsers.length === 0) loadUsers();
+    if(tab === 'ads' && !adsLoaded_) loadAds();
+  }
+
+  // Recarga los datos de la pestaña activa (Contenido o Usuarios)
+  // sin necesidad de recargar toda la página.
+  function refreshAdminData(){
+    var btn = document.getElementById('refreshAdminBtn');
+    if(btn){ btn.disabled = true; btn.textContent = '🔄 Actualizando...'; }
+    var finish = function(){
+      if(btn){ btn.disabled = false; btn.textContent = '🔄 Actualizar'; }
+      toast('Datos actualizados.');
+    };
+    if(currentTab === 'users'){
+      loadUsers(finish);
+    } else if(currentTab === 'ads'){
+      loadAds(finish);
+    } else {
+      loadAll(finish);
+    }
+  }
+
+  // ===== CONTENIDO =====
+  function loadAll(onDone){
+    google.script.run.withSuccessHandler(function(data){
+      allMedia = data;
+      renderStats();
+      renderCategoryOptions();
+      renderDescripcionOptions();
+      renderGrid();
+      if(onDone) onDone();
+    }).withFailureHandler(function(e){
+      toast('Error cargando datos: ' + e.message);
+      if(onDone) onDone();
+    }).getMedia();
+  }
+
+  function renderStats(){
+    var total = allMedia.length;
+    var videos = allMedia.filter(function(m){ return m.tipo === 'video'; }).length;
+    var audios = allMedia.filter(function(m){ return m.tipo === 'audio' || m.tipo === 'audio.'; }).length;
+    var images = allMedia.filter(function(m){ return m.tipo === 'image'; }).length;
+    var destacados = allMedia.filter(function(m){ return m.destacado; }).length;
+    var cats = {}; allMedia.forEach(function(m){ if(m.categoria) cats[m.categoria]=1; });
+    document.getElementById('statsRow').innerHTML =
+      statCard(total,'Elementos') +
+      statCard(videos,'Videos') +
+      statCard(audios,'Audios') +
+      statCard(images,'Imágenes') +
+      statCard(Object.keys(cats).length,'Categorías') +
+      statCard(destacados,'Destacados');
+  }
+  function statCard(v,l){
+    return '<div class="stat-card"><div class="stat-value">'+v+'</div><div class="stat-label">'+l+'</div></div>';
+  }
+
+  function renderCategoryOptions(){
+    var cats = {}; allMedia.forEach(function(m){ if(m.categoria) cats[m.categoria]=1; });
+    var names = Object.keys(cats).sort();
+    var sel = document.getElementById('categoryFilter');
+    var current = sel.value;
+    sel.innerHTML = '<option value="">Todas las categorías</option>' +
+      names.map(function(c){ return '<option value="'+esc(c)+'">'+esc(c)+'</option>'; }).join('');
+    sel.value = current;
+    document.getElementById('categoryList').innerHTML =
+      names.map(function(c){ return '<option value="'+esc(c)+'">'; }).join('');
+  }
+
+  var existingDescriptions = [];
+  function renderDescripcionOptions(){
+    var seen = {};
+    existingDescriptions = [];
+    allMedia.forEach(function(m){
+      var d = (m.descripcion || '').trim();
+      if(!d || seen[d]) return;
+      seen[d] = true;
+      existingDescriptions.push(d);
+    });
+    var sel = document.getElementById('itemDescripcionExisting');
+    sel.innerHTML = '<option value="">↺ Reutilizar una descripción ya ingresada...</option>' +
+      existingDescriptions.map(function(d, i){
+        var label = d.length > 70 ? d.slice(0, 70) + '…' : d;
+        return '<option value="'+i+'">'+esc(label)+'</option>';
+      }).join('');
+  }
+  function applyExistingDescription(){
+    var sel = document.getElementById('itemDescripcionExisting');
+    var idx = sel.value;
+    if(idx === '') return;
+    var text = existingDescriptions[parseInt(idx, 10)];
+    if(text !== undefined){
+      document.getElementById('itemDescripcion').value = text;
+    }
+    sel.value = '';
+  }
+
+  function setTypeFilter(t){
+    typeFilter = t;
+    document.querySelectorAll('#typeChips .chip').forEach(function(c){ c.classList.toggle('active', c.dataset.type === t); });
+    renderGrid();
+  }
+
+  // ============================================================
+  //  ORDENAR CONTENIDO (visto por los usuarios)
+  //  El catálogo del usuario respeta el campo "Orden" de cada
+  //  elemento. Editarlo uno por uno es lento, así que este botón
+  //  recalcula automáticamente ese campo para TODO el contenido
+  //  según el criterio elegido (nombre, fecha, destacados...) y
+  //  lo guarda de una sola vez.
+  // ============================================================
+  function sortLabel_(mode){
+    return ({
+      name_asc: 'nombre (A-Z)',
+      name_desc: 'nombre (Z-A)',
+      date_desc: 'más reciente primero',
+      date_asc: 'más antiguo primero',
+      featured_first: 'destacados primero'
+    })[mode] || mode;
+  }
+  function applyBulkSort(){
+    var mode = document.getElementById('sortModeSelect').value;
+    if(mode === 'manual'){
+      toast('Elige un criterio de orden (nombre, fecha, destacados...) para aplicarlo.');
+      return;
+    }
+    if(allMedia.length === 0){ toast('No hay contenido para ordenar.'); return; }
+
+    var sorted = allMedia.slice();
+    switch(mode){
+      case 'name_asc':
+        sorted.sort(function(a,b){ return (a.nombre||'').localeCompare(b.nombre||'', 'es', {sensitivity:'base'}); });
+        break;
+      case 'name_desc':
+        sorted.sort(function(a,b){ return (b.nombre||'').localeCompare(a.nombre||'', 'es', {sensitivity:'base'}); });
+        break;
+      case 'date_desc':
+        sorted.sort(function(a,b){ return new Date(b.fecha||0) - new Date(a.fecha||0); });
+        break;
+      case 'date_asc':
+        sorted.sort(function(a,b){ return new Date(a.fecha||0) - new Date(b.fecha||0); });
+        break;
+      case 'featured_first':
+        sorted.sort(function(a,b){
+          if(!!b.destacado !== !!a.destacado) return (b.destacado?1:0) - (a.destacado?1:0);
+          return (a.nombre||'').localeCompare(b.nombre||'', 'es', {sensitivity:'base'});
+        });
+        break;
+      default:
+        return;
+    }
+
+    customConfirm(
+      'Se reordenará TODO el contenido (' + sorted.length + ' elementos) por ' + sortLabel_(mode) + '. Esto sobrescribirá el orden manual actual. ¿Continuar?',
+      function(){
+        var payload = sorted.map(function(m, i){ return { id: m.id, orden: i }; });
+        google.script.run
+          .withSuccessHandler(function(res){
+            if(res.ok){
+              toast('Contenido reordenado.');
+              loadAll();
+            } else {
+              toast(res.error || 'No se pudo reordenar.');
+            }
+          })
+          .withFailureHandler(function(e){ toast('Error: ' + e.message); })
+          .reorderMedia(TOKEN, payload);
+      },
+      {title:'Ordenar contenido', okText:'Reordenar'}
+    );
+  }
+
+  function isExternalUrl(url){
+    if(!url) return false;
+    return /^https?:\/\//i.test(url) &&
+      !/\.(mp4|webm|mov|mkv|avi|m4v|ogv|m3u8|ts|mp3|wav|ogg|oga|m4a|aac|flac|opus|weba|audio|jpg|jpeg|png|gif|webp|svg|bmp|avif)$/i.test(url.split('?')[0]);
+  }
+
+  function renderGrid(){
+    var q = document.getElementById('searchInput').value.toLowerCase().trim();
+    var cat = document.getElementById('categoryFilter').value;
+    var list = allMedia.filter(function(m){
+      var tipo = m.tipo === 'audio.' ? 'audio' : m.tipo;
+      if(typeFilter !== 'all' && tipo !== typeFilter) return false;
+      if(cat && m.categoria !== cat) return false;
+      if(q){
+        var hay = (m.nombre+' '+m.categoria+' '+m.descripcion).toLowerCase();
+        if(hay.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+
+    var grid = document.getElementById('grid');
+    var empty = document.getElementById('emptyState');
+    if(list.length === 0){ grid.innerHTML=''; empty.style.display='block'; return; }
+    empty.style.display = 'none';
+
+    grid.innerHTML = list.map(function(m){
+      var thumbHtml;
+      if(m.miniatura){
+        thumbHtml = '<img src="'+esc(m.miniatura)+'" loading="lazy" />';
+      } else if(m.tipo === 'image'){
+        thumbHtml = '<img src="'+esc(m.url)+'" loading="lazy" />';
+      } else {
+        var icon = m.tipo === 'video' ? '🎬'
+                 : (m.tipo === 'audio' || m.tipo === 'audio.') ? '🎵'
+                 : '📄';
+        thumbHtml = '<span class="placeholder-icon">'+icon+'</span>';
+      }
+      var tipoLabel = m.tipo === 'video' ? '🎬 Video'
+                    : (m.tipo === 'audio' || m.tipo === 'audio.') ? '🎵 Audio'
+                    : m.tipo === 'image' ? '🖼️ Imagen'
+                    : '📄 Otro';
+      var external = isExternalUrl(m.url);
+      return '' +
+        '<div class="item-card">' +
+          '<div class="item-thumb">' +
+            (m.destacado ? '<span class="badge-destacado">Destacado</span>' : '') +
+            '<span class="badge-tipo">'+tipoLabel+'</span>' +
+            (external ? '<span class="badge-external">🔗 Externo</span>' : '') +
+            thumbHtml +
+          '</div>' +
+          '<div class="item-body">' +
+            '<div class="item-name" title="'+esc(m.nombre)+'">'+esc(m.nombre)+'</div>' +
+            '<div class="item-meta" title="'+esc(m.categoria || 'Sin categoría')+'">'+esc(m.categoria || 'Sin categoría')+'</div>' +
+          '</div>' +
+          '<div class="item-actions">' +
+            '<button class="btn btn-ghost btn-small" onclick="editItem(\''+m.id+'\')">✏️ Editar</button>' +
+            '<button class="btn btn-danger btn-small" onclick="removeItem(\''+m.id+'\')">🗑️ Eliminar</button>' +
+          '</div>' +
+        '</div>';
+    }).join('');
+  }
+
+  function detectType(url){
+    var clean = (url || '').split('?')[0].toLowerCase();
+    if (/\.(mp4|webm|mov|mkv|avi|m4v|ogv|m3u8|ts)$/.test(clean)) return 'video';
+    if (/\.(mp3|wav|ogg|oga|m4a|aac|flac|opus|weba|audio)$/.test(clean)) return 'audio';
+    if (/\.(jpg|jpeg|png|gif|webp|svg|bmp|avif)$/.test(clean)) return 'image';
+    return 'other';
+  }
+  function fixDropbox(url){
+    if (!url) return url;
+    if (url.indexOf('dropbox.com') === -1) return url;
+    if (/[?&]dl=1/.test(url)) return url;
+    if (/[?&]dl=0/.test(url)) return url.replace('dl=0', 'dl=1');
+    return url + (url.indexOf('?') === -1 ? '?dl=1' : '&dl=1');
+  }
+  function autoDetect(){
+    var urlField = document.getElementById('itemUrl');
+    urlField.value = fixDropbox(urlField.value.trim());
+    document.getElementById('itemTipo').value = detectType(urlField.value);
+  }
+
+  function updateItemMiniaturaPreview(){
+    var url = document.getElementById('itemMiniatura').value.trim();
+    var box = document.getElementById('itemMiniaturaPreview');
+    if(!url){ box.innerHTML = 'Sin imagen'; return; }
+    box.innerHTML = 'Cargando…';
+    var testImg = new Image();
+    testImg.onload = function(){ box.innerHTML = '<img src="'+esc(url)+'" alt="Vista previa" />'; };
+    testImg.onerror = function(){ box.innerHTML = '⚠️ No se pudo cargar la imagen.<br>Verifica que la URL sea pública.'; };
+    testImg.src = url;
+  }
+
+  function updateItemMiniaturaCarruselPreview(){
+    var url = document.getElementById('itemMiniaturaCarrusel').value.trim();
+    var box = document.getElementById('itemMiniaturaCarruselPreview');
+    if(!url){ box.innerHTML = '<span class="preview-msg">Sin imagen</span>'; return; }
+    box.innerHTML = '<span class="preview-msg">Cargando…</span>';
+    var testImg = new Image();
+    testImg.onload = function(){
+      // Aviso si la imagen es chica para el banner (se vería borrosa al estirarse)
+      var low = testImg.naturalWidth < 1280;
+      box.innerHTML = '<img src="'+esc(url)+'" alt="Vista previa" />' +
+        '<span class="preview-dims'+(low ? ' low' : '')+'">' + testImg.naturalWidth + ' × ' + testImg.naturalHeight + ' px' + (low ? ' · pequeña' : '') + '</span>';
+    };
+    testImg.onerror = function(){ box.innerHTML = '<span class="preview-msg">⚠️ No se pudo cargar la imagen.<br>Verifica que la URL sea pública.</span>'; };
+    testImg.src = url;
+  }
+
+  function openItemModal(){
+    document.getElementById('itemModalTitle').textContent = 'Agregar contenido';
+    document.getElementById('itemId').value = '';
+    document.getElementById('itemNombre').value = '';
+    document.getElementById('itemUrl').value = '';
+    document.getElementById('itemTipo').value = 'video';
+    document.getElementById('itemCategoria').value = '';
+    document.getElementById('itemMiniatura').value = '';
+    document.getElementById('itemMiniaturaCarrusel').value = '';
+    document.getElementById('itemDescripcionExisting').value = '';
+    document.getElementById('itemDescripcion').value = '';
+    document.getElementById('itemOrden').value = 0;
+    document.getElementById('itemDestacado').checked = false;
+    document.getElementById('itemFormError').textContent = '';
+    updateItemMiniaturaPreview();
+    updateItemMiniaturaCarruselPreview();
+    document.getElementById('itemModalOverlay').classList.add('open');
+  }
+  function closeItemModal(){ document.getElementById('itemModalOverlay').classList.remove('open'); }
+
+  function editItem(id){
+    var m = allMedia.find(function(x){ return x.id === id; });
+    if(!m) return;
+    document.getElementById('itemModalTitle').textContent = 'Editar contenido';
+    document.getElementById('itemId').value = m.id;
+    document.getElementById('itemNombre').value = m.nombre;
+    document.getElementById('itemUrl').value = m.url;
+    document.getElementById('itemTipo').value = m.tipo === 'audio.' ? 'audio' : m.tipo;
+    document.getElementById('itemCategoria').value = m.categoria;
+    document.getElementById('itemMiniatura').value = m.miniatura || '';
+    document.getElementById('itemMiniaturaCarrusel').value = m.miniaturaCarrusel || '';
+    document.getElementById('itemDescripcionExisting').value = '';
+    document.getElementById('itemDescripcion').value = m.descripcion || '';
+    document.getElementById('itemOrden').value = m.orden || 0;
+    document.getElementById('itemDestacado').checked = !!m.destacado;
+    document.getElementById('itemFormError').textContent = '';
+    updateItemMiniaturaPreview();
+    updateItemMiniaturaCarruselPreview();
+    document.getElementById('itemModalOverlay').classList.add('open');
+  }
+
+  function saveItem(){
+    var id = document.getElementById('itemId').value;
+    var nombre = document.getElementById('itemNombre').value.trim();
+    var url = fixDropbox(document.getElementById('itemUrl').value.trim());
+    var errBox = document.getElementById('itemFormError');
+    if(!nombre || !url){ errBox.textContent = 'Nombre y URL son obligatorios.'; return; }
+
+    var payload = {
+      id: id,
+      nombre: nombre,
+      url: url,
+      tipo: document.getElementById('itemTipo').value,
+      categoria: document.getElementById('itemCategoria').value.trim() || 'General',
+      miniatura: document.getElementById('itemMiniatura').value.trim(),
+      miniaturaCarrusel: document.getElementById('itemMiniaturaCarrusel').value.trim(),
+      descripcion: document.getElementById('itemDescripcion').value.trim(),
+      orden: document.getElementById('itemOrden').value,
+      destacado: document.getElementById('itemDestacado').checked
+    };
+
+    var btn = document.getElementById('itemSaveBtn');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+
+    var handler = function(res){
+      btn.disabled = false; btn.textContent = 'Guardar';
+      if(res.ok){ closeItemModal(); toast('Guardado correctamente.'); loadAll(); }
+      else { errBox.textContent = res.error || 'No se pudo guardar.'; }
+    };
+    var fail = function(e){ btn.disabled = false; btn.textContent = 'Guardar'; errBox.textContent = 'Error: ' + e.message; };
+
+    if(id){
+      google.script.run.withSuccessHandler(handler).withFailureHandler(fail).updateMedia(TOKEN, payload);
+    } else {
+      google.script.run.withSuccessHandler(handler).withFailureHandler(fail).addMedia(TOKEN, payload);
+    }
+  }
+
+  function removeItem(id){
+    customConfirm('¿Eliminar este contenido? Esta acción no se puede deshacer.', function(){
+      google.script.run.withSuccessHandler(function(res){
+        if(res.ok){ toast('Eliminado.'); loadAll(); } else { toast(res.error || 'Error al eliminar.'); }
+      }).withFailureHandler(function(e){ toast('Error: ' + e.message); }).deleteMedia(TOKEN, id);
+    }, {title:'Eliminar contenido', okText:'Eliminar'});
+  }
+
+  function exportJson(){
+    var blob = new Blob([JSON.stringify(allMedia, null, 2)], {type:'application/json'});
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'catalogo-streaming.json';
+    link.click();
+  }
+  function handleImport(evt){
+    var file = evt.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e){
+      try{
+        var items = JSON.parse(e.target.result);
+        if(!Array.isArray(items)) throw new Error('El archivo debe contener un arreglo JSON.');
+        google.script.run.withSuccessHandler(function(res){
+          toast('Se importaron ' + res.count + ' elementos.');
+          loadAll();
+        }).withFailureHandler(function(err){ toast('Error al importar: ' + err.message); }).importMedia(TOKEN, items);
+      } catch(err){ toast('Archivo inválido: ' + err.message); }
+      evt.target.value = '';
+    };
+    reader.readAsText(file);
+  }
+
+  // ===== USUARIOS =====
+  function loadUsers(onDone){
+    google.script.run.withSuccessHandler(function(res){
+      if(!res.ok){ toast(res.error || 'Error cargando usuarios.'); if(onDone) onDone(); return; }
+      allUsers = res.users;
+      loadDeviceCounts_(onDone);
+    }).withFailureHandler(function(e){ toast('Error: ' + e.message); if(onDone) onDone(); }).listUsers(TOKEN);
+  }
+
+  // Trae cuántos dispositivos/sesiones activas hay por usuario y en
+  // total, y lo mezcla con allUsers para pintarlo en la tabla y en
+  // las tarjetas de estadísticas.
+  function loadDeviceCounts_(onDone){
+    google.script.run.withSuccessHandler(function(res){
+      deviceSummary = (res && res.ok) ? res : null;
+      if(deviceSummary){
+        var porId = {};
+        deviceSummary.porUsuario.forEach(function(d){ porId[d.id] = d.dispositivos; });
+        allUsers.forEach(function(u){ u.dispositivosConectados = porId[u.id] || 0; });
+      }
+      renderUserStats();
+      renderUsers();
+      if(onDone) onDone();
+    }).withFailureHandler(function(){
+      renderUserStats();
+      renderUsers();
+      if(onDone) onDone();
+    }).getConnectedDevicesSummary(TOKEN);
+  }
+
+  function renderUserStats(){
+    var total = allUsers.length;
+    var admins = allUsers.filter(function(u){ return u.rol === 'admin'; }).length;
+    var activos = allUsers.filter(function(u){ return u.estado === 'activo'; }).length;
+    var suspendidos = allUsers.filter(function(u){ return u.estado === 'suspendido'; }).length;
+    var dispositivos = deviceSummary ? deviceSummary.totalDevices : 0;
+    document.getElementById('userStatsRow').innerHTML =
+      statCard(total,'Usuarios') +
+      statCard(admins,'Administradores') +
+      statCard(activos,'Activos') +
+      statCard(suspendidos,'Suspendidos') +
+      statCard(dispositivos,'Dispositivos conectados');
+  }
+
+  function fmtDate(d){
+    if(!d) return '—';
+    try{
+      var dt = new Date(d);
+      if(isNaN(dt)) return '—';
+      return dt.toLocaleDateString() + ' ' + dt.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    } catch(e){ return '—'; }
+  }
+
+  function renderUsers(){
+    var q = document.getElementById('userSearchInput').value.toLowerCase().trim();
+    var rolF = document.getElementById('userRoleFilter').value;
+    var estF = document.getElementById('userEstadoFilter').value;
+
+    var list = allUsers.filter(function(u){
+      if(rolF && u.rol !== rolF) return false;
+      if(estF && u.estado !== estF) return false;
+      if(q){
+        var hay = ((u.usuario||'') + ' ' + (u.nombre||'') + ' ' + (u.email||'')).toLowerCase();
+        if(hay.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+
+    var tbody = document.getElementById('usersTableBody');
+    var empty = document.getElementById('usersEmptyState');
+    var table = document.getElementById('usersTable');
+
+    if(list.length === 0){
+      tbody.innerHTML = '';
+      table.style.display = 'none';
+      empty.style.display = 'block';
+      return;
+    }
+    table.style.display = '';
+    empty.style.display = 'none';
+
+    tbody.innerHTML = list.map(function(u){
+      var inicial = (u.nombre || u.usuario || '?').charAt(0).toUpperCase();
+      var rolClass = u.rol === 'admin' ? 'role-admin' : 'role-user';
+      var rolLabel = u.rol === 'admin' ? 'Admin' : 'Usuario';
+      var estClass = u.estado === 'activo' ? 'estado-activo' : 'estado-suspendido';
+      var estLabel = u.estado === 'activo' ? 'Activo' : 'Suspendido';
+
+      var dCount = (typeof u.dispositivosConectados === 'number') ? u.dispositivosConectados : null;
+      var limitSuffix = (u.limiteDispositivos === null || u.limiteDispositivos === undefined)
+        ? '' : ('/' + (u.limiteDispositivos === 0 ? '∞' : u.limiteDispositivos));
+      var dCell;
+      if(dCount === null){
+        dCell = '<span style="color:var(--muted);">—</span>';
+      } else if(dCount === 0 && !limitSuffix){
+        dCell = '<span style="color:var(--muted);">0</span>';
+      } else {
+        // Más de 1 dispositivo a la vez = posible cuenta compartida, se resalta.
+        var dClass = dCount > 1 ? 'estado-suspendido' : 'estado-activo';
+        var dTitle = dCount > 1 ? 'title="Posible cuenta compartida — clic para gestionar"' : 'title="Clic para gestionar"';
+        dCell = '<span class="estado-badge '+dClass+'" '+dTitle+' style="cursor:pointer;" onclick="openDevicesModal(\''+u.id+'\')"><span class="estado-dot"></span>'+dCount+limitSuffix+'</span>';
+      }
+
+      return '<tr>' +
+        '<td>' +
+          '<div class="user-cell">' +
+            '<div class="user-avatar">'+esc(inicial)+'</div>' +
+            '<div class="user-info">' +
+              '<div class="user-name" title="'+esc(u.nombre||u.usuario)+'">'+esc(u.nombre || u.usuario)+'</div>' +
+              '<div class="user-username">@'+esc(u.usuario)+(u.publicidad === false ? '' : ' · 📢')+'</div>' +
+            '</div>' +
+          '</div>' +
+        '</td>' +
+        '<td>'+(u.email ? esc(u.email) : '<span style="color:var(--muted);">—</span>')+'</td>' +
+        '<td><span class="role-badge '+rolClass+'">'+rolLabel+'</span></td>' +
+        '<td><span class="estado-badge '+estClass+'"><span class="estado-dot"></span>'+estLabel+'</span></td>' +
+        '<td>'+dCell+'</td>' +
+        '<td style="color:var(--muted);font-size:12px;">'+fmtDate(u.fechaCreacion)+'</td>' +
+        '<td style="text-align:right;white-space:nowrap;">' +
+          '<button class="btn btn-ghost btn-small" onclick="editUser(\''+u.id+'\')" title="Editar">✏️</button> ' +
+          '<button class="btn btn-danger btn-small" onclick="removeUser(\''+u.id+'\',\''+esc(u.usuario)+'\')" title="Eliminar">🗑️</button>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  // ===== DISPOSITIVOS CONECTADOS (por usuario) =====
+  var devicesModalUserId = null;
+
+  function openDevicesModal(userId){
+    var u = allUsers.find(function(x){ return x.id === userId; });
+    if(!u) return;
+    devicesModalUserId = userId;
+    document.getElementById('devicesModalUser').textContent = '@' + (u.usuario || '');
+    document.getElementById('devicesModalError').textContent = '';
+    document.getElementById('devicesModalList').innerHTML = '<div style="color:var(--muted);font-size:13px;">Cargando...</div>';
+    document.getElementById('devicesModalOverlay').classList.add('open');
+    loadDevicesModalSessions_();
+  }
+
+  function closeDevicesModal(){
+    document.getElementById('devicesModalOverlay').classList.remove('open');
+    devicesModalUserId = null;
+  }
+
+  function loadDevicesModalSessions_(){
+    var userId = devicesModalUserId;
+    if(!userId) return;
+    google.script.run
+      .withSuccessHandler(function(res){
+        if(devicesModalUserId !== userId) return; // el admin ya cerró/cambió de modal
+        if(!res.ok){
+          document.getElementById('devicesModalError').textContent = res.error || 'Error al cargar dispositivos.';
+          document.getElementById('devicesModalList').innerHTML = '';
+          return;
+        }
+        renderDevicesModalList_(res.sessions);
+      })
+      .withFailureHandler(function(e){
+        document.getElementById('devicesModalError').textContent = 'Error: ' + e.message;
+      })
+      .listUserSessions(TOKEN, userId);
+  }
+
+  function renderDevicesModalList_(sessions){
+    var list = document.getElementById('devicesModalList');
+    var closeAllBtn = document.getElementById('devicesModalCloseAllBtn');
+    if(!sessions || sessions.length === 0){
+      list.innerHTML = '<div style="color:var(--muted);font-size:13px;">Este usuario no tiene ningún dispositivo conectado ahora mismo.</div>';
+      closeAllBtn.style.display = 'none';
+      return;
+    }
+    closeAllBtn.style.display = '';
+    list.innerHTML = sessions.map(function(s){
+      var shortId = esc(String(s.deviceId || '').slice(0, 18));
+      var since = fmtDate(s.since);
+      return '<div class="device-row">' +
+        '<div class="device-info">' +
+          '<div class="device-id">📱 ' + shortId + '…</div>' +
+          '<div class="device-since">Conectado desde: ' + since + '</div>' +
+        '</div>' +
+        '<button class="btn btn-danger btn-small" onclick="closeOneDevice(\''+s.token+'\')">Cerrar sesión</button>' +
+      '</div>';
+    }).join('');
+  }
+
+  function closeOneDevice(sessionToken){
+    customConfirm('¿Cerrar esta sesión? El dispositivo tendrá que iniciar sesión de nuevo.', function(){
+      google.script.run
+        .withSuccessHandler(function(res){
+          if(res.ok){
+            toast('Sesión cerrada.');
+            loadDevicesModalSessions_();
+            loadUsers();
+          } else {
+            document.getElementById('devicesModalError').textContent = res.error || 'No se pudo cerrar la sesión.';
+          }
+        })
+        .withFailureHandler(function(e){ document.getElementById('devicesModalError').textContent = 'Error: ' + e.message; })
+        .forceCloseUserSession(TOKEN, sessionToken);
+    }, {title:'Cerrar sesión', okText:'Cerrar sesión'});
+  }
+
+  function closeAllDevicesForCurrentUser(){
+    var userId = devicesModalUserId;
+    if(!userId) return;
+    customConfirm('¿Cerrar TODAS las sesiones activas de este usuario? Tendrá que iniciar sesión de nuevo en todos sus dispositivos.', function(){
+      google.script.run
+        .withSuccessHandler(function(res){
+          if(res.ok){
+            toast('Se cerraron ' + res.closed + ' sesión(es).');
+            loadDevicesModalSessions_();
+            loadUsers();
+          } else {
+            document.getElementById('devicesModalError').textContent = res.error || 'No se pudo cerrar las sesiones.';
+          }
+        })
+        .withFailureHandler(function(e){ document.getElementById('devicesModalError').textContent = 'Error: ' + e.message; })
+        .forceCloseAllUserSessions(TOKEN, userId);
+    }, {title:'Cerrar todas las sesiones', okText:'Cerrar todas'});
+  }
+
+  function openUserModal(){
+    document.getElementById('userModalTitle').textContent = 'Crear usuario';
+    document.getElementById('userId').value = '';
+    document.getElementById('userNombre').value = '';
+    document.getElementById('userEmail').value = '';
+    document.getElementById('userUsuario').value = '';
+    document.getElementById('userPassword').value = '';
+    document.getElementById('userRol').value = 'usuario';
+    document.getElementById('userEstado').value = 'activo';
+    document.getElementById('userDeviceLimit').value = '';
+    document.getElementById('userPublicidad').checked = true;
+    document.getElementById('userPassLabel').textContent = 'Contraseña';
+    document.getElementById('userPassHint').textContent = 'Mínimo 4 caracteres.';
+    document.getElementById('userFormError').textContent = '';
+    document.getElementById('userModalOverlay').classList.add('open');
+  }
+  function closeUserModal(){ document.getElementById('userModalOverlay').classList.remove('open'); }
+
+  function editUser(id){
+    var u = allUsers.find(function(x){ return x.id === id; });
+    if(!u) return;
+    document.getElementById('userModalTitle').textContent = 'Editar usuario';
+    document.getElementById('userId').value = u.id;
+    document.getElementById('userNombre').value = u.nombre || '';
+    document.getElementById('userEmail').value = u.email || '';
+    document.getElementById('userUsuario').value = u.usuario || '';
+    document.getElementById('userPassword').value = '';
+    document.getElementById('userRol').value = u.rol || 'usuario';
+    document.getElementById('userEstado').value = u.estado || 'activo';
+    document.getElementById('userDeviceLimit').value = (u.limiteDispositivos === null || u.limiteDispositivos === undefined) ? '' : u.limiteDispositivos;
+    document.getElementById('userPublicidad').checked = (u.publicidad !== false);
+    document.getElementById('userPassLabel').textContent = 'Nueva contraseña (opcional)';
+    document.getElementById('userPassHint').textContent = 'Deja en blanco para mantener la actual.';
+    document.getElementById('userFormError').textContent = '';
+    document.getElementById('userModalOverlay').classList.add('open');
+  }
+
+  function saveUser(){
+    var id = document.getElementById('userId').value;
+    var errBox = document.getElementById('userFormError');
+    errBox.textContent = '';
+
+    var limitRaw = document.getElementById('userDeviceLimit').value.trim();
+
+    var payload = {
+      id: id,
+      nombre: document.getElementById('userNombre').value.trim(),
+      email: document.getElementById('userEmail').value.trim(),
+      usuario: document.getElementById('userUsuario').value.trim().toLowerCase(),
+      password: document.getElementById('userPassword').value,
+      rol: document.getElementById('userRol').value,
+      estado: document.getElementById('userEstado').value,
+      limiteDispositivos: limitRaw === '' ? '' : Number(limitRaw),
+      publicidad: document.getElementById('userPublicidad').checked
+    };
+
+    if(!payload.usuario){ errBox.textContent = 'El usuario es obligatorio.'; return; }
+    if(!id && !payload.password){ errBox.textContent = 'La contraseña es obligatoria al crear.'; return; }
+    if(limitRaw !== '' && (isNaN(payload.limiteDispositivos) || payload.limiteDispositivos < 0 || Math.floor(payload.limiteDispositivos) !== payload.limiteDispositivos)){
+      errBox.textContent = 'El límite de dispositivos debe ser un número entero de 0 en adelante.'; return;
+    }
+
+    var btn = document.getElementById('userSaveBtn');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+
+    var handler = function(res){
+      btn.disabled = false; btn.textContent = 'Guardar';
+      if(res.ok){
+        closeUserModal();
+        toast(id ? 'Usuario actualizado.' : 'Usuario creado.');
+        loadUsers();
+      } else {
+        errBox.textContent = res.error || 'No se pudo guardar.';
+      }
+    };
+    var fail = function(e){
+      btn.disabled = false; btn.textContent = 'Guardar';
+      errBox.textContent = 'Error: ' + e.message;
+    };
+
+    if(id){
+      google.script.run.withSuccessHandler(handler).withFailureHandler(fail).updateUser(TOKEN, payload);
+    } else {
+      google.script.run.withSuccessHandler(handler).withFailureHandler(fail).createUser(TOKEN, payload);
+    }
+  }
+
+  function removeUser(id, usuario){
+    customConfirm('¿Eliminar al usuario "' + usuario + '"? Esta acción no se puede deshacer.', function(){
+      google.script.run.withSuccessHandler(function(res){
+        if(res.ok){ toast('Usuario eliminado.'); loadUsers(); }
+        else { toast(res.error || 'Error al eliminar.'); }
+      }).withFailureHandler(function(e){ toast('Error: ' + e.message); }).deleteUser(TOKEN, id);
+    }, {title:'Eliminar usuario', okText:'Eliminar'});
+  }
+
+  // ===== PASSWORD ADMIN =====
+  function openPasswordModal(){
+    document.getElementById('oldPass').value = '';
+    document.getElementById('newPass').value = '';
+    document.getElementById('newPass2').value = '';
+    document.getElementById('passFormError').textContent = '';
+    document.getElementById('passFormSuccess').textContent = '';
+    document.getElementById('passModalOverlay').classList.add('open');
+  }
+  function closePasswordModal(){ document.getElementById('passModalOverlay').classList.remove('open'); }
+  function savePassword(){
+    var oldPass = document.getElementById('oldPass').value;
+    var newPass = document.getElementById('newPass').value;
+    var newPass2 = document.getElementById('newPass2').value;
+    var errBox = document.getElementById('passFormError');
+    var okBox = document.getElementById('passFormSuccess');
+    errBox.textContent = ''; okBox.textContent = '';
+    if(newPass !== newPass2){ errBox.textContent = 'Las contraseñas nuevas no coinciden.'; return; }
+    google.script.run.withSuccessHandler(function(res){
+      if(res.ok){ okBox.textContent = 'Contraseña actualizada correctamente.'; }
+      else { errBox.textContent = res.error || 'No se pudo cambiar la contraseña.'; }
+    }).withFailureHandler(function(e){ errBox.textContent = 'Error: ' + e.message; }).changePassword(TOKEN, oldPass, newPass);
+  }
+
+  // ===== PESTAÑAS DENTRO DE UN MODAL =====
+  // Convierte el cuerpo de un modal largo en secciones con pestañas.
+  // Cada título .modal-section-title abre una sección nueva; lo que hay antes
+  // del primer título es la primera sección. Los ids de "siempre" (mensajes de
+  // error/éxito) se ven en todas las pestañas.
+  function initModalTabs_(bodyId, labels, alwaysIds){
+    var body = document.getElementById(bodyId);
+    if(!body || body.getAttribute('data-tabs-ready')) return;
+    body.setAttribute('data-tabs-ready', '1');
+    alwaysIds = alwaysIds || [];
+    var groups = [[]];
+    Array.prototype.slice.call(body.children).forEach(function(el){
+      if(alwaysIds.indexOf(el.id) !== -1) return;
+      if(el.classList.contains('modal-section-title')){ el.classList.add('mt-hide'); groups.push([]); return; }
+      groups[groups.length - 1].push(el);
+    });
+    var bar = document.createElement('div');
+    bar.className = 'modal-tabs';
+    bar.id = bodyId + 'Tabs';
+    groups.forEach(function(els, i){
+      els.forEach(function(el){ el.setAttribute('data-mtab', i); });
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'modal-tab'; b.textContent = labels[i] || ('Sección ' + (i + 1));
+      b.addEventListener('click', function(){ showModalTab_(bodyId, i); });
+      bar.appendChild(b);
+    });
+    body.parentNode.insertBefore(bar, body);
+  }
+  function showModalTab_(bodyId, idx){
+    var body = document.getElementById(bodyId);
+    var bar = document.getElementById(bodyId + 'Tabs');
+    if(!body || !bar) return;
+    Array.prototype.slice.call(body.querySelectorAll('[data-mtab]')).forEach(function(el){
+      el.classList.toggle('mt-hide', Number(el.getAttribute('data-mtab')) !== idx);
+    });
+    Array.prototype.slice.call(bar.children).forEach(function(b, i){ b.classList.toggle('active', i === idx); });
+    body.scrollTop = 0;
+  }
+
+  // ===== MARCA =====
+  function openBrandModal(){
+    initModalTabs_('brandModalBody', ['🏷️ Marca', '🎞️ Reproductor', '🔑 Login', '📱 Redes'], ['brandFormError', 'brandFormSuccess']);
+    showModalTab_('brandModalBody', 0);
+    document.getElementById('brandFormError').textContent = '';
+    document.getElementById('brandFormSuccess').textContent = '';
+    document.getElementById('brandLogoWarning').style.display = 'none';
+    document.getElementById('playerLogoWarning').style.display = 'none';
+    document.getElementById('loginBgWarning').style.display = 'none';
+    document.getElementById('brandModalOverlay').classList.add('open');
+  }
+  function closeBrandModal(){ document.getElementById('brandModalOverlay').classList.remove('open'); }
+
+  function updateBrandPreview(){
+    var n = document.getElementById('brandNameInput').value.trim() || 'STREAMFLIX';
+    var s = document.getElementById('brandSubnameInput').value.trim() || 'Mi Streaming';
+    var logo = document.getElementById('brandLogoInput').value.trim();
+    var initial = n.charAt(0).toUpperCase() || 'S';
+
+    document.getElementById('brandPreviewName').textContent = n;
+    document.getElementById('brandPreviewSub').textContent = s;
+
+    var mark = document.getElementById('bpMark');
+    if(logo){
+      var previewLogo = normalizeImageUrlPreview_(logo);
+      var testImg = new Image();
+      testImg.onload = function(){
+        mark.innerHTML = '<img src="'+esc(previewLogo)+'" alt="Logo" />';
+        document.getElementById('brandLogoWarning').style.display = 'none';
+      };
+      testImg.onerror = function(){
+        mark.textContent = initial;
+        document.getElementById('brandLogoWarning').style.display = 'block';
+      };
+      testImg.src = previewLogo;
+    } else {
+      mark.textContent = initial;
+      document.getElementById('brandLogoWarning').style.display = 'none';
+    }
+  }
+
+  function updatePlayerLogoPreview(){
+    var logo = document.getElementById('playerLogoInput').value.trim();
+    var initial = (document.getElementById('brandNameInput').value.trim() || 'STREAMFLIX').charAt(0).toUpperCase() || 'S';
+    var mark = document.getElementById('plpMark');
+    if(logo){
+      var previewPlayerLogo = normalizeImageUrlPreview_(logo);
+      var testImg = new Image();
+      testImg.onload = function(){
+        mark.innerHTML = '<img src="'+esc(previewPlayerLogo)+'" alt="Logo reproductor" />';
+        document.getElementById('playerLogoWarning').style.display = 'none';
+      };
+      testImg.onerror = function(){
+        mark.textContent = initial;
+        document.getElementById('playerLogoWarning').style.display = 'block';
+      };
+      testImg.src = previewPlayerLogo;
+    } else {
+      mark.textContent = initial;
+      document.getElementById('playerLogoWarning').style.display = 'none';
+    }
+  }
+
+  function updateLoginBgPreview(){
+    var url = document.getElementById('loginBgInput').value.trim();
+    var box = document.getElementById('loginBgPreviewBox');
+    if(!url){ box.innerHTML = 'Sin imagen de fondo'; document.getElementById('loginBgWarning').style.display = 'none'; return; }
+    var previewUrl = normalizeImageUrlPreview_(url);
+    var testImg = new Image();
+    testImg.onload = function(){
+      box.innerHTML = '<img src="'+esc(previewUrl)+'" alt="Fondo de login" />';
+      document.getElementById('loginBgWarning').style.display = 'none';
+    };
+    testImg.onerror = function(){
+      box.innerHTML = 'Sin imagen de fondo';
+      document.getElementById('loginBgWarning').style.display = 'block';
+    };
+    testImg.src = previewUrl;
+  }
+
+  function saveBrand(){
+    var name = document.getElementById('brandNameInput').value.trim();
+    var sub = document.getElementById('brandSubnameInput').value.trim();
+    var logo = document.getElementById('brandLogoInput').value.trim();
+    var playerLogo = document.getElementById('playerLogoInput').value.trim();
+    var loginBg = document.getElementById('loginBgInput').value.trim();
+    var loginHint = document.getElementById('loginHintInput').value.trim();
+    var socialLinks = {
+      socialYoutubeUrl: document.getElementById('socialYoutubeInput').value.trim(),
+      socialFacebookUrl: document.getElementById('socialFacebookInput').value.trim(),
+      socialWhatsappUrl: document.getElementById('socialWhatsappInput').value.trim(),
+      socialTelegramUrl: document.getElementById('socialTelegramInput').value.trim(),
+      socialTiktokUrl: document.getElementById('socialTiktokInput').value.trim(),
+      socialInstagramUrl: document.getElementById('socialInstagramInput').value.trim()
+    };
+    var errBox = document.getElementById('brandFormError');
+    var okBox = document.getElementById('brandFormSuccess');
+    errBox.textContent = ''; okBox.textContent = '';
+
+    if(!name){ errBox.textContent = 'El nombre no puede estar vacío.'; return; }
+    if(logo && !/^https?:\/\//i.test(logo)){ errBox.textContent = 'La URL del logo debe empezar con http:// o https://'; return; }
+    if(playerLogo && !/^https?:\/\//i.test(playerLogo)){ errBox.textContent = 'La URL del logo del reproductor debe empezar con http:// o https://'; return; }
+    if(loginBg && !/^https?:\/\//i.test(loginBg)){ errBox.textContent = 'La URL del fondo del login debe empezar con http:// o https://'; return; }
+    for(var skey in socialLinks){
+      if(socialLinks[skey] && !/^https?:\/\//i.test(socialLinks[skey])){
+        errBox.textContent = 'Las URLs de redes sociales deben empezar con http:// o https://';
+        return;
+      }
+    }
+
+    var btn = document.getElementById('brandSaveBtn');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+
+    var pending = 6;
+    var results = { name: null, logo: null, playerLogo: null, loginBg: null, loginHint: null, social: null };
+    var finish = function(){
+      pending--;
+      if(pending > 0) return;
+      btn.disabled = false; btn.textContent = 'Guardar marca';
+      if(results.name && !results.name.ok){ errBox.textContent = results.name.error || 'Error.'; return; }
+      if(results.logo && !results.logo.ok){ errBox.textContent = results.logo.error || 'Error.'; return; }
+      if(results.playerLogo && !results.playerLogo.ok){ errBox.textContent = results.playerLogo.error || 'Error.'; return; }
+      if(results.loginBg && !results.loginBg.ok){ errBox.textContent = results.loginBg.error || 'Error.'; return; }
+      if(results.loginHint && !results.loginHint.ok){ errBox.textContent = results.loginHint.error || 'Error.'; return; }
+      if(results.social && !results.social.ok){ errBox.textContent = results.social.error || 'Error.'; return; }
+
+      okBox.textContent = 'Marca actualizada correctamente.';
+      toast('Marca actualizada.');
+
+      document.getElementById('brandNameTop').textContent = name;
+      document.getElementById('brandNameTop').title = name;
+      document.getElementById('brandSubTop').innerHTML = esc(sub) + '<span class="dot">•</span>Panel de administración';
+      document.getElementById('brandSubTop').title = sub;
+
+      var markTop = document.getElementById('brandMarkTop');
+      var savedLogo = (results.logo && results.logo.brandLogoUrl) || '';
+      if(savedLogo){
+        markTop.innerHTML = '<img src="'+esc(savedLogo)+'" alt="Logo" />';
+      } else {
+        markTop.textContent = (name.charAt(0).toUpperCase() || 'S');
+      }
+    };
+
+    google.script.run.withSuccessHandler(function(res){ results.name = res; finish(); })
+      .withFailureHandler(function(e){ results.name = { ok:false, error:e.message }; finish(); })
+      .setBrandConfig(TOKEN, name, sub);
+
+    google.script.run.withSuccessHandler(function(res){ results.logo = res; finish(); })
+      .withFailureHandler(function(e){ results.logo = { ok:false, error:e.message }; finish(); })
+      .setBrandLogo(TOKEN, logo);
+
+    google.script.run.withSuccessHandler(function(res){ results.playerLogo = res; finish(); })
+      .withFailureHandler(function(e){ results.playerLogo = { ok:false, error:e.message }; finish(); })
+      .setPlayerLogo(TOKEN, playerLogo);
+
+    google.script.run.withSuccessHandler(function(res){ results.loginBg = res; finish(); })
+      .withFailureHandler(function(e){ results.loginBg = { ok:false, error:e.message }; finish(); })
+      .setLoginBackground(TOKEN, loginBg);
+
+    google.script.run.withSuccessHandler(function(res){ results.loginHint = res; finish(); })
+      .withFailureHandler(function(e){ results.loginHint = { ok:false, error:e.message }; finish(); })
+      .setLoginHint(TOKEN, loginHint);
+
+    google.script.run.withSuccessHandler(function(res){ results.social = res; finish(); })
+      .withFailureHandler(function(e){ results.social = { ok:false, error:e.message }; finish(); })
+      .setSocialLinks(TOKEN, socialLinks);
+  }
+
+  // ===== PUBLICIDAD =====
+  var adsData = [];
+  var adsLoaded_ = false;
+
+  function loadAds(onDone){
+    var list = document.getElementById('adsList');
+    if(!adsLoaded_) list.innerHTML = '<div style="color:var(--muted);font-size:13px;">Cargando...</div>';
+    google.script.run.withSuccessHandler(function(res){
+      if(!res || !res.ok){
+        list.innerHTML = '<div style="color:#ff6b6b;font-size:13px;">'+esc((res && res.error) || 'Error al cargar.')+'</div>';
+        if(onDone) onDone();
+        return;
+      }
+      adsData = res.ads || [];
+      adsLoaded_ = true;
+      fillAdsConfigForm(res.config || {});
+      renderAds();
+      if(onDone) onDone();
+    }).withFailureHandler(function(e){
+      list.innerHTML = '<div style="color:#ff6b6b;font-size:13px;">Error: '+esc(e.message)+'</div>';
+      if(onDone) onDone();
+    }).listAds(TOKEN);
+  }
+
+  function fillAdsConfigForm(cfg){
+    document.getElementById('adsCfgEnabled').checked = !!cfg.enabled;
+    document.getElementById('adsCfgPreRoll').checked = !!cfg.preRoll;
+    document.getElementById('adsCfgRandom').checked = !!cfg.random;
+    document.getElementById('adsCfgGuests').checked = cfg.guests !== false;
+    document.getElementById('adsCfgMin').value = cfg.intervalMin != null ? cfg.intervalMin : 10;
+    document.getElementById('adsCfgMax').value = cfg.intervalMax != null ? cfg.intervalMax : 20;
+    document.getElementById('adsCfgSkip').value = cfg.skipAfter != null ? cfg.skipAfter : 5;
+    document.getElementById('adsCfgImgDur').value = cfg.imageDuration != null ? cfg.imageDuration : 8;
+  }
+
+  function saveAdsConfig(){
+    var err = document.getElementById('adsCfgError');
+    var btn = document.getElementById('adsCfgSaveBtn');
+    err.textContent = '';
+    var cfg = {
+      enabled: document.getElementById('adsCfgEnabled').checked,
+      preRoll: document.getElementById('adsCfgPreRoll').checked,
+      random: document.getElementById('adsCfgRandom').checked,
+      guests: document.getElementById('adsCfgGuests').checked,
+      intervalMin: document.getElementById('adsCfgMin').value,
+      intervalMax: document.getElementById('adsCfgMax').value,
+      skipAfter: document.getElementById('adsCfgSkip').value,
+      imageDuration: document.getElementById('adsCfgImgDur').value
+    };
+    btn.disabled = true; btn.textContent = 'Guardando...';
+    google.script.run.withSuccessHandler(function(res){
+      btn.disabled = false; btn.textContent = '💾 Guardar configuración';
+      if(res.ok){ fillAdsConfigForm(res.config); toast('Configuración de publicidad guardada.'); }
+      else { err.textContent = res.error || 'No se pudo guardar.'; }
+    }).withFailureHandler(function(e){
+      btn.disabled = false; btn.textContent = '💾 Guardar configuración';
+      err.textContent = 'Error: ' + e.message;
+    }).setAdsConfig(TOKEN, cfg);
+  }
+
+  function renderAds(){
+    var list = document.getElementById('adsList');
+    var activos = adsData.filter(function(a){ return a.estado === 'activo'; }).length;
+    document.getElementById('adsCount').textContent = adsData.length + ' anuncio(s) · ' + activos + ' activo(s)';
+    if(adsData.length === 0){
+      list.innerHTML = '<div class="empty">Aún no hay anuncios. Agrega el primero con "➕ Agregar anuncio".</div>';
+      return;
+    }
+    list.innerHTML = adsData.map(function(a){
+      var isImg = a.tipo === 'image';
+      var thumb = isImg
+        ? '<img src="'+esc(a.url)+'" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'" />'
+        : '<span style="font-size:24px;">🎬</span>';
+      var activo = a.estado === 'activo';
+      return '<div style="display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px 14px;flex-wrap:wrap;'+(activo?'':'opacity:.65;')+'">' +
+        '<div style="width:84px;height:52px;border-radius:6px;background:#0c0c0f;border:1px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">'+thumb+'</div>' +
+        '<div style="flex:1 1 220px;min-width:0;">' +
+          '<div style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(a.nombre)+'</div>' +
+          '<div style="font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+esc(a.urlRaw)+'">'+esc(a.urlRaw)+'</div>' +
+          '<div style="font-size:11px;color:var(--muted);margin-top:4px;display:flex;gap:10px;flex-wrap:wrap;">' +
+            '<span>'+(isImg?'🖼️ Imagen':'🎬 Video')+'</span>' +
+            '<span>⏱️ '+(a.duracion ? a.duracion+'s' : (isImg ? 'general' : 'completo'))+'</span>' +
+            '<span>#'+esc(a.orden)+'</span>' +
+            '<span style="color:'+(activo?'#5cd65c':'#e0b341')+';">'+(activo?'● Activo':'● Pausado')+'</span>' +
+            (a.enlace ? '<span>🔗 con enlace</span>' : '') +
+          '</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:6px;flex:0 0 auto;">' +
+          '<button class="btn btn-outline btn-small" title="'+(activo?'Pausar':'Activar')+'" onclick="toggleAd(\''+a.id+'\')">'+(activo?'⏸️':'▶️')+'</button>' +
+          '<button class="btn btn-outline btn-small" title="Editar" onclick="openAdModal(\''+a.id+'\')">✏️</button>' +
+          '<button class="btn btn-danger btn-small" title="Eliminar" onclick="removeAd(\''+a.id+'\')">🗑️</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function findAd_(id){
+    for(var i = 0; i < adsData.length; i++){ if(String(adsData[i].id) === String(id)) return adsData[i]; }
+    return null;
+  }
+
+  function openAdModal(id){
+    var a = id ? findAd_(id) : null;
+    document.getElementById('adModalTitle').textContent = a ? '✏️ Editar anuncio' : '📢 Agregar anuncio';
+    document.getElementById('adId').value = a ? a.id : '';
+    document.getElementById('adNombre').value = a ? a.nombre : '';
+    document.getElementById('adUrl').value = a ? a.urlRaw : '';
+    document.getElementById('adTipo').value = a ? (a.tipoGuardado || 'auto') : 'auto';
+    document.getElementById('adDuracion').value = a ? a.duracion : 0;
+    document.getElementById('adEnlace').value = a ? a.enlace : '';
+    document.getElementById('adEstado').value = a ? a.estado : 'activo';
+    document.getElementById('adOrden').value = a ? a.orden : (adsData.length + 1);
+    document.getElementById('adFormError').textContent = '';
+    document.getElementById('adModalOverlay').classList.add('open');
+  }
+  function closeAdModal(){ document.getElementById('adModalOverlay').classList.remove('open'); }
+
+  function adPayload_(){
+    return {
+      id: document.getElementById('adId').value,
+      nombre: document.getElementById('adNombre').value.trim(),
+      url: document.getElementById('adUrl').value.trim(),
+      tipo: document.getElementById('adTipo').value,
+      duracion: document.getElementById('adDuracion').value,
+      enlace: document.getElementById('adEnlace').value.trim(),
+      estado: document.getElementById('adEstado').value,
+      orden: document.getElementById('adOrden').value
+    };
+  }
+
+  function saveAd(){
+    var p = adPayload_();
+    var err = document.getElementById('adFormError');
+    var btn = document.getElementById('adSaveBtn');
+    err.textContent = '';
+    btn.disabled = true; btn.textContent = 'Guardando...';
+    var done = function(res){
+      btn.disabled = false; btn.textContent = 'Guardar';
+      if(res.ok){ closeAdModal(); toast('Anuncio guardado.'); loadAds(); }
+      else { err.textContent = res.error || 'No se pudo guardar.'; }
+    };
+    var fail = function(e){ btn.disabled = false; btn.textContent = 'Guardar'; err.textContent = 'Error: ' + e.message; };
+    var run = google.script.run.withSuccessHandler(done).withFailureHandler(fail);
+    if(p.id) run.updateAd(TOKEN, p); else run.addAd(TOKEN, p);
+  }
+
+  function toggleAd(id){
+    var a = findAd_(id);
+    if(!a) return;
+    var p = { id: a.id, nombre: a.nombre, url: a.urlRaw, tipo: a.tipoGuardado || 'auto', duracion: a.duracion, enlace: a.enlace,
+              estado: a.estado === 'activo' ? 'pausado' : 'activo', orden: a.orden };
+    google.script.run.withSuccessHandler(function(res){
+      if(res.ok){ loadAds(); } else { toast(res.error || 'Error al actualizar.'); }
+    }).withFailureHandler(function(e){ toast('Error: '+e.message); }).updateAd(TOKEN, p);
+  }
+
+  function removeAd(id){
+    customConfirm('¿Eliminar este anuncio?', function(){
+      google.script.run.withSuccessHandler(function(res){
+        if(res.ok){ toast('Anuncio eliminado.'); loadAds(); } else { toast(res.error || 'Error al eliminar.'); }
+      }).withFailureHandler(function(e){ toast('Error: '+e.message); }).deleteAd(TOKEN, id);
+    }, {title:'Eliminar anuncio', okText:'Eliminar'});
+  }
+
+  // ===== NOTIFICACIONES =====
+  function openNotifModal(){
+    document.getElementById('notifMensaje').value = '';
+    document.getElementById('notifFormError').textContent = '';
+    document.getElementById('notifModalOverlay').classList.add('open');
+    loadNotifList();
+  }
+  function closeNotifModal(){ document.getElementById('notifModalOverlay').classList.remove('open'); }
+
+  function loadNotifList(){
+    var list = document.getElementById('notifList');
+    list.innerHTML = '<div style="color:var(--muted);font-size:13px;">Cargando...</div>';
+    google.script.run.withSuccessHandler(function(items){
+      if(items.length === 0){ list.innerHTML = '<div style="color:var(--muted);font-size:13px;">Todavía no has enviado ninguna notificación.</div>'; return; }
+      list.innerHTML = items.map(function(n){
+        var fecha = new Date(n.fecha);
+        var fechaStr = isNaN(fecha) ? '' : fecha.toLocaleString();
+        return '<div style="background:#1a1a1f;border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">' +
+          '<div style="min-width:0;"><div style="font-size:13px;">'+esc(n.mensaje)+'</div><div style="font-size:11px;color:var(--muted);margin-top:4px;">'+fechaStr+'</div></div>' +
+          '<button class="btn btn-danger btn-small" onclick="removeNotificacion(\''+n.id+'\')">🗑️</button>' +
+        '</div>';
+      }).join('');
+    }).withFailureHandler(function(e){ list.innerHTML = '<div style="color:#ff6b6b;font-size:13px;">Error: '+e.message+'</div>'; }).getNotificaciones();
+  }
+
+  function sendNotificacion(){
+    var msg = document.getElementById('notifMensaje').value.trim();
+    var errBox = document.getElementById('notifFormError');
+    errBox.textContent = '';
+    if(!msg){ errBox.textContent = 'Escribe un mensaje.'; return; }
+    var btn = document.getElementById('notifSendBtn');
+    btn.disabled = true; btn.textContent = 'Enviando...';
+    google.script.run.withSuccessHandler(function(res){
+      btn.disabled = false; btn.textContent = 'Enviar notificación';
+      if(res.ok){ document.getElementById('notifMensaje').value=''; toast('Notificación enviada.'); loadNotifList(); }
+      else { errBox.textContent = res.error || 'No se pudo enviar.'; }
+    }).withFailureHandler(function(e){ btn.disabled=false; btn.textContent='Enviar notificación'; errBox.textContent = 'Error: '+e.message; }).addNotificacion(TOKEN, msg);
+  }
+
+  function removeNotificacion(id){
+    customConfirm('¿Eliminar esta notificación?', function(){
+      google.script.run.withSuccessHandler(function(res){
+        if(res.ok){ loadNotifList(); } else { toast(res.error || 'Error al eliminar.'); }
+      }).withFailureHandler(function(e){ toast('Error: '+e.message); }).deleteNotificacion(TOKEN, id);
+    }, {title:'Eliminar notificación', okText:'Eliminar'});
+  }
+
+  // ===== LOGOUT =====
+  function doLogout(){
+    google.script.run.logout(TOKEN);
+    window.top.location.href = BASE_URL + '?page=admin';
+  }
+
+  bootAdmin();
+</script>
+</body>
+</html>
