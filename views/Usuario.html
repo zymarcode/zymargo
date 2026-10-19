@@ -17,8 +17,8 @@
     --spotify:#1db954; --spotify-hover:#1ed760;
     --muted:#808080; --border:#2a2a2a; --text:#fff;
     --safe-x: clamp(16px, 4vw, 64px);
-    --card-w: clamp(190px, 20vw, 320px);
-    --card-ratio: 16/9;
+    --card-w: clamp(104px, 9.5vw, 156px);
+    --card-ratio: 2/3;
     --nav-h: 68px;
     --row-pb: 30px;
   }
@@ -576,8 +576,8 @@
   .card.card-logo{
     /* Tamaño propio: cuadrada y más compacta que la card de película (16:9).
        Ajusta --logo-scale (0.92 = 92% del ancho de una card de película). */
-    --logo-scale:.92;
-    width:calc(var(--card-w) * var(--logo-scale)); aspect-ratio:1/1;
+    --logo-scale:1;
+    width:calc(var(--card-w) * var(--logo-scale)); aspect-ratio:var(--card-ratio);
     background:radial-gradient(120% 120% at 50% 0%, #26262c 0%, #101013 70%);
   }
   .card.card-logo.fit-contain img{
@@ -1462,7 +1462,7 @@
     .card-overlay{ font-size:15px; padding:10px 14px; }
   }
   @media (min-width:2200px){
-    :root{ --safe-x:6vw; --card-w:22vw; }
+    :root{ --safe-x:6vw; --card-w:10vw; }
     body{ font-size:22px; }
     .nav-logo-name{ font-size:28px; }
     .hero-title{ font-size:64px; }
@@ -1604,7 +1604,7 @@
   }
 
   @media (max-width:640px){
-    :root{ --card-w:clamp(140px, 43vw, 200px); --row-pb:18px; }
+    :root{ --card-w:clamp(82px, 24vw, 108px); --row-pb:18px; }
 
     /* ---- Nav ---- */
     .nav{ gap:8px; }
@@ -1687,7 +1687,7 @@
   }
 
   @media (max-width:380px){
-    :root{ --safe-x:12px; --card-w:clamp(130px, 42vw, 170px); --nav-h:54px; }
+    :root{ --safe-x:12px; --card-w:clamp(76px, 23vw, 96px); --nav-h:54px; }
     .hero-title{ font-size:16px; }
     .hero-actions .btn{ padding:7px 14px; font-size:12px; }
     .row-title{ font-size:13px; }
