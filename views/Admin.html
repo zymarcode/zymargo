@@ -17,8 +17,8 @@
     --spotify:#1db954; --spotify-hover:#1ed760;
     --muted:#808080; --border:#2a2a2a; --text:#fff;
     --safe-x: clamp(16px, 4vw, 64px);
-    --card-w: clamp(126px, 11.5vw, 189px);
-    --card-ratio: 3/4;
+    --card-w: clamp(200px, 17vw, 300px);
+    --card-ratio: 16/9;
     --nav-h: 68px;
     --row-pb: 30px;
   }
@@ -471,42 +471,40 @@
   .row-track-wrap.scroll-left::before{ opacity:1; }
   .row-track-wrap.scroll-right::after{ opacity:1; }
 
-  /* ---------- CARD ----------
-     Todas las cards comparten la misma proporción (16:9). La imagen
-     llena la card con "cover" cuando su proporción es parecida; si es
-     muy distinta (póster vertical, cuadrada, 4:3...) se muestra completa
-     con "contain" sobre un fondo desenfocado de la misma imagen
-     (.fit-contain, la activa JS: applyCardFit_). */
+  /* ---------- CARD (estilo YouTube) ----------
+     Miniatura 16:9 con esquinas redondeadas que ocupa todo su espacio
+     (object-fit:cover) y el título debajo, sin borde ni sombra. */
   .card{
-    flex:0 0 auto; width:var(--card-w); aspect-ratio:var(--card-ratio);
-    border-radius:10px; overflow:hidden; position:relative;
-    cursor:pointer; background:#141416;
-    transition:transform .3s cubic-bezier(.2,.8,.3,1), box-shadow .3s ease, border-color .3s ease;
-    border:1px solid rgba(255,255,255,.08);
-    box-shadow:0 4px 14px rgba(0,0,0,.35);
-    scroll-snap-align:start;
-    pointer-events:auto;
-    isolation:isolate;
-    transform:translateZ(0);
+    flex:0 0 auto; width:var(--card-w);
+    position:relative; display:flex; flex-direction:column; gap:10px;
+    cursor:pointer; background:transparent;
+    scroll-snap-align:start; pointer-events:auto;
+    transition:transform .2s ease;
   }
-  .card::before{
+  .card-thumb{
+    position:relative; width:100%; aspect-ratio:var(--card-ratio);
+    border-radius:12px; overflow:hidden; background:#141416;
+    isolation:isolate; transform:translateZ(0);
+    transition:border-radius .2s ease, box-shadow .2s ease;
+  }
+  .card-thumb::before{
     content:'';
     position:absolute; inset:0;
     background:linear-gradient(100deg, transparent 30%, rgba(255,255,255,.07) 45%, transparent 60%);
     background-size:200% 100%; background-position:150% 0;
     z-index:2; pointer-events:none;
   }
-  @media (prefers-reduced-motion:reduce){ .card::before{ display:none; } }
-  .card:hover, .card:focus-visible{
-    transform:scale(1.07);
-    box-shadow:0 18px 44px rgba(0,0,0,.8), 0 0 0 2px rgba(229,9,20,.6), 0 0 26px rgba(229,9,20,.3);
-    z-index:5;
-    border-color:#e50914;
+  @media (prefers-reduced-motion:reduce){ .card-thumb::before{ display:none; } }
+  .card:hover .card-thumb, .card:focus-visible .card-thumb{
+    border-radius:4px;
+    box-shadow:0 10px 28px rgba(0,0,0,.55);
   }
+  .card:focus-visible{ outline:none; box-shadow:none; }
+  .card:focus-visible .card-thumb{ outline:3px solid #fff; outline-offset:2px; }
   @media (hover:hover) and (pointer:fine){
-    .card:hover::before{ transition:background-position .8s ease; background-position:-50% 0; }
+    .card:hover .card-thumb::before{ transition:background-position .8s ease; background-position:-50% 0; }
   }
-  .card img, .card video{ width:100%; height:100%; object-fit:cover; object-position:center 30%; display:block; pointer-events:none; }
+  .card img, .card video{ width:100%; height:100%; object-fit:cover; object-position:center; display:block; pointer-events:none; }
   .card img{
     position:absolute; inset:0; z-index:1;
     opacity:0; transition:opacity .4s ease;
@@ -515,19 +513,12 @@
     animation:cardShimmer 1.4s ease-in-out infinite;
   }
   .card img.loaded{ opacity:1; animation:none; background:none; }
-  /* Modo contain: imagen completa + fondo desenfocado de la misma imagen */
-  .card.fit-contain img{ object-fit:contain; }
-  .card.fit-contain::after{
-    content:''; position:absolute; inset:-12%; z-index:0; pointer-events:none;
-    background:var(--card-bg) center/cover no-repeat;
-    filter:blur(16px) brightness(.55) saturate(1.2);
-  }
   @keyframes cardShimmer{
     0%{ background-position:150% 0; }
     100%{ background-position:-50% 0; }
   }
   .card .placeholder{
-    width:100%; height:100%; display:flex; align-items:center; justify-content:center;
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
     font-size:34px; background:linear-gradient(135deg,#222,#000);
   }
   .card-preview-video{
@@ -560,36 +551,14 @@
     50%{ box-shadow:0 3px 16px rgba(229,9,20,.85); }
   }
   @media (prefers-reduced-motion:reduce){ .card-badge{ animation:none; } }
-  .card-overlay{
-    position:absolute; left:0; right:0; bottom:0; padding:22px 11px 9px;
-    background:linear-gradient(0deg, rgba(0,0,0,.92), rgba(0,0,0,.45) 60%, transparent);
-    font-size:clamp(12.5px,1.3vw,15px); font-weight:600;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-    pointer-events:none; z-index:4;
+  /* Título debajo de la miniatura (máx. 2 líneas) */
+  .card-info{ padding:0 4px 0 2px; pointer-events:none; }
+  .card-title{
+    display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2;
+    overflow:hidden; text-overflow:ellipsis;
+    font-size:14px; font-weight:500; line-height:1.35; color:#f1f1f1;
   }
-
-  /* ---------- CARD "LOGO" (radio, televisión, remis, otros) ----------
-     Mismo marco, sombra, hover y título que las cards de películas.
-     La diferencia: el logo/arte (normalmente cuadrado o con fondo
-     transparente) se muestra COMPLETO y centrado sobre un fondo
-     desenfocado de la misma imagen, en vez de recortarse. */
-  .card.card-logo{
-    /* Tamaño propio: cuadrada y más compacta que la card de película (16:9).
-       Ajusta --logo-scale (0.92 = 92% del ancho de una card de película). */
-    --logo-scale:1;
-    width:calc(var(--card-w) * var(--logo-scale)); aspect-ratio:var(--card-ratio);
-    background:radial-gradient(120% 120% at 50% 0%, #26262c 0%, #101013 70%);
-  }
-  .card.card-logo.fit-contain img{
-    box-sizing:border-box; padding:3% 3% 15%;
-    filter:drop-shadow(0 6px 14px rgba(0,0,0,.55));
-  }
-  .card.card-logo .placeholder{
-    font-size:clamp(28px,3.4vw,46px); padding-bottom:18%;
-    background:radial-gradient(120% 120% at 50% 0%, #33333b 0%, #0c0c0e 75%);
-  }
-  .card.card-logo .card-overlay{ padding:26px 11px 8px; white-space:normal; }
-  .card-title{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .card:hover .card-title{ color:#fff; }
   .card-live{
     position:absolute; top:8px; right:8px; z-index:5;
     display:flex; align-items:center; gap:5px;
@@ -609,7 +578,6 @@
   @media (max-width:640px){
     .card-live{ top:5px; right:5px; font-size:7.5px; padding:2px 5px; gap:3px; }
     .card-live i{ width:5px; height:5px; }
-    .card.card-logo .card-overlay{ padding:18px 7px 5px; }
   }
 
   .empty-state{
@@ -1459,10 +1427,10 @@
     :root{ --safe-x:5vw; }
     body{ font-size:18px; }
     .row-title{ font-size:22px; }
-    .card-overlay{ font-size:15px; padding:10px 14px; }
+    .card-title{ font-size:16px; }
   }
   @media (min-width:2200px){
-    :root{ --safe-x:6vw; --card-w:12.2vw; }
+    :root{ --safe-x:6vw; --card-w:15vw; }
     body{ font-size:22px; }
     .nav-logo-name{ font-size:28px; }
     .hero-title{ font-size:64px; }
@@ -1592,10 +1560,7 @@
   /* Touch: sin "hover pegado" (en celular el último elemento tocado
      quedaba agrandado) y con feedback al presionar. */
   @media (hover:none){
-    .card:hover{
-      transform:translateZ(0); z-index:auto;
-      border-color:rgba(255,255,255,.08); box-shadow:0 4px 14px rgba(0,0,0,.35);
-    }
+    .card:hover .card-thumb{ border-radius:12px; box-shadow:none; }
     .card:active{ transform:scale(.97); }
     .btn-play:hover{ transform:none; background:#fff; box-shadow:0 8px 24px rgba(0,0,0,.35); }
     .btn-play:active{ transform:scale(.97); background:#ececec; }
@@ -1604,7 +1569,7 @@
   }
 
   @media (max-width:640px){
-    :root{ --card-w:clamp(99px, 29vw, 130px); --row-pb:18px; }
+    :root{ --card-w:clamp(160px, 46vw, 230px); --row-pb:18px; }
 
     /* ---- Nav ---- */
     .nav{ gap:8px; }
@@ -1663,8 +1628,8 @@
       overscroll-behavior-x:contain;
       scroll-snap-type:x proximity;
     }
-    .card{ border-radius:8px; }
-    .card-overlay{ font-size:10px; padding:14px 7px 5px; }
+    .card-thumb{ border-radius:8px; }
+    .card-title{ font-size:12px; }
     .card-badge{ top:5px; left:5px; font-size:8px; padding:2px 6px; }
     .card .placeholder{ font-size:24px; }
     .card-play{ display:none; }
@@ -1687,11 +1652,11 @@
   }
 
   @media (max-width:380px){
-    :root{ --safe-x:12px; --card-w:clamp(92px, 28vw, 117px); --nav-h:54px; }
+    :root{ --safe-x:12px; --card-w:clamp(148px, 45vw, 190px); --nav-h:54px; }
     .hero-title{ font-size:16px; }
     .hero-actions .btn{ padding:7px 14px; font-size:12px; }
     .row-title{ font-size:13px; }
-    .card-overlay{ font-size:9.5px; }
+    .card-title{ font-size:11.5px; }
     .nav-logo-mark{ width:28px; height:28px; }
     .nav-icon-btn, .notif-bell{ width:32px; height:32px; }
   }
@@ -2984,17 +2949,13 @@
     var playIcon = m.tipo !== 'image' ?
       '<div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>' : '';
 
-    var overlay = kind
-      ? '<div class="card-overlay"><span class="card-title">'+esc(m.nombre)+'</span></div>'
-      : '<div class="card-overlay">'+esc(m.nombre)+'</div>';
+    var overlay = '<div class="card-info"><span class="card-title">'+esc(m.nombre)+'</span></div>';
 
     // SIN onclick inline, SIN onkeydown inline — binding por delegation
     return '' +
       '<div class="card'+(kind ? ' card-logo' : '')+'" tabindex="0" role="button" aria-label="'+esc(m.nombre)+'" title="'+esc(m.nombre)+'" ' +
         'data-media-id="'+esc(m.id)+'"'+previewAttr+'>' +
-        badge +
-        inner +
-        playIcon +
+        '<div class="card-thumb">' + badge + inner + playIcon + '</div>' +
         overlay +
       '</div>';
   }
@@ -3061,7 +3022,7 @@
         video.loop = true;
         video.playsInline = true;
         video.preload = 'none';
-        card.appendChild(video);
+        (card.querySelector('.card-thumb') || card).appendChild(video);
         video.play().catch(function(){});
         requestAnimationFrame(function(){ video.classList.add('show'); });
         cardPreviewEl = video;
