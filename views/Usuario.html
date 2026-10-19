@@ -4541,5 +4541,74 @@
 
   bootUsuario();
 </script>
+
+<? if (brand.gateEnabled) { ?>
+<!-- ===== PUERTA SOCIAL: pide visitar las redes antes de entrar ===== -->
+<div id="sfGate" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:rgba(0,0,0,.94);align-items:center;justify-content:center;padding:20px;overflow:auto">
+  <div style="max-width:420px;width:100%;background:#141414;border:1px solid #333;border-radius:14px;padding:26px 22px;color:#fff;text-align:center;font-family:inherit">
+    <h2 style="margin:0 0 6px;font-size:22px">Antes de entrar</h2>
+    <p style="margin:0 0 18px;color:#aaa;font-size:14px;line-height:1.4">Apóyanos visitando nuestras redes. Pulsa cada botón y espera unos segundos.</p>
+    <div id="sfGateList" style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px"></div>
+    <button id="sfGateEnter" disabled style="width:100%;padding:13px;border:0;border-radius:10px;font-size:16px;font-weight:700;background:#444;color:#888;cursor:not-allowed">Entrar</button>
+  </div>
+</div>
+<script>
+(function(){
+  var USER = "<?= userToken ?>";
+  var SECS = Number("<?= brand.gateSeconds ?>") || 8;
+  var NETS = [
+    ["YouTube", "Suscríbete en YouTube", "<?= brand.socialYoutubeUrl ?>"],
+    ["Facebook", "Sigue en Facebook", "<?= brand.socialFacebookUrl ?>"],
+    ["Instagram", "Sigue en Instagram", "<?= brand.socialInstagramUrl ?>"],
+    ["TikTok", "Sigue en TikTok", "<?= brand.socialTiktokUrl ?>"],
+    ["Telegram", "Únete a Telegram", "<?= brand.socialTelegramUrl ?>"],
+    ["WhatsApp", "Únete por WhatsApp", "<?= brand.socialWhatsappUrl ?>"]
+  ].filter(function(n){ return n[2]; });
+  var KEY = "sf_gate_ok", DAYS = 7;
+  if (USER || !NETS.length) return;
+  try { var t = Number(localStorage.getItem(KEY) || 0); if (t && Date.now() - t < DAYS * 86400000) return; } catch (e) {}
+
+  var gate = document.getElementById("sfGate"), list = document.getElementById("sfGateList"), enter = document.getElementById("sfGateEnter");
+  var pending = NETS.length;
+  function unlock() {
+    enter.disabled = false;
+    enter.style.background = "#e50914"; enter.style.color = "#fff"; enter.style.cursor = "pointer";
+  }
+  NETS.forEach(function (n) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.textContent = n[1];
+    b.style.cssText = "padding:12px;border:1px solid #444;border-radius:10px;background:#222;color:#fff;font-size:15px;cursor:pointer";
+    var started = false;
+    b.onclick = function () {
+      if (started) return;
+      started = true;
+      try { window.open(n[2], "_blank", "noopener"); } catch (e) {}
+      var left = SECS;
+      b.disabled = true; b.style.opacity = ".7";
+      b.textContent = n[0] + ": espera " + left + "s…";
+      var iv = setInterval(function () {
+        left--;
+        if (left > 0) { b.textContent = n[0] + ": espera " + left + "s…"; return; }
+        clearInterval(iv);
+        b.textContent = "✓ " + n[0] + " listo";
+        b.style.background = "#1f6f3a"; b.style.borderColor = "#1f6f3a"; b.style.opacity = "1";
+        pending--;
+        if (pending <= 0) unlock();
+      }, 1000);
+    };
+    list.appendChild(b);
+  });
+  enter.onclick = function () {
+    if (enter.disabled) return;
+    try { localStorage.setItem(KEY, String(Date.now())); } catch (e) {}
+    gate.style.display = "none";
+    document.body.style.overflow = "";
+  };
+  gate.style.display = "flex";
+  document.body.style.overflow = "hidden";
+})();
+</script>
+<? } ?>
 </body>
 </html>
