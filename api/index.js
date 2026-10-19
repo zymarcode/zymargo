@@ -14,11 +14,45 @@ const SHIM = '<script>(function(){function mk(s,f){return new Proxy({},{get:func
   '.catch(function(e){if(f)f({message:e.message})})}}})}' +
   'window.google={script:{run:mk(null,null)}};})();</script>';
 
+// Apps Script agregaba solo el viewport y mostraba la página como app.
+// En Vercel hay que declararlo: viewport, tema, modo app instalable (PWA) y estilos táctiles.
+function escAttr(v) {
+  return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+function appHead(brand) {
+  const name = escAttr((brand && brand.brandName) || 'STREAMFLIX');
+  const logo = brand && brand.brandLogoUrl ? escAttr(brand.brandLogoUrl) : '/icons/apple-touch-icon.png';
+  return '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+    '<meta name="theme-color" content="#141414">' +
+    '<meta name="color-scheme" content="dark">' +
+    '<meta name="mobile-web-app-capable" content="yes">' +
+    '<meta name="apple-mobile-web-app-capable" content="yes">' +
+    '<meta name="apple-mobile-web-app-status-bar-style" content="black">' +
+    '<meta name="apple-mobile-web-app-title" content="' + name + '">' +
+    '<meta name="application-name" content="' + name + '">' +
+    '<meta name="format-detection" content="telephone=no">' +
+    '<link rel="manifest" href="/manifest.webmanifest">' +
+    '<link rel="apple-touch-icon" href="' + logo + '">' +
+    '<style>' +
+    'html{-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;text-size-adjust:100%}' +
+    'body{overscroll-behavior-y:none}' +
+    '@media (display-mode:standalone){' +
+    'body{-webkit-touch-callout:none}' +
+    'body :not(input):not(textarea):not([contenteditable]){-webkit-user-select:none;user-select:none}' +
+    '}' +
+    '</style>' +
+    '<script>if("serviceWorker"in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js",{scope:"/"}).catch(function(){})})}</script>';
+}
+
 function view(name, ctx) {
   const src = fs.readFileSync(path.join(process.cwd(), 'views', name + '.html'), 'utf8');
   let html = render(name, src, ctx);
-  if (/<head[^>]*>/i.test(html)) html = html.replace(/<head[^>]*>/i, function (m) { return m + SHIM; });
-  else html = SHIM + html;
+  const inject = appHead(ctx && ctx.brand) + SHIM;
+  if (/<head[^>]*>/i.test(html)) html = html.replace(/<head[^>]*>/i, function (m) { return m + inject; });
+  else html = inject + html;
   return html;
 }
 
