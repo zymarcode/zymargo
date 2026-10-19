@@ -17,7 +17,7 @@
     --spotify:#1db954; --spotify-hover:#1ed760;
     --muted:#808080; --border:#2a2a2a; --text:#fff;
     --safe-x: clamp(16px, 4vw, 64px);
-    --card-w: clamp(124px, 11.5vw, 190px);
+    --card-w: clamp(132px, 12vw, 200px);
     --card-ratio: 2/3;
     --nav-h: 68px;
     --row-pb: 30px;
@@ -1462,7 +1462,7 @@
     .card-overlay{ font-size:15px; padding:10px 14px; }
   }
   @media (min-width:2200px){
-    :root{ --safe-x:6vw; --card-w:12vw; }
+    :root{ --safe-x:6vw; --card-w:12.5vw; }
     body{ font-size:22px; }
     .nav-logo-name{ font-size:28px; }
     .hero-title{ font-size:64px; }
@@ -1604,7 +1604,7 @@
   }
 
   @media (max-width:640px){
-    :root{ --card-w:clamp(96px, 29vw, 128px); --row-pb:18px; }
+    :root{ --card-w:clamp(104px, 31vw, 138px); --row-pb:18px; }
 
     /* ---- Nav ---- */
     .nav{ gap:8px; }
@@ -1687,7 +1687,7 @@
   }
 
   @media (max-width:380px){
-    :root{ --safe-x:12px; --card-w:clamp(90px, 28vw, 114px); --nav-h:54px; }
+    :root{ --safe-x:12px; --card-w:clamp(98px, 30vw, 124px); --nav-h:54px; }
     .hero-title{ font-size:16px; }
     .hero-actions .btn{ padding:7px 14px; font-size:12px; }
     .row-title{ font-size:13px; }
@@ -3011,14 +3011,19 @@
     }
   }, true);
 
-  // Ajuste de imagen de la card (proporción de la card = 16:9):
-  // parecida -> cover; muy distinta -> contain sobre fondo desenfocado.
+  // Ajuste de imagen de la card (la card es vertical, proporción --card-ratio):
+  // proporción parecida a la card -> cover (llena sin barras);
+  // muy distinta (horizontal, cuadrada...) -> contain sobre fondo desenfocado (no se corta).
+  // Pon false para que SIEMPRE llene la card (cover) aunque se recorte.
+  var CARD_FIT_ENABLED = true;
   function applyCardFit_(card, img){
     var w = img.naturalWidth, h = img.naturalHeight;
     if(!w || !h) return;
     var isLogo = card.classList.contains('card-logo');
-    var r = (w / h) / 16 * 9;
-    if(isLogo || !FIT_CONTAIN_ENABLED || (r >= 0.8 && r <= 1.25)){ card.classList.remove('fit-contain'); return; }
+    var cw = card.clientWidth, ch = card.clientHeight;
+    var cardRatio = (cw && ch) ? cw / ch : 2 / 3;
+    var r = (w / h) / cardRatio;
+    if(isLogo || !CARD_FIT_ENABLED || (r >= 0.8 && r <= 1.25)){ card.classList.remove('fit-contain'); return; }
     var src = (img.currentSrc || img.src || '').replace(/"/g, '%22');
     card.style.setProperty('--card-bg', 'url("' + src + '")');
     card.classList.add('fit-contain');
@@ -4756,6 +4761,7 @@
     ["WhatsApp", "💬  Únete por WhatsApp", "#25d366", "<?= brand.socialWhatsappUrl ?>"]
   ].filter(function(n){ return n[3]; });
   if (!NETS.length) return;
+  var UTOKEN = "<?= userToken ?>";
 
   var gate = document.getElementById("sfGate"), list = document.getElementById("sfGateList");
   var enter = document.getElementById("sfGateEnter"), bar = document.getElementById("sfGateBar");
@@ -4807,8 +4813,17 @@
     gate.style.display = "none";
     document.body.style.overflow = "";
   };
-  gate.style.display = "flex";
-  document.body.style.overflow = "hidden";
+  function openGate() {
+    gate.style.display = "flex";
+    document.body.style.overflow = "hidden";
+  }
+  // El servidor decide si ESTE usuario debe ver el modal (lo configura el admin por usuario).
+  try {
+    google.script.run
+      .withSuccessHandler(function (show) { if (show) openGate(); })
+      .withFailureHandler(function () {})
+      .shouldShowGate(UTOKEN || "");
+  } catch (e) {}
 })();
 </script>
 <? } ?>
