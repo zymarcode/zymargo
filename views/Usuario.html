@@ -3014,7 +3014,7 @@
   // proporción parecida a la card -> cover (llena sin barras);
   // muy distinta (horizontal, cuadrada...) -> contain sobre fondo desenfocado (no se corta).
   // Pon false para que SIEMPRE llene la card (cover) aunque se recorte.
-  var CARD_FIT_ENABLED = true;
+  var CARD_FIT_ENABLED = false; // false = la imagen llena TODA la card (cover)
   // true = la imagen SIEMPRE se ve completa (contain + fondo desenfocado). false = solo si la proporción es muy distinta.
   var CARD_FIT_ALWAYS = true;
   function applyCardFit_(card, img){
