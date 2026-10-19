@@ -893,8 +893,14 @@
           <div class="field-hint">Aparece debajo del formulario de inicio de sesión de usuarios. Bórralo y guarda para quitarlo por completo.</div>
         </div>
 
-        <div class="modal-section-title">📱 Redes sociales (login de usuarios)</div>
-        <div class="field-hint" style="margin-bottom:10px;">Todas son opcionales. Solo se muestra el ícono de las redes que tengan una URL cargada, debajo del formulario de inicio de sesión de usuarios.</div>
+        <div class="field">
+          <label>Texto del footer (pie de página)</label>
+          <input type="text" id="footerTextInput" maxlength="300" value="<?= brand.footerText ?>" placeholder="Ej: © 2026 Mi Streaming. Todos los derechos reservados." />
+          <div class="field-hint">Aparece al final de la página de usuarios, junto a los íconos de redes sociales. Bórralo y guarda para mostrar solo las redes.</div>
+        </div>
+
+        <div class="modal-section-title">📱 Redes sociales (login de usuarios y footer)</div>
+        <div class="field-hint" style="margin-bottom:10px;">Todas son opcionales. Solo se muestra el ícono de las redes que tengan una URL cargada, debajo del formulario de inicio de sesión de usuarios y en el footer.</div>
         <div class="field">
           <label>▶️ YouTube</label>
           <input type="url" id="socialYoutubeInput" maxlength="300" value="<?= brand.socialYoutubeUrl ?>" placeholder="https://youtube.com/@tucanal" />
@@ -1951,6 +1957,7 @@
     var playerLogo = document.getElementById('playerLogoInput').value.trim();
     var loginBg = document.getElementById('loginBgInput').value.trim();
     var loginHint = document.getElementById('loginHintInput').value.trim();
+    var footerText = document.getElementById('footerTextInput').value.trim();
     var socialLinks = {
       socialYoutubeUrl: document.getElementById('socialYoutubeInput').value.trim(),
       socialFacebookUrl: document.getElementById('socialFacebookInput').value.trim(),
@@ -1977,8 +1984,8 @@
     var btn = document.getElementById('brandSaveBtn');
     btn.disabled = true; btn.textContent = 'Guardando...';
 
-    var pending = 6;
-    var results = { name: null, logo: null, playerLogo: null, loginBg: null, loginHint: null, social: null };
+    var pending = 7;
+    var results = { name: null, logo: null, playerLogo: null, loginBg: null, loginHint: null, footer: null, social: null };
     var finish = function(){
       pending--;
       if(pending > 0) return;
@@ -1988,6 +1995,7 @@
       if(results.playerLogo && !results.playerLogo.ok){ errBox.textContent = results.playerLogo.error || 'Error.'; return; }
       if(results.loginBg && !results.loginBg.ok){ errBox.textContent = results.loginBg.error || 'Error.'; return; }
       if(results.loginHint && !results.loginHint.ok){ errBox.textContent = results.loginHint.error || 'Error.'; return; }
+      if(results.footer && !results.footer.ok){ errBox.textContent = results.footer.error || 'Error.'; return; }
       if(results.social && !results.social.ok){ errBox.textContent = results.social.error || 'Error.'; return; }
 
       okBox.textContent = 'Marca actualizada correctamente.';
@@ -2026,6 +2034,10 @@
     google.script.run.withSuccessHandler(function(res){ results.loginHint = res; finish(); })
       .withFailureHandler(function(e){ results.loginHint = { ok:false, error:e.message }; finish(); })
       .setLoginHint(TOKEN, loginHint);
+
+    google.script.run.withSuccessHandler(function(res){ results.footer = res; finish(); })
+      .withFailureHandler(function(e){ results.footer = { ok:false, error:e.message }; finish(); })
+      .setFooterText(TOKEN, footerText);
 
     google.script.run.withSuccessHandler(function(res){ results.social = res; finish(); })
       .withFailureHandler(function(e){ results.social = { ok:false, error:e.message }; finish(); })
