@@ -568,6 +568,51 @@
     pointer-events:none; z-index:4;
   }
 
+  /* ---------- CARD "LOGO" (radio, televisión, remis, otros) ----------
+     Mismo marco, sombra, hover y título que las cards de películas.
+     La diferencia: el logo/arte (normalmente cuadrado o con fondo
+     transparente) se muestra COMPLETO y centrado sobre un fondo
+     desenfocado de la misma imagen, en vez de recortarse. */
+  .card.card-logo{
+    background:radial-gradient(120% 120% at 50% 0%, #26262c 0%, #101013 70%);
+  }
+  .card.card-logo.fit-contain img{
+    box-sizing:border-box; padding:9% 14% 24%;
+    filter:drop-shadow(0 6px 14px rgba(0,0,0,.55));
+  }
+  .card.card-logo .placeholder{
+    font-size:clamp(28px,3.4vw,46px); padding-bottom:18%;
+    background:radial-gradient(120% 120% at 50% 0%, #33333b 0%, #0c0c0e 75%);
+  }
+  .card.card-logo .card-overlay{ padding:26px 11px 8px; white-space:normal; }
+  .card-title, .card-sub{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .card-sub{
+    margin-top:2px; font-size:.78em; font-weight:700; letter-spacing:.6px;
+    text-transform:uppercase; color:#b9b9c2;
+  }
+  .card-live{
+    position:absolute; top:8px; right:8px; z-index:5;
+    display:flex; align-items:center; gap:5px;
+    background:rgba(0,0,0,.62); color:#fff; font-size:9.5px; font-weight:800;
+    letter-spacing:.7px; padding:3px 8px 3px 7px; border-radius:999px;
+    border:1px solid rgba(255,255,255,.18); backdrop-filter:blur(3px);
+  }
+  .card-live i{
+    width:6px; height:6px; border-radius:50%; background:#e50914;
+    box-shadow:0 0 0 0 rgba(229,9,20,.7); animation:liveDot 1.6s ease-out infinite;
+  }
+  @keyframes liveDot{
+    0%{ box-shadow:0 0 0 0 rgba(229,9,20,.7); }
+    100%{ box-shadow:0 0 0 7px rgba(229,9,20,0); }
+  }
+  @media (prefers-reduced-motion:reduce){ .card-live i{ animation:none; } }
+  @media (max-width:640px){
+    .card-live{ top:5px; right:5px; font-size:7.5px; padding:2px 5px; gap:3px; }
+    .card-live i{ width:5px; height:5px; }
+    .card.card-logo .card-overlay{ padding:18px 7px 5px; }
+    .card-sub{ font-size:.72em; letter-spacing:.3px; }
+  }
+
   .empty-state{
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     text-align:center; padding:100px 20px; color:var(--muted);
@@ -2905,14 +2950,30 @@
     el.scrollBy({ left: dir * el.clientWidth * 0.85, behavior: 'smooth' });
   });
 
+  // Clasifica la card según su categoría. Las de película/serie/etc. se
+  // quedan como siempre; radio, televisión, remis y cualquier otra
+  // categoría usan el estilo "logo" (misma card, arte completo).
+  var CARD_MOVIE_RE = /pelicula|serie|documental|musica|cine|anime|novela|video|show|concierto/;
+  function cardKind_(m){
+    var c = heroNorm_(m.categoria);
+    var live = false, icon = null;
+    if(/radio|emisora|\bfm\b|\bam\b/.test(c)){ live = true; icon = '📻'; }
+    else if(/televis|\btv\b|canal|en vivo|iptv/.test(c)){ live = true; icon = '📺'; }
+    else if(/remis|taxi|transporte|movil/.test(c)){ icon = '🚕'; }
+    else if(CARD_MOVIE_RE.test(c)){ return null; }
+    if(!live && typeof isIcecastUrl === 'function' && m.url && isIcecastUrl(m.url)) live = true;
+    return { live: live, icon: icon };
+  }
+
   function cardHtml(m){
+    var kind = cardKind_(m);
     var inner;
     if(m.miniatura){
       inner = '<img src="'+esc(m.miniatura)+'" loading="lazy" alt="" draggable="false" />';
     } else if(m.tipo === 'image'){
       inner = '<img src="'+esc(m.url)+'" loading="lazy" alt="" draggable="false" />';
     } else {
-      var icon = m.tipo === 'video' ? '🎬' : (isAudioType(m.tipo)) ? '🎵' : '📄';
+      var icon = (kind && kind.icon) || (m.tipo === 'video' ? '🎬' : (isAudioType(m.tipo)) ? '🎵' : '📄');
       inner = '<div class="placeholder">'+icon+'</div>';
     }
 
@@ -2922,17 +2983,24 @@
     }
 
     var badge = m.destacado ? '<div class="card-badge">★ Destacado</div>' : '';
+    var live = (kind && kind.live) ? '<div class="card-live"><i></i>EN VIVO</div>' : '';
     var playIcon = m.tipo !== 'image' ?
       '<div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>' : '';
 
+    var overlay = kind
+      ? '<div class="card-overlay"><span class="card-title">'+esc(m.nombre)+'</span>' +
+          (m.categoria ? '<span class="card-sub">'+esc(m.categoria)+'</span>' : '') + '</div>'
+      : '<div class="card-overlay">'+esc(m.nombre)+'</div>';
+
     // SIN onclick inline, SIN onkeydown inline — binding por delegation
     return '' +
-      '<div class="card" tabindex="0" role="button" aria-label="'+esc(m.nombre)+'" title="'+esc(m.nombre)+'" ' +
+      '<div class="card'+(kind ? ' card-logo' : '')+'" tabindex="0" role="button" aria-label="'+esc(m.nombre)+'" title="'+esc(m.nombre)+'" ' +
         'data-media-id="'+esc(m.id)+'"'+previewAttr+'>' +
         badge +
+        live +
         inner +
         playIcon +
-        '<div class="card-overlay">'+esc(m.nombre)+'</div>' +
+        overlay +
       '</div>';
   }
 
@@ -2953,7 +3021,8 @@
     var w = img.naturalWidth, h = img.naturalHeight;
     if(!w || !h) return;
     var r = (w / h) / (16 / 9);
-    if(!FIT_CONTAIN_ENABLED || (r >= 0.8 && r <= 1.25)){ card.classList.remove('fit-contain'); return; }
+    var isLogo = card.classList.contains('card-logo');
+    if((!FIT_CONTAIN_ENABLED && !isLogo) || (r >= 0.8 && r <= 1.25)){ card.classList.remove('fit-contain'); return; }
     var src = (img.currentSrc || img.src || '').replace(/"/g, '%22');
     card.style.setProperty('--card-bg', 'url("' + src + '")');
     card.classList.add('fit-contain');
