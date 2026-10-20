@@ -926,7 +926,12 @@
   .like-btn:disabled{ opacity:.65; cursor:default; }
   @keyframes likePop{ 0%{transform:scale(1)} 50%{transform:scale(1.35)} 100%{transform:scale(1)} }
   .cm-title{ font-size:14px; font-weight:800; margin:16px 0 10px; }
-  .cm-form{ display:flex; gap:8px; align-items:flex-start; }
+  .cm-form{ display:flex; gap:8px; align-items:flex-start; flex-wrap:wrap; }
+  .cm-name{
+    flex:1 1 100%; background:#1a1a1a; color:#fff; border:1px solid #2a2a2a; border-radius:8px;
+    padding:8px 11px; font:inherit; font-size:13px;
+  }
+  .cm-name:focus{ outline:none; border-color:var(--red); }
   .cm-input{
     flex:1; min-width:0; background:#1a1a1a; color:#fff; border:1px solid #2a2a2a; border-radius:8px;
     padding:9px 11px; font:inherit; font-size:13px; resize:vertical; min-height:40px; max-height:140px;
@@ -3773,6 +3778,12 @@
   //  LIKES Y COMENTARIOS
   // ============================================================
   var socialMediaId = '';
+  var SOCIAL_NAME_KEY = 'sf_comment_name';
+  var SOCIAL_ACCOUNT_NAME = "<?= userName ?>";
+  function socialGetName_(){
+    try { return localStorage.getItem(SOCIAL_NAME_KEY) || SOCIAL_ACCOUNT_NAME || ''; } catch(e){ return SOCIAL_ACCOUNT_NAME || ''; }
+  }
+  function socialSetName_(v){ try { localStorage.setItem(SOCIAL_NAME_KEY, v); } catch(e){} }
   function socialRender_(r){
     if(!r || !r.ok) return;
     var btn = document.getElementById('likeBtn');
@@ -3787,7 +3798,8 @@
     if(!r.logged){
       wrap.innerHTML = '<div class="cm-hint">Inicia sesión para dar like y comentar.</div>';
     } else if(!document.getElementById('cmInput')){
-      wrap.innerHTML = '<div class="cm-form"><textarea class="cm-input" id="cmInput" maxlength="500" rows="1" placeholder="Escribe un comentario..."></textarea>' +
+      wrap.innerHTML = '<div class="cm-form"><input type="text" class="cm-name" id="cmName" maxlength="30" placeholder="Tu nombre" value="' + esc(socialGetName_()) + '" />' +
+      '<textarea class="cm-input" id="cmInput" maxlength="500" rows="1" placeholder="Escribe un comentario..."></textarea>' +
         '<button type="button" class="cm-send" id="cmSend" onclick="socialSendComment()">Enviar</button></div>';
     }
 
@@ -3808,7 +3820,7 @@
     document.getElementById('cmCount').textContent = '';
     google.script.run.withSuccessHandler(function(r){
       if(socialMediaId === id) socialRender_(r);
-    }).getMediaSocial(USER_TOKEN || '', id);
+    }).getMediaSocial(USER_TOKEN || '', id, getDeviceId_());
   }
   function socialDone_(r){
     if(r && r.ok) socialRender_(r); else if(r && r.error) alert(r.error);
@@ -3817,13 +3829,17 @@
     if(!socialMediaId) return;
     var id = socialMediaId;
     google.script.run.withSuccessHandler(function(r){ if(socialMediaId === id) socialDone_(r); })
-      .toggleLike(USER_TOKEN, id);
+      .toggleLike(USER_TOKEN, id, getDeviceId_());
   }
   function socialSendComment(){
     var input = document.getElementById('cmInput'), btn = document.getElementById('cmSend');
+    var nameEl = document.getElementById('cmName');
     if(!input || !socialMediaId) return;
     var text = input.value.trim();
+    var name = nameEl ? nameEl.value.trim() : '';
+    if(!name){ alert('Escribe tu nombre.'); if(nameEl) nameEl.focus(); return; }
     if(!text) return;
+    socialSetName_(name);
     var id = socialMediaId;
     btn.disabled = true;
     google.script.run.withSuccessHandler(function(r){
@@ -3831,13 +3847,13 @@
       if(r && r.ok){ input.value = ''; }
       if(socialMediaId === id) socialDone_(r);
     }).withFailureHandler(function(){ btn.disabled = false; })
-      .addComment(USER_TOKEN, id, text);
+      .addComment(USER_TOKEN, id, text, name, getDeviceId_());
   }
   function socialDeleteComment(cid){
     if(!confirm('¿Borrar este comentario?')) return;
     var id = socialMediaId;
     google.script.run.withSuccessHandler(function(r){ if(socialMediaId === id) socialDone_(r); })
-      .deleteComment(USER_TOKEN, cid);
+      .deleteComment(USER_TOKEN, cid, getDeviceId_());
   }
 
   function closePlayer(){
