@@ -912,19 +912,40 @@
 
   /* ---- Likes y comentarios ---- */
   .social-box{ margin-top:18px; padding-top:14px; border-top:1px solid #2a2a2a; }
-  .player-actions{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  /* Fila de acciones: siempre justo debajo del título, igual en PC, tablet y celular */
+  .player-actions{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; flex:1 1 100%; width:100%; }
   .like-btn{
-    display:inline-flex; align-items:center; gap:7px; background:#1f1f1f; color:#cfcfd4;
-    border:1px solid #2a2a2a; border-radius:20px; padding:5px 13px 5px 11px; font:inherit; font-size:12px; font-weight:700;
-    cursor:pointer; transition:background .2s, border-color .2s, color .2s, transform .15s;
+    position:relative; display:inline-flex; align-items:center; justify-content:center; gap:9px;
+    min-height:40px; padding:0 18px 0 14px; border-radius:999px;
+    background:linear-gradient(180deg,#232323,#1a1a1a); color:#d8d8dd;
+    border:1px solid #333; font:inherit; font-size:14px; font-weight:700; letter-spacing:.2px;
+    cursor:pointer; user-select:none; -webkit-tap-highlight-color:transparent;
+    box-shadow:0 2px 8px rgba(0,0,0,.35);
+    transition:background .2s, border-color .2s, color .2s, transform .15s, box-shadow .2s;
   }
-  .like-btn svg{ fill:none; stroke:currentColor; stroke-width:2; stroke-linejoin:round; transition:transform .25s, fill .2s; }
-  .like-btn:hover:not(:disabled){ border-color:var(--red); color:#fff; }
-  .like-btn:active:not(:disabled){ transform:scale(.94); }
-  .like-btn.is-liked{ background:rgba(229,9,20,.14); color:#ff6b73; border-color:rgba(229,9,20,.5); }
-  .like-btn.is-liked svg{ fill:var(--red); stroke:var(--red); animation:likePop .35s ease; }
-  .like-btn:disabled{ opacity:.65; cursor:default; }
-  @keyframes likePop{ 0%{transform:scale(1)} 50%{transform:scale(1.35)} 100%{transform:scale(1)} }
+  .like-btn svg{ width:22px; height:22px; flex:none; fill:none; stroke:currentColor; stroke-width:2; stroke-linejoin:round; stroke-linecap:round; transition:fill .2s, stroke .2s; }
+  .like-btn .like-text{ line-height:1; }
+  .like-btn .like-count{
+    min-width:22px; padding:3px 8px; border-radius:999px; background:rgba(255,255,255,.08);
+    font-size:12.5px; font-weight:800; line-height:1.1; text-align:center; font-variant-numeric:tabular-nums;
+  }
+  .like-btn:hover:not(:disabled){ border-color:var(--red); color:#fff; box-shadow:0 4px 14px rgba(229,9,20,.25); }
+  .like-btn:active:not(:disabled){ transform:scale(.95); }
+  .like-btn:focus-visible{ outline:2px solid #ff6b73; outline-offset:2px; }
+  .like-btn.is-liked{
+    background:linear-gradient(180deg,rgba(229,9,20,.28),rgba(229,9,20,.14));
+    color:#ff8087; border-color:rgba(229,9,20,.65); box-shadow:0 4px 14px rgba(229,9,20,.22);
+  }
+  .like-btn.is-liked svg{ fill:var(--red); stroke:var(--red); animation:likePop .4s cubic-bezier(.2,1.4,.4,1); }
+  .like-btn.is-liked .like-count{ background:rgba(229,9,20,.22); color:#ffb3b7; }
+  .like-btn:disabled{ opacity:.6; cursor:default; box-shadow:none; }
+  .like-btn.is-busy{ pointer-events:none; }
+  @keyframes likePop{ 0%{transform:scale(1)} 45%{transform:scale(1.45)} 100%{transform:scale(1)} }
+  @media (max-width:640px){
+    .like-btn{ min-height:38px; padding:0 15px 0 12px; font-size:13.5px; }
+    .like-btn svg{ width:20px; height:20px; }
+  }
+  @media (prefers-reduced-motion:reduce){ .like-btn.is-liked svg{ animation:none; } }
   .cm-title{ font-size:14px; font-weight:800; margin:16px 0 10px; }
   .cm-form{ display:flex; gap:8px; align-items:flex-start; flex-wrap:wrap; }
   .cm-name{
@@ -932,6 +953,12 @@
     padding:8px 11px; font:inherit; font-size:13px;
   }
   .cm-name:focus{ outline:none; border-color:var(--red); }
+  .cm-as{ align-items:center; gap:8px; font-size:12.5px; color:#808080; margin-bottom:8px; }
+  .cm-as b{ color:#e6e6ea; }
+  .cm-change{ background:none; border:none; padding:0; color:#ff8a8a; font:inherit; font-size:12.5px; cursor:pointer; text-decoration:underline; }
+  .cm-ask{ margin-bottom:8px; padding:10px 12px; border:1px solid rgba(229,9,20,.4); background:rgba(229,9,20,.08); border-radius:8px; }
+  .cm-ask label{ display:block; font-size:12.5px; color:#e6e6ea; margin-bottom:6px; font-weight:600; }
+  .cm-ask .cm-name{ width:100%; box-sizing:border-box; }
   .cm-input{
     flex:1; min-width:0; background:#1a1a1a; color:#fff; border:1px solid #2a2a2a; border-radius:8px;
     padding:9px 11px; font:inherit; font-size:13px; resize:vertical; min-height:40px; max-height:140px;
@@ -2120,9 +2147,10 @@
         <div class="player-info-top">
           <h2 class="player-title" id="playerTitle" title="">—</h2>
           <div class="player-actions">
-            <button type="button" class="like-btn" id="likeBtn" onclick="socialToggleLike()" aria-pressed="false">
-              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.7 5 6.1 5c2 0 3.3 1 3.9 2.1h.0C10.6 6 11.9 5 13.9 5c3.4 0 5.2 3.4 3.7 6.8C19.5 16.4 12 21 12 21z"/></svg>
-              <span id="likeCount">0</span>
+            <button type="button" class="like-btn" id="likeBtn" onclick="socialToggleLike()" aria-pressed="false" aria-label="Me gusta">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.7 5 6.1 5c2 0 3.3 1 3.9 2.1h.0C10.6 6 11.9 5 13.9 5c3.4 0 5.2 3.4 3.7 6.8C19.5 16.4 12 21 12 21z"/></svg>
+              <span class="like-text" id="likeText">Me gusta</span>
+              <span class="like-count" id="likeCount">0</span>
             </button>
             <div class="player-tags" id="playerTags"></div>
           </div>
@@ -3781,14 +3809,37 @@
   var SOCIAL_NAME_KEY = 'sf_comment_name';
   var SOCIAL_ACCOUNT_NAME = "<?= userName ?>";
   function socialGetName_(){
-    try { return localStorage.getItem(SOCIAL_NAME_KEY) || SOCIAL_ACCOUNT_NAME || ''; } catch(e){ return SOCIAL_ACCOUNT_NAME || ''; }
+    try { return localStorage.getItem(SOCIAL_NAME_KEY) || ''; } catch(e){ return socialNameMem_; }
   }
-  function socialSetName_(v){ try { localStorage.setItem(SOCIAL_NAME_KEY, v); } catch(e){} }
+  var socialNameMem_ = '';
+  function socialSetName_(v){ socialNameMem_ = v; try { localStorage.setItem(SOCIAL_NAME_KEY, v); } catch(e){} }
+  function socialClearName_(){ socialNameMem_ = ''; try { localStorage.removeItem(SOCIAL_NAME_KEY); } catch(e){} }
+  // Muestra "Comentas como X · cambiar" si ya hay nombre; si no, no molesta hasta que intente enviar.
+  function socialNameUi_(askNow){
+    var as = document.getElementById('cmAs'), ask = document.getElementById('cmAsk');
+    if(!as || !ask) return;
+    var n = socialGetName_();
+    if(n){
+      as.style.display = 'flex'; ask.style.display = 'none';
+      document.getElementById('cmAsName').textContent = n;
+    } else {
+      as.style.display = 'none';
+      ask.style.display = askNow ? 'block' : 'none';
+      if(askNow){ var el = document.getElementById('cmName'); if(el){ el.value = ''; el.focus(); } }
+    }
+  }
+  function socialChangeName(){
+    socialClearName_();
+    socialNameUi_(true);
+  }
   function socialRender_(r){
     if(!r || !r.ok) return;
     var btn = document.getElementById('likeBtn');
     btn.classList.toggle('is-liked', !!r.liked);
+    btn.classList.remove('is-busy');
     btn.setAttribute('aria-pressed', r.liked ? 'true' : 'false');
+    var lt = document.getElementById('likeText');
+    if(lt) lt.textContent = r.liked ? 'Te gusta' : 'Me gusta';
     btn.disabled = !r.logged;
     btn.title = r.logged ? '' : 'Inicia sesión para dar like';
     document.getElementById('likeCount').textContent = r.likes;
@@ -3798,9 +3849,15 @@
     if(!r.logged){
       wrap.innerHTML = '<div class="cm-hint">Inicia sesión para dar like y comentar.</div>';
     } else if(!document.getElementById('cmInput')){
-      wrap.innerHTML = '<div class="cm-form"><input type="text" class="cm-name" id="cmName" maxlength="30" placeholder="Tu nombre" value="' + esc(socialGetName_()) + '" />' +
-      '<textarea class="cm-input" id="cmInput" maxlength="500" rows="1" placeholder="Escribe un comentario..."></textarea>' +
+      wrap.innerHTML =
+        '<div class="cm-as" id="cmAs" style="display:none"><span>Comentas como <b id="cmAsName"></b></span>' +
+          '<button type="button" class="cm-change" onclick="socialChangeName()">cambiar</button></div>' +
+        '<div class="cm-ask" id="cmAsk" style="display:none"><label for="cmName">¿Cómo te llamas? Así aparecerá tu comentario.</label>' +
+          '<input type="text" class="cm-name" id="cmName" maxlength="30" placeholder="Tu nombre" autocomplete="nickname" ' +
+          'onkeydown="if(event.key===\'Enter\'){event.preventDefault();socialSendComment();}" /></div>' +
+        '<div class="cm-form"><textarea class="cm-input" id="cmInput" maxlength="500" rows="1" placeholder="Escribe un comentario..."></textarea>' +
         '<button type="button" class="cm-send" id="cmSend" onclick="socialSendComment()">Enviar</button></div>';
+      socialNameUi_(false);
     }
 
     var list = document.getElementById('cmList');
@@ -3817,6 +3874,7 @@
     document.getElementById('cmFormWrap').innerHTML = '';
     document.getElementById('cmList').innerHTML = '';
     document.getElementById('likeCount').textContent = '0';
+    document.getElementById('likeBtn').classList.remove('is-busy','is-liked');
     document.getElementById('cmCount').textContent = '';
     google.script.run.withSuccessHandler(function(r){
       if(socialMediaId === id) socialRender_(r);
@@ -3828,7 +3886,27 @@
   function socialToggleLike(){
     if(!socialMediaId) return;
     var id = socialMediaId;
-    google.script.run.withSuccessHandler(function(r){ if(socialMediaId === id) socialDone_(r); })
+    var btn = document.getElementById('likeBtn'), cnt = document.getElementById('likeCount');
+    if(btn.classList.contains('is-busy')) return;
+    // Respuesta inmediata en pantalla; luego se corrige con el valor real del servidor
+    var was = btn.classList.contains('is-liked');
+    btn.classList.add('is-busy');
+    btn.classList.toggle('is-liked', !was);
+    btn.setAttribute('aria-pressed', was ? 'false' : 'true');
+    var lt = document.getElementById('likeText'); if(lt) lt.textContent = was ? 'Me gusta' : 'Te gusta';
+    cnt.textContent = Math.max(0, (parseInt(cnt.textContent,10) || 0) + (was ? -1 : 1));
+    function undo_(){
+      btn.classList.remove('is-busy');
+      btn.classList.toggle('is-liked', was);
+      btn.setAttribute('aria-pressed', was ? 'true' : 'false');
+      if(lt) lt.textContent = was ? 'Te gusta' : 'Me gusta';
+      cnt.textContent = Math.max(0, (parseInt(cnt.textContent,10) || 0) + (was ? 1 : -1));
+    }
+    google.script.run.withSuccessHandler(function(r){
+      btn.classList.remove('is-busy');
+      if(socialMediaId !== id) return;
+      if(r && r.ok) socialRender_(r); else { undo_(); if(r && r.error) alert(r.error); }
+    }).withFailureHandler(function(){ undo_(); })
       .toggleLike(USER_TOKEN, id, getDeviceId_());
   }
   function socialSendComment(){
@@ -3836,16 +3914,21 @@
     var nameEl = document.getElementById('cmName');
     if(!input || !socialMediaId) return;
     var text = input.value.trim();
-    var name = nameEl ? nameEl.value.trim() : '';
-    if(!name){ alert('Escribe tu nombre.'); if(nameEl) nameEl.focus(); return; }
-    if(!text) return;
-    socialSetName_(name);
+    var name = socialGetName_();
+    if(!name && nameEl) name = nameEl.value.replace(/\s+/g,' ').trim();
+    if(!text){ input.focus(); return; }
+    if(!name){
+      // Primera vez: recién ahora se pide el nombre (el comentario escrito se conserva)
+      socialNameUi_(true);
+      return;
+    }
+    if(name.length < 2){ socialNameUi_(true); alert('El nombre debe tener al menos 2 caracteres.'); return; }
     var id = socialMediaId;
     btn.disabled = true;
     google.script.run.withSuccessHandler(function(r){
       btn.disabled = false;
-      if(r && r.ok){ input.value = ''; }
-      if(socialMediaId === id) socialDone_(r);
+      if(r && r.ok){ input.value = ''; socialSetName_(name); }
+      if(socialMediaId === id){ socialDone_(r); socialNameUi_(false); }
     }).withFailureHandler(function(){ btn.disabled = false; })
       .addComment(USER_TOKEN, id, text, name, getDeviceId_());
   }
