@@ -910,6 +910,33 @@
   .player-desc{ color:#c8c8cd; font-size:14px; line-height:1.6; margin:0; word-break:break-word; overflow-wrap:anywhere; hyphens:auto; text-align:justify; text-align-last:left; }
   .player-desc a{ color:#ff8a8a; text-decoration:underline; word-break:break-all; }
 
+  /* ---- Likes y comentarios ---- */
+  .social-box{ margin-top:18px; padding-top:14px; border-top:1px solid #2a2a2a; }
+  .like-btn{
+    display:inline-flex; align-items:center; gap:8px; background:#1f1f1f; color:#cfcfd4;
+    border:1px solid #2a2a2a; border-radius:20px; padding:7px 14px; font-size:13px; font-weight:700; cursor:pointer;
+  }
+  .like-btn:hover{ border-color:var(--red); }
+  .like-btn.is-liked{ background:rgba(229,9,20,.14); color:#ff8a8a; border-color:rgba(229,9,20,.45); }
+  .like-btn:disabled{ opacity:.6; cursor:default; }
+  .cm-title{ font-size:14px; font-weight:800; margin:16px 0 10px; }
+  .cm-form{ display:flex; gap:8px; align-items:flex-start; }
+  .cm-input{
+    flex:1; min-width:0; background:#1a1a1a; color:#fff; border:1px solid #2a2a2a; border-radius:8px;
+    padding:9px 11px; font:inherit; font-size:13px; resize:vertical; min-height:40px; max-height:140px;
+  }
+  .cm-input:focus{ outline:none; border-color:var(--red); }
+  .cm-send{ background:var(--red); color:#fff; border:none; border-radius:8px; padding:10px 16px; font-weight:700; font-size:13px; cursor:pointer; }
+  .cm-send:disabled{ opacity:.6; cursor:default; }
+  .cm-hint{ color:#808080; font-size:12.5px; }
+  .cm-list{ display:flex; flex-direction:column; gap:12px; margin-top:14px; }
+  .cm-item{ background:#1a1a1a; border:1px solid #242424; border-radius:8px; padding:10px 12px; }
+  .cm-head{ display:flex; align-items:center; gap:8px; font-size:12px; color:#808080; }
+  .cm-head b{ color:#e6e6ea; font-size:13px; }
+  .cm-del{ margin-left:auto; background:none; border:none; color:#808080; cursor:pointer; font-size:12px; }
+  .cm-del:hover{ color:var(--red); }
+  .cm-text{ margin:6px 0 0; font-size:13.5px; line-height:1.5; color:#c8c8cd; white-space:pre-wrap; overflow-wrap:anywhere; }
+
   /* ============================================================
      DESCRIPCIÓN + IMAGEN: la imagen queda flotando (float) a un
      costado y el texto de la descripción fluye/rodea su contorno
@@ -2092,6 +2119,12 @@
           </div>
           <p class="player-desc" id="playerDesc"></p>
         </div>
+        <div class="social-box" id="socialBox">
+          <button type="button" class="like-btn" id="likeBtn" onclick="socialToggleLike()">🤍 <span id="likeCount">0</span></button>
+          <div class="cm-title">Comentarios <span id="cmCount"></span></div>
+          <div id="cmFormWrap"></div>
+          <div class="cm-list" id="cmList"></div>
+        </div>
       </div>
       </div>
 
@@ -3188,6 +3221,7 @@
     try { updateMediaSession(m); } catch(e){}
     try { renderPlayerPlaylist(); } catch(e){}
     try { adOnPlayerOpened_(m); } catch(e){}
+    try { socialLoad_(m.id); } catch(e){}
   }
 
   // ============================================================
@@ -3723,6 +3757,78 @@
   // ============================================================
   //  CERRAR REPRODUCTOR
   // ============================================================
+
+  // ============================================================
+  //  LIKES Y COMENTARIOS
+  // ============================================================
+  var socialMediaId = '';
+  function socialRender_(r){
+    if(!r || !r.ok) return;
+    var btn = document.getElementById('likeBtn');
+    btn.classList.toggle('is-liked', !!r.liked);
+    btn.firstChild.nodeValue = r.liked ? '❤️ ' : '🤍 ';
+    btn.disabled = !r.logged;
+    btn.title = r.logged ? '' : 'Inicia sesión para dar like';
+    document.getElementById('likeCount').textContent = r.likes;
+    document.getElementById('cmCount').textContent = r.comments.length ? '(' + r.comments.length + ')' : '';
+
+    var wrap = document.getElementById('cmFormWrap');
+    if(!r.logged){
+      wrap.innerHTML = '<div class="cm-hint">Inicia sesión para dar like y comentar.</div>';
+    } else if(!document.getElementById('cmInput')){
+      wrap.innerHTML = '<div class="cm-form"><textarea class="cm-input" id="cmInput" maxlength="500" rows="1" placeholder="Escribe un comentario..."></textarea>' +
+        '<button type="button" class="cm-send" id="cmSend" onclick="socialSendComment()">Enviar</button></div>';
+    }
+
+    var list = document.getElementById('cmList');
+    if(!r.comments.length){ list.innerHTML = '<div class="cm-hint">Aún no hay comentarios.</div>'; return; }
+    list.innerHTML = r.comments.map(function(c){
+      var d = c.fecha ? new Date(c.fecha).toLocaleDateString() : '';
+      return '<div class="cm-item"><div class="cm-head"><b>' + esc(c.nombre) + '</b><span>' + esc(d) + '</span>' +
+        (c.canDelete ? '<button type="button" class="cm-del" onclick="socialDeleteComment(\'' + esc(c.id) + '\')">Borrar</button>' : '') +
+        '</div><p class="cm-text">' + esc(c.texto) + '</p></div>';
+    }).join('');
+  }
+  function socialLoad_(id){
+    socialMediaId = id;
+    document.getElementById('cmFormWrap').innerHTML = '';
+    document.getElementById('cmList').innerHTML = '';
+    document.getElementById('likeCount').textContent = '0';
+    document.getElementById('cmCount').textContent = '';
+    google.script.run.withSuccessHandler(function(r){
+      if(socialMediaId === id) socialRender_(r);
+    }).getMediaSocial(USER_TOKEN || '', id);
+  }
+  function socialDone_(r){
+    if(r && r.ok) socialRender_(r); else if(r && r.error) alert(r.error);
+  }
+  function socialToggleLike(){
+    if(!socialMediaId) return;
+    var id = socialMediaId;
+    google.script.run.withSuccessHandler(function(r){ if(socialMediaId === id) socialDone_(r); })
+      .toggleLike(USER_TOKEN, id);
+  }
+  function socialSendComment(){
+    var input = document.getElementById('cmInput'), btn = document.getElementById('cmSend');
+    if(!input || !socialMediaId) return;
+    var text = input.value.trim();
+    if(!text) return;
+    var id = socialMediaId;
+    btn.disabled = true;
+    google.script.run.withSuccessHandler(function(r){
+      btn.disabled = false;
+      if(r && r.ok){ input.value = ''; }
+      if(socialMediaId === id) socialDone_(r);
+    }).withFailureHandler(function(){ btn.disabled = false; })
+      .addComment(USER_TOKEN, id, text);
+  }
+  function socialDeleteComment(cid){
+    if(!confirm('¿Borrar este comentario?')) return;
+    var id = socialMediaId;
+    google.script.run.withSuccessHandler(function(r){ if(socialMediaId === id) socialDone_(r); })
+      .deleteComment(USER_TOKEN, cid);
+  }
+
   function closePlayer(){
     try { adReset_(); } catch(e){}
     var overlay = document.getElementById('playerOverlay');
