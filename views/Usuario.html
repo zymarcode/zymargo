@@ -762,6 +762,54 @@
   .player-stage:fullscreen .live-indicator,
   .player-stage:-webkit-full-screen .live-indicator{ top:calc(16px + var(--wm) + 8px); right:16px; }
 
+  /* ============================================================
+     INSIGNIA UNIFICADA: logo + "EN VIVO" forman una sola pieza.
+     El logo (círculo) se superpone al extremo izquierdo de una píldora roja.
+     Si no es en vivo, solo se ve el logo.
+     ============================================================ */
+  .player-stage{ --wm:48px; }
+  @media (min-width:1600px){ .player-stage{ --wm:56px; } }
+  .player-stage:fullscreen,
+  .player-stage:-webkit-full-screen{ --wm:clamp(42px, 6vh, 56px); }
+  .player-stage .player-badge{
+    position:absolute; top:16px; right:16px; z-index:4;
+    display:flex; align-items:center; pointer-events:none;
+  }
+  .player-stage .player-badge .player-watermark{
+    position:relative; top:auto; right:auto; left:auto; z-index:2; flex:none;
+    width:var(--wm); height:var(--wm);
+    box-shadow:0 2px 10px rgba(0,0,0,.35);
+  }
+  .player-stage .player-badge .live-indicator{
+    position:static; top:auto; right:auto; left:auto; z-index:1;
+    height:calc(var(--wm) * .6); box-sizing:border-box;
+    margin-left:calc(var(--wm) / -2);
+    padding:0 14px 0 calc(var(--wm) / 2 + 9px);
+    font-size:clamp(8px, calc(var(--wm) * .22), 12px);
+    letter-spacing:.8px; line-height:1; white-space:nowrap;
+    border-radius:999px;
+    background:linear-gradient(135deg, #e50914 0%, #b20710 100%);
+    box-shadow:0 3px 12px rgba(229,9,20,.45);
+  }
+  .player-stage .player-badge .live-indicator .live-dot{
+    width:calc(var(--wm) * .15); height:calc(var(--wm) * .15);
+    min-width:5px; min-height:5px;
+  }
+  /* Celulares y pantallas pequeñas (vertical y horizontal): más pequeña y discreta */
+  @media (max-width:640px), (max-height:480px) and (orientation:landscape){
+    .player-stage,
+    .player-stage:fullscreen,
+    .player-stage:-webkit-full-screen{ --wm:32px; }
+    .player-stage .player-badge{ top:8px; right:8px; }
+    .player-stage .player-badge .player-watermark{ border-width:1.5px; box-shadow:0 1px 6px rgba(0,0,0,.4); }
+    .player-stage .player-badge .player-watermark img{ padding:4px; }
+    .player-stage .player-badge .live-indicator{
+      padding:0 9px 0 calc(var(--wm) / 2 + 6px);
+      letter-spacing:.5px; gap:4px;
+      box-shadow:0 2px 8px rgba(229,9,20,.4);
+    }
+  }
+
   .player-controls{
     position:absolute; left:0; right:0; bottom:0;
     padding:40px 18px 14px;
@@ -2701,12 +2749,14 @@
       <div class="player-content" id="playerContent">
       <div class="player-main">
       <div class="player-stage" id="playerStage">
-        <div class="live-indicator" id="liveIndicator"><span class="live-dot"></span>EN VIVO</div>
+        <div class="player-badge">
         <? if (brand.playerLogoUrl) { ?>
         <div class="player-watermark" id="playerWatermark">
           <img src="<?= brand.playerLogoUrl ?>" alt="<?= brand.brandName ?>" onerror="this.parentNode.style.display='none';" />
         </div>
         <? } ?>
+        <div class="live-indicator" id="liveIndicator"><span class="live-dot"></span>EN VIVO</div>
+        </div>
         <div class="player-spinner" id="playerSpinner"></div>
         <button class="player-big-play" id="playerBigPlay" onclick="playerTogglePlay()" aria-label="Reproducir">
           <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
