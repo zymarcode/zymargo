@@ -2478,20 +2478,18 @@
       setTimeout(function(){ if (el.parentNode) el.parentNode.removeChild(el); }, 600);
     }, wait);
   }
-  if (document.readyState === "complete") hide(); else window.addEventListener("load", hide);
-  setTimeout(hide, 8000);
+  // Con sesión de usuario este mismo loader se mantiene hasta que se verifica
+  // el dispositivo (lo cierra bootUsuario con window.sfLoadHide). Así hay un solo loader.
+  var verifying = "<?= userToken ?>" !== "";
+  window.sfLoadHide = hide;
+  if (!verifying) {
+    if (document.readyState === "complete") hide(); else window.addEventListener("load", hide);
+    setTimeout(hide, 8000);
+  }
 })();
 </script>
 
 
-  <? if (userToken) { ?>
-  <div class="device-check-overlay" id="deviceCheckOverlay">
-    <div class="sfMark"><? if (brand.brandLogoUrl) { ?><img class="sfLogo" src="<?= brand.brandLogoUrl ?>" alt="" onerror="this.style.display='none'"><? } ?></div>
-    <h1 class="sfName"><?= brand.brandName ?></h1>
-    <div class="sfBar"><i></i></div>
-    <div class="dc-msg">Verificando sesión...</div>
-  </div>
-  <? } ?>
 
   <!-- ===== VEOYGO: sidebar (escritorio) / menú lateral (móvil) ===== -->
   <div class="vg-scrim" id="vgScrim"></div>
@@ -3002,15 +3000,14 @@
       // Sin backend de Apps Script disponible (vista previa fuera del
       // despliegue real): se quita el overlay de verificación y se
       // carga el catálogo de demostración para poder ver el diseño.
-      var overlay0 = document.getElementById('deviceCheckOverlay');
-      if(overlay0) overlay0.remove();
+      if(window.sfLoadHide) window.sfLoadHide();
       loadAll();
       loadNotificaciones();
       return;
     }
     if(!USER_TOKEN){
-      // Modo invitado (catálogo público, sin sesión): no hay overlay
-      // que quitar ni nada que validar.
+      // Modo invitado (catálogo público, sin sesión): nada que validar.
+      if(window.sfLoadHide) window.sfLoadHide();
       loadAll();
       loadNotificaciones();
       return;
@@ -3020,12 +3017,11 @@
         if(!match){
           // No coincide el dispositivo: NO se revela el catálogo ni
           // el nombre de usuario, se manda directo al login
-          // manteniendo el overlay encima todo el tiempo.
+          // manteniendo el loader encima todo el tiempo.
           window.top.location.href = BASE_URL + '?page=login';
           return;
         }
-        var overlay = document.getElementById('deviceCheckOverlay');
-        if(overlay) overlay.remove();
+        if(window.sfLoadHide) window.sfLoadHide();
         loadAll();
         loadNotificaciones();
       })
