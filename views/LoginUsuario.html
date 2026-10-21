@@ -400,7 +400,7 @@
         .withSuccessHandler(function(r){
           if(r && r.ok){
             btnLabel.textContent = '¡Listo!';
-            window.top.location.href = BASE_URL + '?page=admin&token=' + r.token;
+            window.top.location.href = BASE_URL + '?token=' + r.token;
           } else {
             fail_('Usuario o contraseña incorrectos.');
           }
@@ -413,7 +413,7 @@
       .withSuccessHandler(function(res){
         if(res && res.ok){
           btnLabel.textContent = '¡Listo!';
-          window.top.location.href = BASE_URL + '?page=login&utoken=' + res.token;
+          window.top.location.href = BASE_URL + '?utoken=' + res.token;
         } else if(res && /incorrectos/i.test(res.error || '')){
           tryAdmin_();
         } else {
