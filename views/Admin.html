@@ -409,95 +409,95 @@
   }
   body #sfLoad .sfBar{ background:#1c1c1c; }
   body #sfLoad .sfBar i{ background:#fff; }
-
   /* ============================================================
-     TEMA VEOYGO — panel (Admin), mismo diseño que Usuario.
-     Solo estilos: barra superior, botones, pestañas, tarjetas,
-     filtros, tabla y redes sociales.
+     DISEÑO DEL PANEL (Admin) — misma forma que Usuario, con los
+     colores por defecto del panel. Solo estilos.
      ============================================================ */
-  :root{ --bg:#141414; --panel:#0d0d0d; --card:#161616; --card-hover:#1d1d1d; --border:#262626; --border-2:#333; --red:#e50914; }
-  html,body{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif; }
-
-  /* --- Barra superior --- */
-  body .topbar{
-    background:#000; border-bottom:1px solid #141414; box-shadow:none;
-    padding:12px clamp(14px,3vw,24px); gap:12px;
-  }
+  /* Barra superior */
+  body .topbar{ padding:12px clamp(14px,3vw,24px); gap:12px; }
   body .brand-mark{
-    width:30px; height:30px; border-radius:50%; background:none; box-shadow:none;
+    width:32px; height:32px; border-radius:50%; background:none; box-shadow:none;
     border:2px solid #fff; color:#fff; font-size:14px; font-weight:800;
   }
   body .brand-mark img{ border-radius:50%; }
   body .brand-name{ font-size:20px; font-weight:800; letter-spacing:.3px; }
   body .brand-sub{ display:none; }
-  body .top-actions{ gap:12px; }
-
-  /* --- Botones (pastilla, como los botones del nav de usuario) --- */
-  body .btn{ border-radius:999px; font-family:inherit; }
-  body .btn-primary{ background:#fff; color:#000; border:1px solid #fff; }
-  body .btn-primary:hover{ background:#ececec; box-shadow:none; }
-  body .btn-primary:disabled{ background:#1c1c1c; color:#777; border-color:#262626; }
-  body .btn-outline{ background:#1a1a1a; border:1px solid #262626; color:#fff; }
-  body .btn-outline:hover{ background:#242424; border-color:#333; }
-  body .btn-ghost{ background:#1a1a1a; border:1px solid #262626; color:#fff; }
-  body .btn-ghost:hover{ background:#242424; border-color:#333; }
-  body .btn-danger{ background:rgba(229,9,20,.12); border:1px solid rgba(229,9,20,.32); color:#ff8f95; }
-  body .btn-danger:hover{ background:var(--red); border-color:var(--red); color:#fff; }
-  body .topbar .btn{ height:40px; padding:0 16px; }
+  body .top-actions{ gap:10px; }
+  body .topbar .btn{ height:38px; padding:0 15px; }
   body .topbar .btn-outline:last-child{
-    height:30px; padding:0 14px; font-size:12px;
+    height:32px; padding:0 14px; font-size:12px;
     background:rgba(229,9,20,.12); border:1px solid rgba(229,9,20,.32); color:#ff8f95;
   }
   body .topbar .btn-outline:last-child:hover{ background:var(--red); border-color:var(--red); color:#fff; }
-  body .modal .btn-primary{ background:#2f2f2f; border:1px solid #3a3a3a; color:#fff; }
-  body .modal .btn-primary:hover{ background:#3a3a3a; }
 
-  /* --- Pestañas = chips de categorías --- */
-  body .tabs{ gap:14px; border-bottom:0; padding:4px 0 4px; margin-bottom:20px; scrollbar-width:none; }
+  /* Botones en pastilla */
+  body .btn{ border-radius:999px; }
+  body .btn-ghost{ border-color:#2e2e36; }
+  body .btn-ghost:hover{ border-color:#44444e; }
+  body .btn-danger:hover{ background:var(--red); border-color:var(--red); color:#fff; }
+  body .modal .btn-primary{ background:var(--red); border-color:var(--red); }
+  body .modal .btn-primary:hover{ background:var(--red-hover); box-shadow:none; }
+
+  /* Pestañas y chips en pastilla */
+  body .tabs{ gap:10px; border-bottom:0; margin-bottom:22px; padding:2px 0; scrollbar-width:none; }
   body .tabs::-webkit-scrollbar{ display:none; }
   body .tab{
-    height:46px; padding:0 24px; gap:12px; border-radius:999px; background:#161616; border:1px solid #2a2a2a;
-    color:#fff; font-size:14px; font-weight:700; flex:0 0 auto;
+    height:42px; padding:0 20px; border-radius:999px; background:var(--panel); border:1px solid #2e2e36;
+    color:#d6d6dc; flex:0 0 auto;
   }
-  body .tab:hover{ background:#1d1d1d; color:#fff; }
-  body .tab.active{ background:#fff; border-color:#fff; color:#000; }
+  body .tab:hover{ background:#1f1f26; color:#fff; }
+  body .tab.active{ background:var(--red); border-color:var(--red); color:#fff; box-shadow:0 6px 18px rgba(229,9,20,.3); }
+  body .chip-row{ gap:10px; margin-bottom:22px; }
+  body .chip{ padding:9px 18px; font-size:13px; background:var(--panel); border-color:#2e2e36; color:#d6d6dc; }
+  body .chip:hover{ background:#1f1f26; color:#fff; border-color:#3a3a44; }
 
-  /* --- Tarjetas, filtros y chips --- */
-  body .stat-card{ background:#161616; border:1px solid #262626; border-radius:14px; }
-  body .stat-card::before{ background:#fff; opacity:.12; }
-  body .toolbar{ background:#0d0d0d; border:1px solid #262626; border-radius:14px; }
-  body .toolbar input[type=text], body .toolbar select{ background:#0d0d0d; border:1px solid #333; border-radius:999px; padding:10px 16px; }
-  body .toolbar input[type=text]:focus, body .toolbar select:focus{ border-color:#6a6a6a; }
-  body .chip{ background:#161616; border:1px solid #2a2a2a; color:#fff; font-weight:700; padding:9px 20px; }
-  body .chip:hover{ background:#1d1d1d; color:#fff; border-color:#2a2a2a; }
-  body .chip.active{ background:#fff; border-color:#fff; color:#000; box-shadow:none; }
-  body .item-card{ background:#161616; border:1px solid #262626; border-radius:14px; }
-  body .item-card:hover{ background:#1d1d1d; border-color:#333; transform:none; }
-  body .badge-destacado{ background:#fff; color:#000; box-shadow:none; }
+  /* Estadísticas */
+  body .stats{ gap:14px; }
+  body .stat-card{ background:linear-gradient(180deg,#1e1e25,#16161b); border:1px solid #2e2e36; border-radius:14px; padding:18px 20px 16px; box-shadow:0 4px 14px rgba(0,0,0,.35); }
+  body .stat-card::before{ opacity:.9; height:3px; }
+  body .stat-value{ font-size:clamp(24px,3vw,32px); letter-spacing:-1px; line-height:1; }
+  body .stat-label{ font-weight:700; letter-spacing:1.2px; margin-top:10px; color:#9a9aa4; }
 
-  /* --- Tabla de usuarios --- */
-  body .table-scroll{ border:1px solid #262626; border-radius:14px; }
-  body .users-table, body .users-table td:last-child{ background:#0d0d0d; }
-  body .users-table th, body .users-table th:last-child{ background:#0b0b0b; border-bottom-color:#1f1f1f; }
-  body .users-table td{ border-bottom-color:#1a1a1a; }
-  body .users-table tr:hover td, body .users-table tr:hover td:last-child{ background:#141414; }
-  body .user-avatar{ background:linear-gradient(135deg, #8a0410, #e50914); box-shadow:0 0 0 2px rgba(255,255,255,.14); }
-  body .role-admin{ background:rgba(229,9,20,.12); color:#ff8f95; border-color:rgba(229,9,20,.32); }
-  body .device-row{ background:#161616; border-color:#262626; }
+  /* Filtros */
+  body .toolbar{ background:#18181e; border:1px solid #2e2e36; border-radius:14px; padding:14px; }
+  body .toolbar input[type=text], body .toolbar select{ border-radius:999px; background:#0f0f12; border:1px solid #34343c; padding:10px 16px; }
+  body .toolbar input[type=text]{ flex:2 1 260px; }
+  body .toolbar input[type=text]:focus, body .toolbar select:focus{ border-color:#6a6a74; }
+  body .toolbar .btn{ height:40px; }
 
-  /* --- Redes sociales (pestaña "📱 Redes") = íconos del footer de usuarios --- */
-  #brandModalBody .modal-section-title{ border-top-color:#1f1f1f; color:#9b9b9b; }
-  #brandModalBody .field input[type=url]{
-    background:#0d0d0d; border:1px solid #333; border-radius:999px; padding:12px 18px; font-size:14px;
+  /* Tarjetas de contenido */
+  body .grid{ gap:18px; grid-template-columns:repeat(auto-fill,minmax(min(210px,100%),1fr)); }
+  body .item-card{
+    background:linear-gradient(180deg,#1f1f26,#18181d); border:1px solid #2e2e36; border-radius:14px;
+    box-shadow:0 6px 18px rgba(0,0,0,.4);
   }
-  #brandModalBody .field input[type=url]:focus{ background:#111; border-color:#6a6a6a; }
+  body .item-card:hover{ background:linear-gradient(180deg,#25252d,#1c1c22); border-color:#44444e; transform:translateY(-2px); }
+  body .item-thumb{ height:150px; border-bottom:1px solid #2e2e36; }
+  body .item-body{ padding:14px 16px 10px; gap:5px; }
+  body .item-name{ font-size:14.5px; font-weight:800; color:#fff; }
+  body .item-meta{ font-weight:600; color:#9a9aa4; }
+  body .item-actions{ padding:4px 16px 16px; gap:8px; flex-wrap:nowrap; }
+  body .item-actions .btn{ flex:1 1 0; min-width:0; justify-content:center; height:34px; padding:0 8px; font-size:12.5px; white-space:nowrap; }
+  body .badge-tipo, body .badge-external{ background:rgba(0,0,0,.8); color:#fff; font-weight:700; border:1px solid rgba(255,255,255,.18); }
+  body .empty{ color:#9a9aa4; }
+
+  /* Tabla de usuarios */
+  body .table-scroll{ border:1px solid #2e2e36; border-radius:14px; }
+  body .users-table th{ background:#15151a; border-bottom-color:#2e2e36; }
+  body .users-table td{ border-bottom-color:#26262c; }
+  body .users-table tr:hover td{ background:#1d1d23; }
+  body .users-table tr:hover td:last-child{ background:#1d1d23; }
+  body .device-row{ border-color:#2e2e36; }
+
+  /* Redes sociales (pestaña "📱 Redes") */
+  #brandModalBody .modal-section-title{ border-top-color:#1f1f1f; }
   #brandModalBody .field:has(> input[id^="social"]){
     display:flex; align-items:center; gap:12px; padding:6px 6px 6px 8px;
-    background:#161616; border:1px solid #262626; border-radius:999px;
+    background:#18181d; border:1px solid #2e2e36; border-radius:999px;
   }
   #brandModalBody .field:has(> input[id^="social"]) label{
     margin:0; flex:0 0 auto; width:112px; height:36px; display:flex; align-items:center; gap:8px;
-    padding:0 14px; border-radius:999px; background:#1d1d1d; border:1px solid #262626;
+    padding:0 14px; border-radius:999px; background:#26262e; border:1px solid #34343c;
     color:#fff; font-size:13px; font-weight:700; letter-spacing:0;
   }
   #brandModalBody .field:has(> input[id^="social"]) input{ flex:1 1 auto; min-width:0; height:36px; padding:0 14px; background:transparent; border:0; border-radius:999px; }
@@ -505,158 +505,9 @@
   @media (max-width:520px){
     #brandModalBody .field:has(> input[id^="social"]){ flex-wrap:wrap; border-radius:18px; padding:8px; }
     #brandModalBody .field:has(> input[id^="social"]) label{ width:auto; }
-    #brandModalBody .field:has(> input[id^="social"]) input{ flex:1 1 100%; background:#0d0d0d; border:1px solid #262626; }
+    #brandModalBody .field:has(> input[id^="social"]) input{ flex:1 1 100%; background:#0d0d0d; border:1px solid #2e2e36; }
     body .topbar .btn{ padding:0 12px; }
-  }  /* ============================================================
-     SUPERFICIES CLARAS (Admin): pestañas, tarjetas, filtros, tabla
-     y redes en tonos claros sobre el fondo oscuro. Solo estilos.
-     ============================================================ */
-  html, body{ background:#0f1115; }
-  body .topbar{ background:#000; border-bottom:1px solid #1f2230; }
-  body .brand-mark{ border-color:#fff; }
-
-  /* Zona de contenido: variables claras */
-  body .wrap{
-    --panel:#eef1ff; --card:#f7f8ff; --card-hover:#ffffff;
-    --muted:#5a628f; --border:#cfd5f5; --border-2:#b7bfea; --text-2:#2b3158;
-    color:#161a33;
   }
-  /* Ventanas: se quedan oscuras, con su propio juego de variables */
-  body .modal-overlay{
-    --panel:#16162a; --card:#1d1d36; --muted:#b9c0ee; --border:#3a3f6e; --border-2:#4c52a0; --text-2:#eef0ff;
-    color:#fff;
-  }
-
-  /* Botones claros */
-  body .btn-outline, body .btn-ghost{ background:#eef1ff; border:1px solid #c3caf0; color:#1b1f3a; }
-  body .btn-outline:hover, body .btn-ghost:hover{ background:#fff; border-color:#4f46e5; color:#1b1f3a; }
-  body .btn-primary{ background:#4f46e5; border:1px solid #4f46e5; color:#fff; }
-  body .btn-primary:hover{ background:#6358f0; border-color:#6358f0; box-shadow:0 6px 18px rgba(79,70,229,.35); }
-  body .btn-primary:disabled{ background:#c9ceea; border-color:#c9ceea; color:#7b83b0; }
-  body .btn-danger{ background:#fde4e6; border:1px solid #f4b3b9; color:#b4232c; }
-  body .btn-danger:hover{ background:#e5484d; border-color:#e5484d; color:#fff; }
-  body .topbar .btn-outline:last-child{ background:#fde4e6; border:1px solid #f4b3b9; color:#b4232c; }
-  body .topbar .btn-outline:last-child:hover{ background:#e5484d; border-color:#e5484d; color:#fff; }
-  body .modal .btn-outline, body .modal .btn-ghost{ background:#eef1ff; border-color:#c3caf0; color:#1b1f3a; }
-  body .modal .btn-primary{ background:#4f46e5; border-color:#4f46e5; color:#fff; }
-  body .modal .btn-primary:hover{ background:#6358f0; }
-  body .modal .btn-danger{ background:#fde4e6; border-color:#f4b3b9; color:#b4232c; }
-
-  /* Pestañas y chips */
-  body .tab, body .chip{ background:#eef1ff; border:1px solid #cfd5f5; color:#1b1f3a; }
-  body .tab:hover, body .chip:hover{ background:#fff; color:#1b1f3a; border-color:#4f46e5; }
-  body .tab.active, body .chip.active{ background:#4f46e5; border-color:#4f46e5; color:#fff; box-shadow:0 6px 18px rgba(79,70,229,.35); }
-
-  /* Estadísticas */
-  body .stat-card{ background:linear-gradient(180deg,#ffffff,#eceffd); border:1px solid #cfd5f5; box-shadow:0 4px 14px rgba(0,0,0,.18); }
-  body .stat-card::before{ background:linear-gradient(90deg,#4f46e5,#ec4899); opacity:1; height:3px; }
-  body .stat-value{ color:#161a33; }
-  body .stat-label{ color:#5a628f; }
-
-  /* Filtros */
-  body .toolbar{ background:#e4e8fb; border:1px solid #cfd5f5; }
-  body .toolbar input[type=text], body .toolbar select{ background:#fff; border:1px solid #b7bfea; color:#161a33; }
-  body .toolbar input[type=text]::placeholder{ color:#7b83b0; }
-  body .toolbar input[type=text]:focus, body .toolbar select:focus{ border-color:#4f46e5; }
-  body .wrap .field-hint{ color:#a9afd6; }
-  body .toolbar + .field-hint, body .wrap .toolbar ~ .field-hint{ color:#a9afd6; }
-
-  /* Tarjetas de contenido */
-  body .item-card{ background:#f7f8ff; border:1px solid #d5daf7; box-shadow:0 4px 14px rgba(0,0,0,.2); }
-  body .item-card:hover{ background:#fff; border-color:#4f46e5; transform:translateY(-2px); }
-  body .item-thumb{ background:#dfe3f7; border-bottom:1px solid #d5daf7; }
-  body .item-name{ color:#161a33; }
-  body .item-meta{ color:#5a628f; }
-  body .badge-destacado{ background:#4f46e5; color:#fff; }
-  body .empty{ color:#a9afd6; }
-
-  /* Publicidad */
-  body #adsSection .field label, body #adsSection .checkbox-row{ color:#5a628f; }
-  body #adsSection .field-hint{ color:#5a628f; }
-  body #adsSection .field input{ background:#fff; border:1px solid #b7bfea; color:#161a33; }
-  body #adsSection .field input:focus{ border-color:#4f46e5; }
-
-  /* Tabla de usuarios */
-  body .table-scroll{ border:1px solid #cfd5f5; }
-  body .users-table, body .users-table td:last-child{ background:#f7f8ff; }
-  body .users-table th, body .users-table th:last-child{ background:#e4e8fb; color:#3b4275; border-bottom:1px solid #cfd5f5; }
-  body .users-table td{ color:#161a33; border-bottom:1px solid #e1e5f8; }
-  body .users-table tr:hover td, body .users-table tr:hover td:last-child{ background:#fff; }
-  body .users-table th:last-child, body .users-table td:last-child{ box-shadow:-8px 0 10px rgba(0,0,0,.12); }
-  body .user-name{ color:#161a33; }
-  body .user-username{ color:#5a628f; }
-  body .role-admin{ background:#fde4e6; color:#b4232c; border:1px solid #f4b3b9; }
-  body .role-user{ background:#e4e8fb; color:#3b4275; border:1px solid #cfd5f5; }
-  body .estado-activo{ background:#dcf5e6; color:#1a7f43; border:1px solid #a8e0bf; }
-  body .estado-suspendido{ background:#fde4e6; color:#b4232c; border:1px solid #f4b3b9; }
-
-  /* Ventanas (oscuras) */
-  body .modal{ background:#14162b; border:1px solid #3a3f6e; }
-  body .modal .field input, body .modal .field select, body .modal .field textarea{ background:#0b0c18; border:1px solid #3a3f6e; color:#fff; }
-  body .modal .field input:focus, body .modal .field select:focus, body .modal .field textarea:focus{ border-color:#8b83ff; }
-  body .modal-tab.active{ border-bottom-color:#8b83ff; color:#fff; }
-  body .modal-close{ background:#2a2e58; color:#fff; }
-  body .brand-preview, body .player-logo-preview{ background:#1d2040; border-color:#3a3f6e; }
-  body .toast{ background:#14162b; border:1px solid #4c52a0; color:#fff; }
-
-  /* Redes sociales (pestaña "📱 Redes"): filas claras */
-  body #brandModalBody .field:has(> input[id^="social"]){ background:#eef1ff; border:1px solid #c3caf0; }
-  body #brandModalBody .field:has(> input[id^="social"]) label{ background:#4f46e5; border:0; color:#fff; }
-  body #brandModalBody .field:has(> input[id^="social"]) input{ background:transparent; border:0; color:#161a33; }
-  body #brandModalBody .field:has(> input[id^="social"]) input::placeholder{ color:#7b83b0; }
-  body #brandModalBody .field:has(> input[id^="social"]) input:focus{ background:#fff; }
-  /* --- Pulido visual (Admin) --- */
-  html, body{ background:#0b0d14; }
-  body{ background:radial-gradient(1200px 520px at 50% -120px, rgba(79,70,229,.28), transparent 70%), #0b0d14; background-attachment:fixed; }
-  body .topbar{ background:rgba(8,9,15,.92); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); border-bottom:1px solid #22263a; }
-  body .topbar .btn{ height:38px; padding:0 15px; font-size:13px; font-weight:700; }
-  body .brand-name{ font-size:21px; }
-  body .wrap{ padding-top:26px; }
-
-  /* Pestañas y chips: más compactos y ordenados */
-  body .tabs{ gap:10px; margin-bottom:22px; }
-  body .tab{ height:42px; padding:0 20px; font-size:14px; }
-  body .chip-row{ gap:10px; margin-bottom:22px; }
-  body .chip{ padding:9px 18px; font-size:13px; }
-
-  /* Estadísticas: número grande, color por tarjeta */
-  body .stats{ gap:14px; margin-bottom:24px; }
-  body .stat-card{ padding:18px 20px 16px; border-radius:16px; border:1px solid #d5daf7; }
-  body .stat-value{ font-size:clamp(26px,3.2vw,34px); font-weight:800; color:#161a33; letter-spacing:-1px; line-height:1; }
-  body .stat-label{ font-size:11px; font-weight:700; letter-spacing:1.2px; margin-top:10px; color:#6a719f; }
-  body .stat-card:nth-child(6n+1)::before{ background:linear-gradient(90deg,#4f46e5,#818cf8); }
-  body .stat-card:nth-child(6n+2)::before{ background:linear-gradient(90deg,#0ea5e9,#67e8f9); }
-  body .stat-card:nth-child(6n+3)::before{ background:linear-gradient(90deg,#10b981,#6ee7b7); }
-  body .stat-card:nth-child(6n+4)::before{ background:linear-gradient(90deg,#f59e0b,#fcd34d); }
-  body .stat-card:nth-child(6n+5)::before{ background:linear-gradient(90deg,#ec4899,#f9a8d4); }
-  body .stat-card:nth-child(6n+6)::before{ background:linear-gradient(90deg,#e5484d,#fca5a5); }
-
-  /* Barra de filtros */
-  body .toolbar{ padding:14px; gap:10px; border-radius:16px; background:#e9ecfc; }
-  body .toolbar input[type=text]{ flex:2 1 260px; }
-  body .toolbar select{ flex:1 1 170px; }
-  body .toolbar .btn{ height:40px; }
-  body .toolbar > .field-hint, body .wrap > #contentSection > .field-hint{ color:#9ba3d4; }
-
-  /* Tarjetas de contenido */
-  body .grid{ gap:18px; grid-template-columns:repeat(auto-fill,minmax(min(210px,100%),1fr)); }
-  body .item-card{ border-radius:16px; border:1px solid #d5daf7; overflow:hidden; }
-  body .item-thumb{ height:150px; }
-  body .item-body{ padding:14px 16px 10px; gap:5px; }
-  body .item-name{ font-size:14.5px; font-weight:800; }
-  body .item-meta{ font-size:12px; font-weight:600; color:#6a719f; }
-  body .item-actions{ padding:4px 16px 16px; gap:8px; flex-wrap:nowrap; }
-  body .item-actions .btn{ flex:1 1 0; min-width:0; justify-content:center; height:34px; padding:0 8px; font-size:12.5px; white-space:nowrap; }
-  body .badge-tipo, body .badge-external{
-    background:rgba(255,255,255,.94); color:#161a33; font-weight:700; border:0; backdrop-filter:none;
-    box-shadow:0 2px 8px rgba(0,0,0,.25);
-  }
-  body .badge-destacado{ background:#4f46e5; color:#fff; box-shadow:0 2px 8px rgba(79,70,229,.45); }
-
-  /* Tabla de usuarios */
-  body .users-table th{ font-size:11px; letter-spacing:1px; }
-  body .users-table td{ padding:14px 16px; }
-  body .user-avatar{ background:linear-gradient(135deg,#4f46e5,#7c3aed); }
 </style>
 </head>
 <body>
