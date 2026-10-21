@@ -1412,7 +1412,7 @@
      que ocupa todo el ancho del nav (sin empujar ni reordenar
      nada, así el nav nunca cambia de altura).
      ============================================================ */
-  @media (max-width:900px){
+  @media (max-width:900px), (max-height:480px) and (orientation:landscape){
     .nav-search{ display:none; }
     .search-toggle-btn{ display:inline-flex; }
   }
@@ -1511,9 +1511,10 @@
   .player-stage:fullscreen,
   .player-stage:-webkit-full-screen,
   .player-stage:-ms-fullscreen{
-    width:100vw !important;
-    height:100vh !important;
-    max-height:100vh !important;
+    width:100% !important;
+    height:100% !important;
+    max-width:none !important;
+    max-height:none !important;
     aspect-ratio:auto !important;
     border-radius:0 !important;
     background:#000;
@@ -1527,11 +1528,13 @@
   .player-stage:-webkit-full-screen video,
   .player-stage:fullscreen img,
   .player-stage:-webkit-full-screen img{
-    max-height:100vh !important;
+    max-height:none !important;
     height:100%; width:100%;
   }
+  /* contain: en pantalla completa el video se ve entero (en celular horizontal
+     con pantalla alargada, cover recortaba arriba y abajo). */
   .player-stage:fullscreen video,
-  .player-stage:-webkit-full-screen video{ object-fit:cover; }
+  .player-stage:-webkit-full-screen video{ object-fit:contain; }
   .player-stage:fullscreen img,
   .player-stage:-webkit-full-screen img{ object-fit:contain; }
 
@@ -1549,6 +1552,16 @@
   html.pc-is-fs .player-overlay{ background:#000 !important; }
   html.pc-is-fs .player-stage .live-dot,
   html.pc-is-fs .player-stage .player-watermark{ animation:none !important; box-shadow:none; }
+  /* Lo demás del modal (cabecera, descripción, likes, comentarios) seguía
+     pintándose detrás del video. Se saca del pintado mientras dura el fullscreen. */
+  html.pc-is-fs .player-overlay .player-header,
+  html.pc-is-fs .player-overlay .player-info,
+  html.pc-is-fs .player-overlay .player-sidebar{ visibility:hidden !important; }
+  /* Controles ocultos: dejan de ser una capa translúcida sobre el video. */
+  .player-stage:fullscreen:not(.controls-visible) .player-controls,
+  .player-stage:-webkit-full-screen:not(.controls-visible) .player-controls{
+    visibility:hidden; transition:opacity .25s ease, visibility 0s linear .25s;
+  }
   .player-stage:fullscreen .player-controls,
   .player-stage:-webkit-full-screen .player-controls{
     padding:60px 26px 22px;
@@ -1937,7 +1950,7 @@
     transition:padding-left .25s ease;
   }
   html,body{ background:#000; }
-  @media (min-width:901px){ body.vg-collapsed{ --vg-side:76px; } }
+  @media (min-width:901px) and (min-height:481px){ body.vg-collapsed{ --vg-side:76px; } }
 
   /* ============================================================
      CARRUSEL DE PORTADA — el mismo carrusel del sistema, adaptado
@@ -1984,7 +1997,7 @@
   body .hero-dot.active{ background:#fff; box-shadow:none; }
   body .hero-progress-bar{ background:#fff; box-shadow:none; }
 
-  @media (max-width:900px){
+  @media (max-width:900px), (max-height:480px) and (orientation:landscape){
     body .hero-carousel{ height:clamp(260px, 62vw, 400px); }
     body .hero-content{ padding:0 16px 46px; max-width:100%; }
     body .hero-title{ font-size:clamp(20px, 5.6vw, 30px); margin-bottom:14px; }
@@ -2049,7 +2062,7 @@
   }
   body .vg-menu-btn svg{ width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
   body .nav.search-mode .vg-menu-btn{ display:none; }
-  @media (min-width:901px){
+  @media (min-width:901px) and (min-height:481px){
     body .nav-logo{ display:none; }
   }
 
@@ -2089,7 +2102,7 @@
   .vg-sep:empty + .vg-sep{ display:none; }
   .vg-sec{ padding:2px 14px 8px; font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:#777; }
   .vg-scrim{ display:none; }
-  @media (min-width:901px){
+  @media (min-width:901px) and (min-height:481px){
     body.vg-collapsed .vg-brand-name, body.vg-collapsed .vg-item span, body.vg-collapsed .vg-sec{ display:none; }
     body.vg-collapsed .vg-side-head{ flex-direction:column; height:auto; gap:12px; padding:0; }
     body.vg-collapsed .vg-item{ justify-content:center; padding:0; }
@@ -2187,7 +2200,7 @@
   body .site-footer{ margin-top:8px; border-top:1px solid #151515; }
 
   /* ---------- MÓVIL / TABLET ---------- */
-  @media (max-width:900px){
+  @media (max-width:900px), (max-height:480px) and (orientation:landscape){
     body{ --vg-side:0px; --nav-h:60px; --vg-bar-h:64px; --vg-tabs-h:58px; --safe-x:8px; }
     body .nav, body .nav.scrolled{ left:0; padding:0 12px; }
     body .nav-search, body .search-toggle-btn{ display:none; }
@@ -2321,7 +2334,7 @@
   body .player-hdr-btn{ height:40px; border-radius:999px; }
   body .player-info{ background:#0b0b0b; border-top:0; }
 
-  @media (max-width:900px){
+  @media (max-width:900px), (max-height:480px) and (orientation:landscape){
     body .player-overlay{ padding:0; align-items:stretch; background:#000; -webkit-backdrop-filter:none; backdrop-filter:none; }
     body .player-box{ width:100%; height:100%; max-height:none; border:0; border-radius:0; box-shadow:none; }
     body .player-header{ padding:calc(8px + env(safe-area-inset-top, 0px)) 10px 8px 14px; }
@@ -2333,15 +2346,28 @@
 
   /* Celular en horizontal: video a la izquierda, información a la derecha */
   @media (max-height:480px) and (orientation:landscape){
+    body .player-box{ min-height:0; height:100%; }
     body .player-header{ padding:6px 10px 6px 14px; }
     body .player-header-meta{ display:none; }
     body .player-main{ display:flex; flex-direction:row; align-items:flex-start; }
     body .player-stage.is-video, body .player-stage.is-live{
       position:relative; flex:0 0 auto; aspect-ratio:auto;
       height:calc(100vh - 52px); width:min(calc((100vh - 52px) * 16 / 9), 66%);
+      height:calc(100dvh - 52px); width:min(calc((100dvh - 52px) * 16 / 9), 66%);
     }
     body .player-info{ flex:1 1 0; min-width:0; }
     body .pc-skip-btn, body .pc-time{ display:none; }
+  }
+
+  /* Celular en horizontal: barras más bajas y portada que cabe en lo que queda de pantalla */
+  @media (max-height:480px) and (orientation:landscape){
+    body{ --nav-h:48px; --vg-bar-h:54px; --vg-tabs-h:46px; }
+    body.vg-home .hero-carousel{
+      min-height:0;
+      height:calc(100vh - var(--nav-h) - var(--vg-bar-h) - var(--vg-tabs-h));
+      height:calc(100dvh - var(--nav-h) - var(--vg-bar-h) - var(--vg-tabs-h));
+    }
+    body .row-track{ grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); }
   }
 
   /* Redes sociales: solo en el footer */
@@ -5981,6 +6007,7 @@
     return null;
   }
   function syncBar(){
+    if(document.fullscreenElement || document.webkitFullscreenElement) return;
     var m = curMedia();
     bar.classList.toggle('has-media', !!m);
     var title = m ? (m.nombre || '\u2014') : 'Selecciona un canal';
