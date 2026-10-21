@@ -2352,10 +2352,12 @@
     body .player-main{ display:flex; flex-direction:row; align-items:flex-start; }
     body .player-stage.is-video, body .player-stage.is-live{
       position:relative; flex:0 0 auto; aspect-ratio:auto;
-      height:calc(100vh - 52px); width:min(calc((100vh - 52px) * 16 / 9), 66%);
-      height:calc(100dvh - 52px); width:min(calc((100dvh - 52px) * 16 / 9), 66%);
+      height:calc(100vh - 52px); width:100%;
+      height:calc(100dvh - 52px); width:100%;
     }
-    body .player-info{ flex:1 1 0; min-width:0; }
+    body .player-stage.is-video video{ object-fit:contain; }
+    /* En horizontal solo el reproductor con sus botones; descripción, me gusta y comentarios solo en vertical */
+    body .player-info{ display:none; }
     body .pc-skip-btn, body .pc-time{ display:none; }
   }
 
@@ -3831,6 +3833,7 @@
   function stopCurrentPlayback_(done){
     if(currentHls){ try { currentHls.destroy(); } catch(e){} currentHls = null; }
 
+    var cleanupDone_ = false;
     if(radioPlayerInstance){
       var inst = radioPlayerInstance;
       radioPlayerInstance = null;
@@ -3838,6 +3841,8 @@
         var result = inst.stop();
         if(result && typeof result.then === 'function'){
           result.then(finishCleanup_, finishCleanup_);
+          // Si la radio no responde, se continúa igual para no dejar el reproductor bloqueado.
+          setTimeout(finishCleanup_, 1500);
           return;
         }
       } catch(e){}
@@ -3845,6 +3850,8 @@
     finishCleanup_();
 
     function finishCleanup_(){
+      if(cleanupDone_) return;
+      cleanupDone_ = true;
       if(pcVideo){
         try { pcVideo.pause(); } catch(e){}
         try { pcVideo.removeAttribute('src'); } catch(e){}
@@ -4099,12 +4106,21 @@
     var qSection = document.getElementById('pcQualitySection');
     if(qSection){ qSection.innerHTML = ''; qSection.style.display = 'none'; }
 
-    var hlsTried = false, hlsRecovered = false;
+    var hlsTried = false, hlsRecovered = false, hlsNetRetries = 0, netRetried = false;
+    // Archivos con extensión conocida (mp4, webm...) nunca se tratan como lista HLS:
+    // hls.js descargaría el archivo entero como si fuera un manifiesto.
+    var isPlainFile_ = /\.(mp4|m4v|mov|webm|mkv|avi|ogv|3gp)(?=$|[?#\/&])/i.test(url);
     function startHls_(){
       hlsTried = true;
+      hlsNetRetries = 0;
       spinner.classList.add('show');
       if(currentHls){ try { currentHls.destroy(); } catch(e){} currentHls = null; }
-      currentHls = new Hls({ enableWorker:true, lowLatencyMode:true, backBufferLength:90 });
+      // lowLatencyMode apagado: el contenido pasa por el proxy y un colchón normal evita cortes.
+      // capLevelToPlayerSize: no decodifica más resolución de la que el reproductor puede mostrar.
+      currentHls = new Hls({
+        enableWorker:true, lowLatencyMode:false, capLevelToPlayerSize:true, backBufferLength:90,
+        manifestLoadingMaxRetry:4, levelLoadingMaxRetry:4, fragLoadingMaxRetry:6
+      });
       currentHls.loadSource(url);
       currentHls.attachMedia(v);
 
@@ -4125,6 +4141,13 @@
       });
       currentHls.on(Hls.Events.ERROR, function(event, data){
         if(!data || !data.fatal) return;
+        // Un corte de red momentáneo se reintenta (hasta 3 veces) antes de mostrar el error.
+        if(data.type === Hls.ErrorTypes.NETWORK_ERROR && hlsNetRetries < 3 && currentHls){
+          hlsNetRetries++;
+          var hlsNow = currentHls;
+          setTimeout(function(){ if(currentHls === hlsNow){ try { hlsNow.startLoad(); } catch(e){} } }, 700 * hlsNetRetries);
+          return;
+        }
         // Un error de decodificación se intenta recuperar una vez antes de rendirse.
         if(data.type === Hls.ErrorTypes.MEDIA_ERROR && !hlsRecovered && currentHls){
           hlsRecovered = true;
@@ -4188,9 +4211,22 @@
     v.addEventListener('error', function(){
       // Muchos canales en vivo no terminan en .m3u8 aunque sean HLS: si el
       // navegador dice "formato no soportado", se prueba con hls.js antes de rendirse.
-      if(!hlsTried && v.error && v.error.code === 4 && typeof Hls !== 'undefined' && Hls.isSupported()){
+      if(!hlsTried && !isPlainFile_ && v.error && v.error.code === 4 && typeof Hls !== 'undefined' && Hls.isSupported()){
         try { v.removeAttribute('src'); v.load(); } catch(e){}
         startHls_();
+        return;
+      }
+      // Corte de red a mitad de reproducción: un reintento automático retomando donde iba.
+      if(!hlsTried && !currentHls && !netRetried && v.error && v.error.code === 2 && pcVideo === v){
+        netRetried = true;
+        var resumeAt = v.currentTime || 0;
+        spinner.classList.add('show');
+        v.addEventListener('loadedmetadata', function onResume_(){
+          v.removeEventListener('loadedmetadata', onResume_);
+          if(resumeAt > 0 && isFinite(v.duration)){ try { v.currentTime = resumeAt; } catch(e){} }
+          v.play().catch(function(){});
+        });
+        try { v.src = url; v.load(); } catch(e){}
         return;
       }
       spinner.classList.remove('show');
