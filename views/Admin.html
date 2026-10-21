@@ -507,7 +507,104 @@
     #brandModalBody .field:has(> input[id^="social"]) label{ width:auto; }
     #brandModalBody .field:has(> input[id^="social"]) input{ flex:1 1 100%; background:#0d0d0d; border:1px solid #262626; }
     body .topbar .btn{ padding:0 12px; }
+  }  /* ============================================================
+     SUPERFICIES CLARAS (Admin): pestañas, tarjetas, filtros, tabla
+     y redes en tonos claros sobre el fondo oscuro. Solo estilos.
+     ============================================================ */
+  html, body{ background:#0f1115; }
+  body .topbar{ background:#000; border-bottom:1px solid #1f2230; }
+  body .brand-mark{ border-color:#fff; }
+
+  /* Zona de contenido: variables claras */
+  body .wrap{
+    --panel:#eef1ff; --card:#f7f8ff; --card-hover:#ffffff;
+    --muted:#5a628f; --border:#cfd5f5; --border-2:#b7bfea; --text-2:#2b3158;
+    color:#161a33;
   }
+  /* Ventanas: se quedan oscuras, con su propio juego de variables */
+  body .modal-overlay{
+    --panel:#16162a; --card:#1d1d36; --muted:#b9c0ee; --border:#3a3f6e; --border-2:#4c52a0; --text-2:#eef0ff;
+    color:#fff;
+  }
+
+  /* Botones claros */
+  body .btn-outline, body .btn-ghost{ background:#eef1ff; border:1px solid #c3caf0; color:#1b1f3a; }
+  body .btn-outline:hover, body .btn-ghost:hover{ background:#fff; border-color:#4f46e5; color:#1b1f3a; }
+  body .btn-primary{ background:#4f46e5; border:1px solid #4f46e5; color:#fff; }
+  body .btn-primary:hover{ background:#6358f0; border-color:#6358f0; box-shadow:0 6px 18px rgba(79,70,229,.35); }
+  body .btn-primary:disabled{ background:#c9ceea; border-color:#c9ceea; color:#7b83b0; }
+  body .btn-danger{ background:#fde4e6; border:1px solid #f4b3b9; color:#b4232c; }
+  body .btn-danger:hover{ background:#e5484d; border-color:#e5484d; color:#fff; }
+  body .topbar .btn-outline:last-child{ background:#fde4e6; border:1px solid #f4b3b9; color:#b4232c; }
+  body .topbar .btn-outline:last-child:hover{ background:#e5484d; border-color:#e5484d; color:#fff; }
+  body .modal .btn-outline, body .modal .btn-ghost{ background:#eef1ff; border-color:#c3caf0; color:#1b1f3a; }
+  body .modal .btn-primary{ background:#4f46e5; border-color:#4f46e5; color:#fff; }
+  body .modal .btn-primary:hover{ background:#6358f0; }
+  body .modal .btn-danger{ background:#fde4e6; border-color:#f4b3b9; color:#b4232c; }
+
+  /* Pestañas y chips */
+  body .tab, body .chip{ background:#eef1ff; border:1px solid #cfd5f5; color:#1b1f3a; }
+  body .tab:hover, body .chip:hover{ background:#fff; color:#1b1f3a; border-color:#4f46e5; }
+  body .tab.active, body .chip.active{ background:#4f46e5; border-color:#4f46e5; color:#fff; box-shadow:0 6px 18px rgba(79,70,229,.35); }
+
+  /* Estadísticas */
+  body .stat-card{ background:linear-gradient(180deg,#ffffff,#eceffd); border:1px solid #cfd5f5; box-shadow:0 4px 14px rgba(0,0,0,.18); }
+  body .stat-card::before{ background:linear-gradient(90deg,#4f46e5,#ec4899); opacity:1; height:3px; }
+  body .stat-value{ color:#161a33; }
+  body .stat-label{ color:#5a628f; }
+
+  /* Filtros */
+  body .toolbar{ background:#e4e8fb; border:1px solid #cfd5f5; }
+  body .toolbar input[type=text], body .toolbar select{ background:#fff; border:1px solid #b7bfea; color:#161a33; }
+  body .toolbar input[type=text]::placeholder{ color:#7b83b0; }
+  body .toolbar input[type=text]:focus, body .toolbar select:focus{ border-color:#4f46e5; }
+  body .wrap .field-hint{ color:#a9afd6; }
+  body .toolbar + .field-hint, body .wrap .toolbar ~ .field-hint{ color:#a9afd6; }
+
+  /* Tarjetas de contenido */
+  body .item-card{ background:#f7f8ff; border:1px solid #d5daf7; box-shadow:0 4px 14px rgba(0,0,0,.2); }
+  body .item-card:hover{ background:#fff; border-color:#4f46e5; transform:translateY(-2px); }
+  body .item-thumb{ background:#dfe3f7; border-bottom:1px solid #d5daf7; }
+  body .item-name{ color:#161a33; }
+  body .item-meta{ color:#5a628f; }
+  body .badge-destacado{ background:#4f46e5; color:#fff; }
+  body .empty{ color:#a9afd6; }
+
+  /* Publicidad */
+  body #adsSection .field label, body #adsSection .checkbox-row{ color:#5a628f; }
+  body #adsSection .field-hint{ color:#5a628f; }
+  body #adsSection .field input{ background:#fff; border:1px solid #b7bfea; color:#161a33; }
+  body #adsSection .field input:focus{ border-color:#4f46e5; }
+
+  /* Tabla de usuarios */
+  body .table-scroll{ border:1px solid #cfd5f5; }
+  body .users-table, body .users-table td:last-child{ background:#f7f8ff; }
+  body .users-table th, body .users-table th:last-child{ background:#e4e8fb; color:#3b4275; border-bottom:1px solid #cfd5f5; }
+  body .users-table td{ color:#161a33; border-bottom:1px solid #e1e5f8; }
+  body .users-table tr:hover td, body .users-table tr:hover td:last-child{ background:#fff; }
+  body .users-table th:last-child, body .users-table td:last-child{ box-shadow:-8px 0 10px rgba(0,0,0,.12); }
+  body .user-name{ color:#161a33; }
+  body .user-username{ color:#5a628f; }
+  body .role-admin{ background:#fde4e6; color:#b4232c; border:1px solid #f4b3b9; }
+  body .role-user{ background:#e4e8fb; color:#3b4275; border:1px solid #cfd5f5; }
+  body .estado-activo{ background:#dcf5e6; color:#1a7f43; border:1px solid #a8e0bf; }
+  body .estado-suspendido{ background:#fde4e6; color:#b4232c; border:1px solid #f4b3b9; }
+
+  /* Ventanas (oscuras) */
+  body .modal{ background:#14162b; border:1px solid #3a3f6e; }
+  body .modal .field input, body .modal .field select, body .modal .field textarea{ background:#0b0c18; border:1px solid #3a3f6e; color:#fff; }
+  body .modal .field input:focus, body .modal .field select:focus, body .modal .field textarea:focus{ border-color:#8b83ff; }
+  body .modal-tab.active{ border-bottom-color:#8b83ff; color:#fff; }
+  body .modal-close{ background:#2a2e58; color:#fff; }
+  body .brand-preview, body .player-logo-preview{ background:#1d2040; border-color:#3a3f6e; }
+  body .toast{ background:#14162b; border:1px solid #4c52a0; color:#fff; }
+
+  /* Redes sociales (pestaña "📱 Redes"): filas claras */
+  body #brandModalBody .field:has(> input[id^="social"]){ background:#eef1ff; border:1px solid #c3caf0; }
+  body #brandModalBody .field:has(> input[id^="social"]) label{ background:#4f46e5; border:0; color:#fff; }
+  body #brandModalBody .field:has(> input[id^="social"]) input{ background:transparent; border:0; color:#161a33; }
+  body #brandModalBody .field:has(> input[id^="social"]) input::placeholder{ color:#7b83b0; }
+  body #brandModalBody .field:has(> input[id^="social"]) input:focus{ background:#fff; }
 </style>
 </head>
 <body>
