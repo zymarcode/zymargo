@@ -43,14 +43,18 @@ function appHead(brand) {
     '/* Loader general y transparente: logo + nombre del sistema sobre el contenido desenfocado */' +
     'html body #sfLoad{background:rgba(5,5,6,.22);-webkit-backdrop-filter:blur(22px) saturate(1.15);backdrop-filter:blur(22px) saturate(1.15)}' +
     'html body #sfLoad::before{opacity:.8}' +
-    'html body .device-check-overlay{background:rgba(5,5,6,.6);-webkit-backdrop-filter:blur(34px) saturate(1.15);backdrop-filter:blur(34px) saturate(1.15);gap:18px;color:#cfcfd4;letter-spacing:.04em}' +
-    'html body .dc-brand{display:flex;flex-direction:column;align-items:center;gap:14px;margin-bottom:4px}' +
-    'html body .dc-logo{width:72px;height:72px;object-fit:contain;border-radius:16px;animation:dcPulse 1.4s ease-in-out infinite}' +
-    'html body .dc-name{margin:0;padding:0 16px;text-align:center;font-size:clamp(24px,7vw,40px);font-weight:800;letter-spacing:.14em;text-transform:uppercase;' +
-    'color:#e50914;background:linear-gradient(100deg,#b20710 20%,#ff2a35 40%,#fff 50%,#ff2a35 60%,#b20710 80%);background-size:250% 100%;' +
-    '-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:sfShine 1.8s linear infinite}' +
-    '@keyframes dcPulse{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.07);opacity:1}}' +
-    '@media (prefers-reduced-motion:reduce){html body .dc-logo,html body .dc-name{animation:none}}' +
+    '/* "Verificando sesión": mismo loader que la pantalla de carga (#sfLoad), igual en Usuario y Admin */' +
+    'html body .device-check-overlay{background:rgba(5,5,6,.6);-webkit-backdrop-filter:blur(34px) saturate(1.15);backdrop-filter:blur(34px) saturate(1.15);gap:26px;overflow:hidden}' +
+    'html body .device-check-overlay::before{content:"";position:absolute;left:50%;top:38%;width:min(520px,90vw);height:min(520px,90vw);transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(229,9,20,.28) 0%,rgba(229,9,20,0) 65%);animation:sfGlow 2.2s ease-in-out infinite;pointer-events:none}' +
+    'html body .device-check-overlay .sfMark{position:relative;width:104px;height:104px;display:flex;align-items:center;justify-content:center}' +
+    'html body .device-check-overlay .sfMark::before{content:"";position:absolute;inset:0;border-radius:50%;border:3px solid rgba(229,9,20,.18)}' +
+    'html body .device-check-overlay .sfMark::after{content:"";position:absolute;inset:0;border-radius:50%;border:3px solid transparent;border-top-color:#e50914;border-right-color:#ff2a35;box-shadow:0 0 22px rgba(229,9,20,.55);animation:sfRot 1s linear infinite}' +
+    'html body .device-check-overlay .sfLogo{width:72px;height:72px;object-fit:contain;border-radius:16px;animation:sfPulse 1.4s ease-in-out infinite}' +
+    'html body .device-check-overlay .sfName{margin:0;font-size:clamp(30px,9vw,54px);font-weight:800;letter-spacing:.14em;text-transform:uppercase;text-align:center;padding:0 16px;color:#e50914;background:linear-gradient(100deg,#b20710 20%,#ff2a35 40%,#fff 50%,#ff2a35 60%,#b20710 80%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:sfShine 1.8s linear infinite}' +
+    'html body .device-check-overlay .sfBar{width:min(220px,60vw);height:4px;border-radius:4px;background:rgba(229,9,20,.18);overflow:hidden}' +
+    'html body .device-check-overlay .sfBar i{display:block;height:100%;width:40%;border-radius:4px;background:linear-gradient(90deg,#b20710,#e50914,#ff2a35);box-shadow:0 0 12px rgba(229,9,20,.8);animation:sfSlide 1.1s ease-in-out infinite}' +
+    'html body .device-check-overlay .dc-msg{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#cfcfd4}' +
+    '@media (prefers-reduced-motion:reduce){html body .device-check-overlay .sfName,html body .device-check-overlay .sfBar i,html body .device-check-overlay .sfLogo,html body .device-check-overlay .sfMark::after,html body .device-check-overlay::before{animation:none}}' +
     '@media (display-mode:standalone){' +
     'body{-webkit-touch-callout:none}' +
     'body :not(input):not(textarea):not([contenteditable]){-webkit-user-select:none;user-select:none}' +
