@@ -1937,22 +1937,20 @@
   body .nav-search:focus-within{ background:#111; border-color:#6a6a6a; box-shadow:none; }
   body .nav-search .nav-ico{ color:#d6d6d6; width:20px; height:20px; }
   body .nav-search input{ font-size:14px; }
-  body .nav-search-kbd{ order:2; font-size:0; background:none; border:0; padding:0; box-shadow:none; }
-  body .nav-search-kbd::after{
-    content:'\2192\00a0\00a0Buscar'; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif; font-size:13px; font-weight:600; color:#e6e6e6; white-space:nowrap;
+  body .nav-search .nav-search-clear .nav-ico{ width:13px; height:13px; color:#fff; }
+  body .nav-search-clear{ order:2; flex:0 0 auto; }
+  body .nav-search-go{
+    order:3; flex:0 0 auto; display:inline-flex; align-items:center; gap:8px; height:32px; padding:0 14px; margin-right:-10px;
+    border:0; border-radius:999px; background:#1d1d1d; color:#fff; cursor:pointer; white-space:nowrap;
+    font:600 13px/1 -apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif; transition:background .15s;
   }
+  body .nav-search-go:hover{ background:#2a2a2a; }
+  body .nav-search-go svg{ width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
   body #refreshUsuarioBtn{ order:2; }
   body .nav-user{ order:3; background:#1a1a1a; border-color:#262626; }
   body .notif-wrap{ order:4; }
-  body .vg-social{ order:5; display:flex; align-items:center; gap:10px; }
   body .nav-icon-btn, body .notif-bell{ background:#1a1a1a; border:1px solid #262626; }
   body .nav-icon-btn:hover, body .notif-bell:hover{ background:#242424; border-color:#333; }
-  body .vg-social a{
-    width:42px; height:42px; border-radius:50%; background:#1d1d1d; color:#fff;
-    display:flex; align-items:center; justify-content:center; transition:background .15s;
-  }
-  body .vg-social a:hover{ background:#2a2a2a; }
-  body .vg-social svg{ width:20px; height:20px; fill:currentColor; display:block; }
 
   body .nav-logo-mark{
     width:30px; height:30px; border-radius:50%; background:none; box-shadow:none;
@@ -2108,7 +2106,7 @@
   @media (max-width:900px){
     body{ --vg-side:0px; --nav-h:60px; --vg-bar-h:64px; --vg-tabs-h:58px; --safe-x:8px; }
     body .nav, body .nav.scrolled{ left:0; padding:0 12px; }
-    body .nav-search, body .search-toggle-btn, body .vg-social{ display:none; }
+    body .nav-search, body .search-toggle-btn{ display:none; }
     body .nav-logo{ gap:10px; }
     body .vg-menu-btn{ display:inline-flex; }
     .vg-side{ width:260px; bottom:0; z-index:1300; transform:translateX(-105%); box-shadow:none; }
@@ -2143,6 +2141,68 @@
   @media (max-width:520px){
     .vg-cbtn.up{ display:none; }
   }
+
+  /* ============================================================
+     TEMA VEOYGO — modales y alertas (Usuario). Solo estilos.
+     ============================================================ */
+  .device-check-overlay{ background:#000; }
+  .device-check-spinner{ border-color:#2a2a2a; border-top-color:#fff; }
+
+  /* Modal "Compartir enlace" */
+  .share-modal{ background:#0b0b0b; border:1px solid #1f1f1f; border-radius:14px; box-shadow:0 30px 80px rgba(0,0,0,.7); }
+  .share-modal h3{ font-weight:800; }
+  .share-modal-row input{ background:#0d0d0d; border:1px solid #333; border-radius:999px; padding:12px 16px; }
+  .share-modal-row input:focus{ border-color:#6a6a6a; }
+  .share-modal-copy{ background:#2f2f2f; border:1px solid #3a3a3a; border-radius:999px; padding:12px 18px; }
+  .share-modal-copy:hover{ background:#3a3a3a; }
+
+  /* Ventana del reproductor y visor de imagen */
+  body .player-box{ background:#0b0b0b; border:1px solid #1f1f1f; border-radius:14px; }
+  body .img-lightbox-close{ background:#1c1c1c; border-color:#2a2a2a; }
+  body .img-lightbox-close:hover{ background:#333; border-color:#333; }
+
+  /* Notificaciones */
+  body .notif-panel{ background:#0b0b0b; border:1px solid #1f1f1f; border-radius:14px; backdrop-filter:none; -webkit-backdrop-filter:none; box-shadow:0 18px 50px rgba(0,0,0,.7); }
+  body .notif-item{ border-top-color:#1a1a1a; }
+  body .notif-item:hover{ background:#141414; }
+
+  /* Puerta social (estilos en línea -> !important) */
+  #sfGate{ background:rgba(0,0,0,.85) !important; backdrop-filter:blur(4px); }
+  #sfGate > div{ background:#0b0b0b !important; border:1px solid #1f1f1f !important; border-radius:14px !important; box-shadow:0 30px 80px rgba(0,0,0,.7) !important; }
+  #sfGate h2{ font-weight:800; }
+  #sfGate p{ color:#9b9b9b !important; }
+  #sfGate div:has(> #sfGateBar){ background:#262626 !important; }
+  #sfGateBar{ background:#fff !important; }
+  #sfGateList button{ border-radius:999px !important; }
+  #sfGateEnter{ border-radius:999px !important; }
+  #sfGateEnter:disabled{ background:#1c1c1c !important; color:#777 !important; }
+  #sfGateEnter:not(:disabled){ background:#fff !important; color:#000 !important; }
+  /* --- Pantalla de carga --- */
+  body #sfLoad{ background:#000; }
+  body #sfLoad .sfLogo{ border-radius:50%; }
+  body #sfLoad .sfName{
+    color:#fff; background:linear-gradient(100deg,#8a8a8a 20%,#fff 50%,#8a8a8a 80%); background-size:250% 100%;
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  body #sfLoad .sfBar{ background:#1c1c1c; }
+  body #sfLoad .sfBar i{ background:#fff; }
+
+  /* ============================================================
+     UN SOLO REPRODUCTOR — la lista de contenido ya está en la página,
+     así que el modal muestra solo el reproductor. Siguiente/anterior y
+     reproducción automática siguen funcionando (usan la misma cola).
+     ============================================================ */
+  body #playerSidebar{ display:none !important; }
+  body .player-box{ max-width:980px; }
+  body .player-title{ display:none; }
+  body .player-overlay{ bottom:var(--vg-tabs-h); }
+  body:has(#playerOverlay.open) .vg-bar{ display:none; }
+  body:has(#playerOverlay.open) .vg-side{ bottom:0; }
+
+  /* Redes sociales: solo en el footer */
+  body .site-footer-social a{ width:36px; height:36px; background:#1d1d1d; border-color:#262626; }
+  body .site-footer-social a:hover{ background:#2a2a2a; border-color:#333; box-shadow:none; transform:none; }
+  body .site-footer-social svg{ width:16px; height:16px; }
 </style>
 </head>
 <body>
@@ -2236,7 +2296,7 @@
       <div class="nav-search" id="navSearchBox">
         <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
         <input type="text" id="searchInput" placeholder="Buscar canales o emisoras..." autocomplete="off" aria-label="Buscar" oninput="handleSearchInput(this.value)" />
-        <kbd class="nav-search-kbd" aria-hidden="true">/</kbd>
+        <button type="button" class="nav-search-go" aria-label="Buscar" onclick="var i=document.getElementById('searchInput'); handleSearchInput(i.value); i.focus();"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg><span>Buscar</span></button>
         <button type="button" class="nav-search-clear" aria-label="Limpiar búsqueda" onclick="clearSearchDesktop()"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
       </div>
 
@@ -5490,17 +5550,6 @@
   if(menuBtn) menuBtn.addEventListener('click', function(){ body.classList.toggle('vg-drawer'); });
   var scrim = document.getElementById('vgScrim');
   if(scrim) scrim.addEventListener('click', closeDrawer);
-
-  // ---------- Redes sociales del footer -> barra superior ----------
-  (function(){
-    var src = document.querySelectorAll('#siteFooter .site-footer-social a');
-    var navRight = document.getElementById('navRight');
-    if(!src.length || !navRight) return;
-    var box = document.createElement('div');
-    box.className = 'vg-social';
-    src.forEach(function(a){ box.appendChild(a.cloneNode(true)); });
-    navRight.appendChild(box);
-  })();
 
   // ---------- Descargar app (solo si el navegador permite instalar) ----------
   var deferredInstall = null;
