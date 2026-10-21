@@ -884,6 +884,10 @@
           <label class="checkbox-row"><input type="checkbox" id="userPublicidad" checked /> 📢 Mostrar publicidad a este usuario</label>
           <div class="field-hint">Si lo desmarcas, este usuario nunca verá anuncios (aunque la publicidad esté activada).</div>
         </div>
+        <div class="field">
+          <label class="checkbox-row"><input type="checkbox" id="userDescargas" checked /> ⬇️ Permitir descargar contenido (remixes y demás)</label>
+          <div class="field-hint">Si lo desmarcas, este usuario no verá el botón de descarga en el reproductor.</div>
+        </div>
         <div class="form-error" id="userFormError"></div>
       </div>
       <div class="modal-footer">
@@ -1780,7 +1784,7 @@
             '<div class="user-avatar">'+esc(inicial)+'</div>' +
             '<div class="user-info">' +
               '<div class="user-name" title="'+esc(u.nombre||u.usuario)+'">'+esc(u.nombre || u.usuario)+'</div>' +
-              '<div class="user-username">@'+esc(u.usuario)+(u.publicidad === false ? '' : ' · 📢')+'</div>' +
+              '<div class="user-username">@'+esc(u.usuario)+(u.publicidad === false ? '' : ' · 📢')+(u.descargas === false ? '' : ' · ⬇️')+'</div>' +
             '</div>' +
           '</div>' +
         '</td>' +
@@ -1904,6 +1908,7 @@
     document.getElementById('userEstado').value = 'activo';
     document.getElementById('userDeviceLimit').value = '';
     document.getElementById('userPublicidad').checked = true;
+    document.getElementById('userDescargas').checked = true;
     document.getElementById('userPassLabel').textContent = 'Contraseña';
     document.getElementById('userPassHint').textContent = 'Mínimo 4 caracteres.';
     document.getElementById('userFormError').textContent = '';
@@ -1924,6 +1929,7 @@
     document.getElementById('userEstado').value = u.estado || 'activo';
     document.getElementById('userDeviceLimit').value = (u.limiteDispositivos === null || u.limiteDispositivos === undefined) ? '' : u.limiteDispositivos;
     document.getElementById('userPublicidad').checked = (u.publicidad !== false);
+    document.getElementById('userDescargas').checked = (u.descargas !== false);
     document.getElementById('userPassLabel').textContent = 'Nueva contraseña (opcional)';
     document.getElementById('userPassHint').textContent = 'Deja en blanco para mantener la actual.';
     document.getElementById('userFormError').textContent = '';
@@ -1946,7 +1952,8 @@
       rol: document.getElementById('userRol').value,
       estado: document.getElementById('userEstado').value,
       limiteDispositivos: limitRaw === '' ? '' : Number(limitRaw),
-      publicidad: document.getElementById('userPublicidad').checked
+      publicidad: document.getElementById('userPublicidad').checked,
+      descargas: document.getElementById('userDescargas').checked
     };
 
     if(!payload.usuario){ errBox.textContent = 'El usuario es obligatorio.'; return; }
