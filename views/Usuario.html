@@ -2344,20 +2344,20 @@
   @keyframes vgSheetUp{ from{ opacity:0; transform:translateY(44px); } to{ opacity:1; transform:none; } }
   @media (prefers-reduced-motion:reduce){ body .player-overlay.open .player-box{ animation:none; } }
 
-  /* Celular en horizontal: video a la izquierda, información a la derecha */
+  /* Celular en horizontal: reproductor a pantalla y debajo la información */
   @media (max-height:480px) and (orientation:landscape){
     body .player-box{ min-height:0; height:100%; }
     body .player-header{ padding:6px 10px 6px 14px; }
     body .player-header-meta{ display:none; }
-    body .player-main{ display:flex; flex-direction:row; align-items:flex-start; }
+    /* Horizontal: primero el reproductor y debajo, apilados, botones, descripción y comentarios (se baja con scroll) */
+    body .player-main{ display:flex; flex-direction:column; align-items:stretch; }
     body .player-stage.is-video, body .player-stage.is-live{
       position:relative; flex:0 0 auto; aspect-ratio:auto;
       height:calc(100vh - 52px); width:100%;
       height:calc(100dvh - 52px); width:100%;
     }
     body .player-stage.is-video video{ object-fit:contain; }
-    /* En horizontal solo el reproductor con sus botones; descripción, me gusta y comentarios solo en vertical */
-    body .player-info{ display:none; }
+    body .player-info{ flex:0 0 auto; width:100%; min-width:0; padding:12px 16px calc(24px + env(safe-area-inset-bottom, 0px)); }
     body .pc-skip-btn, body .pc-time{ display:none; }
   }
 
