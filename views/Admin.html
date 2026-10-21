@@ -489,6 +489,18 @@
   body .users-table tr:hover td:last-child{ background:#1d1d23; }
   body .device-row{ border-color:#2e2e36; }
 
+  /* Secciones descargables (modal de usuario) */
+  .dl-cats{ display:flex; flex-wrap:wrap; gap:8px; }
+  .dl-cats .dl-cat{ margin:0; cursor:pointer; }
+  .dl-cats .dl-cat input{ position:absolute; opacity:0; width:0; height:0; pointer-events:none; }
+  .dl-cats .dl-cat span{
+    display:inline-flex; align-items:center; height:34px; padding:0 16px; border-radius:999px;
+    background:#18181d; border:1px solid #2e2e36; color:#d6d6dc; font-size:13px; font-weight:700; transition:.15s;
+  }
+  .dl-cats .dl-cat:hover span{ background:#22222a; color:#fff; }
+  .dl-cats .dl-cat input:checked + span{ background:#fff; border-color:#fff; color:#000; }
+  .dl-cats .dl-cat input:focus-visible + span{ outline:2px solid #fff; outline-offset:2px; }
+
   /* Redes sociales (pestaña "📱 Redes") */
   #brandModalBody .modal-section-title{ border-top-color:#1f1f1f; }
   #brandModalBody .field:has(> input[id^="social"]){
@@ -885,8 +897,9 @@
           <div class="field-hint">Si lo desmarcas, este usuario nunca verá anuncios (aunque la publicidad esté activada).</div>
         </div>
         <div class="field">
-          <label class="checkbox-row"><input type="checkbox" id="userDescargas" checked /> ⬇️ Permitir descargar contenido (remixes y demás)</label>
-          <div class="field-hint">Si lo desmarcas, este usuario no verá el botón de descarga en el reproductor.</div>
+          <label>⬇️ Secciones que este usuario puede descargar</label>
+          <div class="dl-cats" id="userDescargasBox"></div>
+          <div class="field-hint">Marca las secciones (categorías) cuyo contenido podrá descargar. Sin ninguna marcada, el usuario no verá el botón de descarga.</div>
         </div>
         <div class="form-error" id="userFormError"></div>
       </div>
@@ -1784,7 +1797,7 @@
             '<div class="user-avatar">'+esc(inicial)+'</div>' +
             '<div class="user-info">' +
               '<div class="user-name" title="'+esc(u.nombre||u.usuario)+'">'+esc(u.nombre || u.usuario)+'</div>' +
-              '<div class="user-username">@'+esc(u.usuario)+(u.publicidad === false ? '' : ' · 📢')+(u.descargas === false ? '' : ' · ⬇️')+'</div>' +
+              '<div class="user-username">@'+esc(u.usuario)+(u.publicidad === false ? '' : ' · 📢')+(Array.isArray(u.descargas) && u.descargas.length ? ' · ⬇️' : '')+'</div>' +
             '</div>' +
           '</div>' +
         '</td>' +
@@ -1897,6 +1910,26 @@
     }, {title:'Cerrar todas las sesiones', okText:'Cerrar todas'});
   }
 
+  // Secciones (categorías) que el usuario puede descargar
+  function renderUserDescargas_(selected){
+    var cats = {}, hasGeneral = false;
+    allMedia.forEach(function(m){ if(m.categoria) cats[m.categoria] = 1; else hasGeneral = true; });
+    if(hasGeneral) cats['General'] = 1;
+    (selected || []).forEach(function(c){ cats[c] = 1; });
+    var names = Object.keys(cats).sort();
+    var box = document.getElementById('userDescargasBox');
+    if(!names.length){ box.innerHTML = '<span class="field-hint">Todavía no hay secciones.</span>'; return; }
+    box.innerHTML = names.map(function(c){
+      var on = (selected || []).indexOf(c) !== -1;
+      return '<label class="dl-cat"><input type="checkbox" value="'+esc(c)+'"'+(on?' checked':'')+' /><span>'+esc(c)+'</span></label>';
+    }).join('');
+  }
+  function getUserDescargas_(){
+    var out = [];
+    document.querySelectorAll('#userDescargasBox input[type=checkbox]').forEach(function(i){ if(i.checked) out.push(i.value); });
+    return out;
+  }
+
   function openUserModal(){
     document.getElementById('userModalTitle').textContent = 'Crear usuario';
     document.getElementById('userId').value = '';
@@ -1908,7 +1941,7 @@
     document.getElementById('userEstado').value = 'activo';
     document.getElementById('userDeviceLimit').value = '';
     document.getElementById('userPublicidad').checked = true;
-    document.getElementById('userDescargas').checked = true;
+    renderUserDescargas_([]);
     document.getElementById('userPassLabel').textContent = 'Contraseña';
     document.getElementById('userPassHint').textContent = 'Mínimo 4 caracteres.';
     document.getElementById('userFormError').textContent = '';
@@ -1929,7 +1962,7 @@
     document.getElementById('userEstado').value = u.estado || 'activo';
     document.getElementById('userDeviceLimit').value = (u.limiteDispositivos === null || u.limiteDispositivos === undefined) ? '' : u.limiteDispositivos;
     document.getElementById('userPublicidad').checked = (u.publicidad !== false);
-    document.getElementById('userDescargas').checked = (u.descargas !== false);
+    renderUserDescargas_(Array.isArray(u.descargas) ? u.descargas : []);
     document.getElementById('userPassLabel').textContent = 'Nueva contraseña (opcional)';
     document.getElementById('userPassHint').textContent = 'Deja en blanco para mantener la actual.';
     document.getElementById('userFormError').textContent = '';
@@ -1953,7 +1986,7 @@
       estado: document.getElementById('userEstado').value,
       limiteDispositivos: limitRaw === '' ? '' : Number(limitRaw),
       publicidad: document.getElementById('userPublicidad').checked,
-      descargas: document.getElementById('userDescargas').checked
+      descargas: getUserDescargas_()
     };
 
     if(!payload.usuario){ errBox.textContent = 'El usuario es obligatorio.'; return; }
