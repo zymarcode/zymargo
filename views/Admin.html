@@ -325,6 +325,16 @@
     display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px;
     text-align:center; padding:10px; line-height:1.5;
   }
+  .art-search{ margin-top:10px; }
+  .art-search-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .art-search-row select{ flex:1 1 150px; min-width:0; padding:9px 10px; border-radius:8px; border:1px solid #333; background:#0d0d0d; color:#fff; font-size:13px; }
+  .art-search-row .btn{ flex:1 1 180px; }
+  .art-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(92px,1fr)); gap:8px; margin-top:8px; }
+  .art-opt{ background:#0d0d0d; border:1px solid #2a2a2a; border-radius:8px; padding:6px; cursor:pointer; color:#ddd; text-align:center; font-size:11px; line-height:1.25; }
+  .art-opt:hover{ border-color:#fff; }
+  .art-opt img{ width:100%; aspect-ratio:1/1; object-fit:contain; background:#000; border-radius:6px; display:block; margin-bottom:5px; }
+  .art-opt b{ display:block; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .art-opt span{ display:block; color:#8a8a8a; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .item-image-preview img{ width:100%; height:100%; object-fit:cover; display:block; }
   /* Vista previa del carrusel: horizontal 16:9 (igual que el banner real) */
   .item-image-preview-wide{ aspect-ratio:16/9; position:relative; padding:0; }
@@ -1082,6 +1092,19 @@
               <div class="field-hint">Se muestra como miniatura del contenido. Déjalo vacío si no quieres imagen.</div>
             </div>
             <div class="item-image-preview" id="itemMiniaturaPreview">Sin imagen</div>
+            <div class="art-search">
+              <div class="art-search-row">
+                <select id="artKind" title="Fuente de la búsqueda">
+                  <option value="auto">Fuente: automática</option>
+                  <option value="musica">🎵 Música / remixes</option>
+                  <option value="radio">📻 Radio</option>
+                  <option value="tv">📺 Televisión</option>
+                </select>
+                <button type="button" class="btn btn-outline" id="artSearchBtn" onclick="searchArt()">🔎 Buscar imagen por el nombre</button>
+              </div>
+              <div class="field-hint" id="artStatus">Usa el campo "Nombre" y te muestra opciones; toca una para usarla como miniatura.</div>
+              <div class="art-grid" id="artGrid"></div>
+            </div>
             <div class="field" style="margin-top:14px;">
               <label>Imagen del carrusel (URL, opcional)</label>
               <input type="url" id="itemMiniaturaCarrusel" placeholder="https://..." oninput="updateItemMiniaturaCarruselPreview()" />
@@ -1839,6 +1862,57 @@
     testImg.src = url;
   }
 
+  // ===== Búsqueda automática de imagen por el nombre =====
+  function artGuessKind_(){
+    var c = (document.getElementById('itemCategoria').value || '').toLowerCase();
+    if(/radio|emisora/.test(c)) return 'radio';
+    if(/tele|\btv\b|canal/.test(c)) return 'tv';
+    return 'musica';
+  }
+  function artClear_(msg){
+    document.getElementById('artGrid').innerHTML = '';
+    document.getElementById('artStatus').textContent = msg || 'Usa el campo "Nombre" y te muestra opciones; toca una para usarla como miniatura.';
+  }
+  function searchArt(){
+    var q = document.getElementById('itemNombre').value.trim();
+    var status = document.getElementById('artStatus');
+    var grid = document.getElementById('artGrid');
+    if(q.length < 2){ artClear_('Escribe primero el nombre del contenido (mínimo 2 letras).'); return; }
+    var kind = document.getElementById('artKind').value;
+    if(kind === 'auto') kind = artGuessKind_();
+    var btn = document.getElementById('artSearchBtn');
+    btn.disabled = true; grid.innerHTML = ''; status.textContent = 'Buscando…';
+    google.script.run.withSuccessHandler(function(res){
+      btn.disabled = false;
+      if(!res || !res.ok){ status.textContent = (res && res.error) || 'No se pudo buscar.'; return; }
+      var list = res.results || [];
+      if(!list.length){ status.textContent = 'Sin resultados para "' + q + '". Prueba con otro nombre o pega la URL a mano.'; return; }
+      status.textContent = 'Toca la imagen que quieres usar:';
+      list.forEach(function(r){
+        var b = document.createElement('button');
+        b.type = 'button'; b.className = 'art-opt'; b.title = (r.titulo || '') + (r.subtitulo ? ' — ' + r.subtitulo : '');
+        var img = document.createElement('img');
+        img.alt = ''; img.referrerPolicy = 'no-referrer';
+        img.onerror = function(){
+          if(r.imagenAlt && img.src !== r.imagenAlt){ img.src = r.imagenAlt; }
+          else if(b.parentNode){ b.parentNode.removeChild(b); }
+        };
+        img.src = r.imagen;
+        var t = document.createElement('b'); t.textContent = r.titulo || '';
+        var s2 = document.createElement('span'); s2.textContent = r.subtitulo || '';
+        b.appendChild(img); b.appendChild(t); b.appendChild(s2);
+        b.onclick = function(){
+          document.getElementById('itemMiniatura').value = img.currentSrc || img.src;
+          updateItemMiniaturaPreview();
+          artClear_('Imagen aplicada. Puedes buscar de nuevo si prefieres otra.');
+        };
+        grid.appendChild(b);
+      });
+    }).withFailureHandler(function(e){
+      btn.disabled = false; status.textContent = 'Error: ' + e.message;
+    }).searchArtwork(TOKEN, q, kind);
+  }
+
   function openItemModal(){
     document.getElementById('itemModalTitle').textContent = 'Agregar contenido';
     document.getElementById('itemId').value = '';
@@ -1853,6 +1927,7 @@
     document.getElementById('itemOrden').value = 0;
     document.getElementById('itemDestacado').checked = false;
     document.getElementById('itemFormError').textContent = '';
+    artClear_();
     updateItemMiniaturaPreview();
     updateItemMiniaturaCarruselPreview();
     document.getElementById('itemModalOverlay').classList.add('open');
@@ -1875,6 +1950,7 @@
     document.getElementById('itemOrden').value = m.orden || 0;
     document.getElementById('itemDestacado').checked = !!m.destacado;
     document.getElementById('itemFormError').textContent = '';
+    artClear_();
     updateItemMiniaturaPreview();
     updateItemMiniaturaCarruselPreview();
     document.getElementById('itemModalOverlay').classList.add('open');
