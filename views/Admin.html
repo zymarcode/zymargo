@@ -380,8 +380,8 @@
   /* ============================================================
      TEMA VEOYGO — modales y alertas (Admin). Solo estilos.
      ============================================================ */
-  .device-check-overlay{ background:#000; }
-  .device-check-spinner{ border-color:#2a2a2a; border-top-color:#fff; }
+  .device-check-overlay{ background:radial-gradient(ellipse at 50% 40%,#2a0508 0%,#050506 70%); }
+  .device-check-spinner{ width:40px; height:40px; border-color:rgba(229,9,20,.18); border-top-color:#e50914; border-right-color:#ff2a35; box-shadow:0 0 18px rgba(229,9,20,.45); }
   .modal{ background:#0b0b0b; border:1px solid #1f1f1f; border-radius:14px; box-shadow:0 30px 80px rgba(0,0,0,.7); }
   @media (max-width:520px){ .modal{ border-radius:14px 14px 0 0; } }
   .modal-header, .modal-footer, .confirm-modal-footer, .modal-tabs{ border-color:#1f1f1f; }
@@ -401,14 +401,14 @@
   .modal .btn-ghost{ background:#161616; border-color:#262626; }
   .toast{ background:#0b0b0b; border:1px solid #262626; border-radius:12px; box-shadow:0 12px 30px rgba(0,0,0,.6); }
   /* --- Pantalla de carga --- */
-  body #sfLoad{ background:#000; }
+  body #sfLoad{ background:radial-gradient(ellipse at 50% 38%,#3a0609 0%,#14070a 45%,#050506 100%); }
   body #sfLoad .sfLogo{ border-radius:50%; }
   body #sfLoad .sfName{
-    color:#fff; background:linear-gradient(100deg,#8a8a8a 20%,#fff 50%,#8a8a8a 80%); background-size:250% 100%;
+    color:#e50914; background:linear-gradient(100deg,#b20710 20%,#ff2a35 40%,#fff 50%,#ff2a35 60%,#b20710 80%); background-size:250% 100%;
     -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
   }
-  body #sfLoad .sfBar{ background:#1c1c1c; }
-  body #sfLoad .sfBar i{ background:#fff; }
+  body #sfLoad .sfBar{ background:rgba(229,9,20,.18); }
+  body #sfLoad .sfBar i{ background:linear-gradient(90deg,#b20710,#e50914,#ff2a35); }
   /* ============================================================
      DISEÑO DEL PANEL (Admin) — misma forma que Usuario, con los
      colores por defecto del panel. Solo estilos.
@@ -648,26 +648,178 @@
     width:84px; height:52px; border-radius:8px; background:#0c0c0f; border:1px solid #2e2e36;
     overflow:hidden; display:flex; align-items:center; justify-content:center; flex:0 0 auto;
   }
+  /* ============================================================
+     ESTRUCTURA Y BOTONES IGUAL QUE EL USUARIO (tema VEOYGO):
+     menú lateral, barra superior con botones redondos, tabs
+     inferiores en móvil y botones en pastilla rojo/blanco.
+     ============================================================ */
+  body{
+    --bg:#000; --nav-h:70px; --vg-side:240px; --vg-tabs-h:0px;
+    padding-left:var(--vg-side); padding-top:var(--nav-h); padding-bottom:var(--vg-tabs-h);
+    transition:padding-left .25s ease;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;
+  }
+  html,body{ background:#000; }
+  @media (min-width:901px){ body.vg-collapsed{ --vg-side:76px; } }
+
+  /* Barra superior */
+  .nav{
+    position:fixed; top:0; left:var(--vg-side); right:0; z-index:100; height:var(--nav-h);
+    display:flex; align-items:center; justify-content:space-between; gap:16px; padding:0 24px;
+    background:#000; border-bottom:1px solid #141414; transition:left .25s ease;
+  }
+  .nav-title{ font-size:20px; font-weight:800; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+  .nav-logo{ display:none; align-items:center; gap:10px; min-width:0; }
+  .nav-logo-name{ font-weight:800; font-size:18px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .nav-right{ display:flex; align-items:center; gap:12px; margin-left:auto; flex:0 0 auto; }
+  .nav-ico{ width:18px; height:18px; flex:0 0 auto; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; display:block; }
+  .nav-icon-btn{
+    background:#1a1a1a; border:1px solid #262626; color:#fff; text-decoration:none;
+    width:40px; height:40px; border-radius:50%; cursor:pointer; padding:0;
+    display:inline-flex; align-items:center; justify-content:center;
+    transition:background .15s, border-color .15s, transform .15s; flex:0 0 auto;
+  }
+  .nav-icon-btn:hover{ background:#242424; border-color:#333; transform:translateY(-1px); }
+  .nav-icon-btn:disabled{ cursor:progress; opacity:.8; transform:none; }
+  .nav-icon-btn.spinning .nav-ico{ animation:spin360 .8s linear infinite; }
+  @keyframes spin360{ from{ transform:rotate(0deg);} to{ transform:rotate(360deg);} }
+  .nav-logout{
+    display:inline-flex; align-items:center; gap:8px; height:40px; padding:0 16px; border-radius:999px; cursor:pointer;
+    background:rgba(229,9,20,.12); border:1px solid rgba(229,9,20,.32); color:#ff8f95;
+    font:700 13px/1 -apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif; transition:.15s;
+  }
+  .nav-logout .nav-ico{ width:15px; height:15px; }
+  .nav-logout:hover{ background:var(--red); border-color:var(--red); color:#fff; }
+  .vg-menu-btn{
+    display:none; width:36px; height:36px; border-radius:50%; border:0; padding:0; cursor:pointer;
+    background:#1c1c1c; color:#cfcfcf; align-items:center; justify-content:center; flex:0 0 auto;
+  }
+  .vg-menu-btn svg{ width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+
+  /* Menú lateral */
+  .vg-side{
+    position:fixed; top:0; left:0; bottom:0; width:var(--vg-side); z-index:120;
+    display:flex; flex-direction:column; padding:18px 12px; overflow-y:auto; overflow-x:hidden;
+    background:#0a0a0a; border-right:1px solid #1c1c1c;
+    transition:width .25s ease, transform .25s ease; scrollbar-width:none;
+  }
+  .vg-side::-webkit-scrollbar{ display:none; }
+  .vg-side-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; height:48px; margin-bottom:14px; padding:0 2px 0 12px; }
+  .vg-brand{ display:flex; align-items:center; gap:12px; min-width:0; }
+  .vg-brand-mark{
+    width:28px; height:28px; flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+    color:#fff; font-size:13px; font-weight:800; border-radius:50%; overflow:hidden;
+  }
+  .vg-brand-mark svg{ width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:2; }
+  .vg-brand-mark img{ width:100%; height:100%; object-fit:cover; border-radius:50%; display:block; }
+  .vg-brand-name{ font-size:20px; font-weight:800; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .vg-collapse{
+    width:36px; height:36px; border-radius:50%; border:0; padding:0; cursor:pointer; flex:0 0 auto;
+    background:#1c1c1c; color:#cfcfcf; display:flex; align-items:center; justify-content:center;
+  }
+  .vg-collapse:hover{ background:#262626; }
+  .vg-collapse svg{ width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; transition:transform .25s; }
+  .vg-nav{ display:flex; flex-direction:column; gap:4px; }
+  .vg-item{
+    display:flex; align-items:center; gap:16px; width:100%; height:46px; padding:0 14px; border:0; border-radius:10px;
+    background:none; color:#e8e8e8; font:600 14px/1 -apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;
+    text-align:left; cursor:pointer; white-space:nowrap; transition:background .15s; text-decoration:none;
+  }
+  .vg-item svg{ width:24px; height:24px; flex:0 0 auto; stroke:currentColor; fill:none; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+  .vg-item span{ overflow:hidden; text-overflow:ellipsis; }
+  .vg-item:hover{ background:#151515; }
+  .vg-item.active{ background:#242424; color:#fff; box-shadow:inset 3px 0 0 #fff; }
+  .vg-item:active, .vg-tab:active{ opacity:.75; }
+  .vg-sep{ height:1px; background:#222; margin:14px 4px; }
+  .vg-sec{ padding:2px 14px 8px; font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:#777; }
+  .vg-scrim{ display:none; }
+  .vg-tabs{ display:none; }
+  .vg-mobile-only{ display:none; }
+  @media (min-width:901px){
+    body.vg-collapsed .vg-brand-name, body.vg-collapsed .vg-item span, body.vg-collapsed .vg-sec{ display:none; }
+    body.vg-collapsed .vg-side-head{ flex-direction:column; height:auto; gap:12px; padding:0; }
+    body.vg-collapsed .vg-item{ justify-content:center; padding:0; }
+    body.vg-collapsed .vg-collapse svg{ transform:rotate(180deg); }
+  }
+
+  /* Móvil / tablet: menú en cajón + tabs inferiores */
+  @media (max-width:900px){
+    body{ --vg-side:0px; --nav-h:60px; --vg-tabs-h:58px; }
+    .nav{ left:0; padding:0 12px; }
+    .nav-title{ display:none; }
+    .nav-logo{ display:flex; }
+    .vg-menu-btn{ display:inline-flex; }
+    .nav-secondary{ display:none; }
+    .vg-mobile-only{ display:flex; }
+    .vg-side{ width:260px; z-index:150; transform:translateX(-105%); }
+    body.vg-drawer .vg-side{ transform:none; box-shadow:0 0 40px rgba(0,0,0,.8); }
+    .vg-scrim{ position:fixed; inset:0; z-index:140; background:rgba(0,0,0,.6); }
+    body.vg-drawer .vg-scrim{ display:block; }
+    .vg-collapse{ display:none; }
+    .vg-tabs{
+      display:flex; position:fixed; left:0; right:0; bottom:0; height:var(--vg-tabs-h); z-index:90;
+      background:#0b0b0b; border-top:1px solid #1c1c1c;
+    }
+    .vg-tab{
+      flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; position:relative;
+      border:0; background:none; color:#8a8a8a; cursor:pointer; padding:0;
+      font:700 10px/1 -apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;
+    }
+    .vg-tab svg{ width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+    .vg-tab.active{ color:#fff; }
+    .vg-tab.active::before{ content:''; position:absolute; top:0; left:50%; width:28px; height:3px; margin-left:-14px; border-radius:0 0 3px 3px; background:#fff; }
+  }
+
+  /* Botones: pastilla, rojo + blanco como en el usuario */
+  body .btn{ border-radius:999px; font-weight:700; }
+  body .btn-primary, body .modal .btn-primary{
+    background:linear-gradient(135deg,#f6121d 0%,#e50914 55%,#b20710 100%); border:1px solid #e50914; color:#fff;
+    box-shadow:0 8px 22px rgba(229,9,20,.38); text-shadow:0 1px 2px rgba(0,0,0,.25);
+  }
+  body .btn-primary:hover, body .modal .btn-primary:hover{
+    background:linear-gradient(135deg,#ff2a35 0%,#f6121d 55%,#c8081a 100%); box-shadow:0 12px 28px rgba(229,9,20,.5);
+  }
+  body .btn-primary:disabled{ opacity:.7; box-shadow:none; }
+  body .btn-outline, body .btn-ghost, body .modal .btn-outline, body .modal .btn-ghost{
+    background:#1a1a1a; border:1px solid #262626; color:#fff;
+  }
+  body .btn-outline:hover, body .btn-ghost:hover{ background:#242424; border-color:#333; }
+  body .chip{
+    display:inline-flex; align-items:center; height:42px; padding:0 22px; border-radius:999px; font-size:14px; font-weight:700;
+    background:#161616; border:1px solid #2a2a2a; color:#fff;
+  }
+  body .chip:hover{ background:#1d1d1d; color:#fff; border-color:#2a2a2a; }
+  body .chip.active{
+    background:linear-gradient(135deg,#f6121d 0%,#e50914 55%,#b20710 100%); border-color:#e50914; color:#fff;
+    box-shadow:0 6px 18px rgba(229,9,20,.35);
+  }
+  body .wrap{ padding-top:24px; }
 </style>
 </head>
 <body>
 <!-- ===== LOADING ===== -->
 <style>
-#sfLoad{position:fixed;top:0;left:0;right:0;bottom:0;z-index:100000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:radial-gradient(ellipse at 50% 40%,#1c0f14 0%,#0a0a0d 65%);transition:opacity .45s ease,visibility .45s ease}
+#sfLoad{position:fixed;top:0;left:0;right:0;bottom:0;z-index:100000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;background:radial-gradient(ellipse at 50% 38%,#3a0609 0%,#14070a 45%,#050506 100%);transition:opacity .45s ease,visibility .45s ease;overflow:hidden}
+#sfLoad::before{content:"";position:absolute;left:50%;top:38%;width:min(520px,90vw);height:min(520px,90vw);transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(229,9,20,.28) 0%,rgba(229,9,20,0) 65%);animation:sfGlow 2.2s ease-in-out infinite;pointer-events:none}
 #sfLoad.sfHide{opacity:0;visibility:hidden}
+#sfLoad .sfMark{position:relative;width:104px;height:104px;display:flex;align-items:center;justify-content:center}
+#sfLoad .sfMark::before{content:"";position:absolute;inset:0;border-radius:50%;border:3px solid rgba(229,9,20,.18)}
+#sfLoad .sfMark::after{content:"";position:absolute;inset:0;border-radius:50%;border:3px solid transparent;border-top-color:#e50914;border-right-color:#ff2a35;box-shadow:0 0 22px rgba(229,9,20,.55);animation:sfRot 1s linear infinite}
 #sfLoad .sfLogo{width:72px;height:72px;object-fit:contain;border-radius:16px;animation:sfPulse 1.4s ease-in-out infinite}
 #sfLoad .sfName{margin:0;font-size:clamp(30px,9vw,54px);font-weight:800;letter-spacing:.14em;text-transform:uppercase;text-align:center;padding:0 16px;
-  color:#e50914;background:linear-gradient(100deg,#e50914 20%,#ff8a3d 40%,#fff 50%,#ff8a3d 60%,#e50914 80%);background-size:250% 100%;
-  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:sfShine 1.8s linear infinite}
-#sfLoad .sfBar{width:min(220px,60vw);height:3px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden}
-#sfLoad .sfBar i{display:block;height:100%;width:40%;border-radius:3px;background:linear-gradient(90deg,#e50914,#ff8a3d);animation:sfSlide 1.1s ease-in-out infinite}
+  color:#e50914;background:linear-gradient(100deg,#b20710 20%,#ff2a35 40%,#fff 50%,#ff2a35 60%,#b20710 80%);background-size:250% 100%;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:sfShine 1.8s linear infinite;text-shadow:none}
+#sfLoad .sfBar{width:min(220px,60vw);height:4px;border-radius:4px;background:rgba(229,9,20,.18);overflow:hidden}
+#sfLoad .sfBar i{display:block;height:100%;width:40%;border-radius:4px;background:linear-gradient(90deg,#b20710,#e50914,#ff2a35);box-shadow:0 0 12px rgba(229,9,20,.8);animation:sfSlide 1.1s ease-in-out infinite}
 @keyframes sfShine{from{background-position:150% 0}to{background-position:-100% 0}}
 @keyframes sfSlide{0%{transform:translateX(-110%)}100%{transform:translateX(280%)}}
 @keyframes sfPulse{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.07);opacity:1}}
-@media (prefers-reduced-motion:reduce){#sfLoad .sfName,#sfLoad .sfBar i,#sfLoad .sfLogo{animation:none}}
+@keyframes sfRot{to{transform:rotate(360deg)}}
+@keyframes sfGlow{0%,100%{opacity:.6;transform:translate(-50%,-50%) scale(.94)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}}
+@media (prefers-reduced-motion:reduce){#sfLoad .sfName,#sfLoad .sfBar i,#sfLoad .sfLogo,#sfLoad .sfMark::after,#sfLoad::before{animation:none}}
 </style>
 <div id="sfLoad">
-<? if (brand.brandLogoUrl) { ?><img class="sfLogo" src="<?= brand.brandLogoUrl ?>" alt="" onerror="this.style.display='none'"><? } ?>
+<div class="sfMark"><? if (brand.brandLogoUrl) { ?><img class="sfLogo" src="<?= brand.brandLogoUrl ?>" alt="" onerror="this.style.display='none'"><? } ?></div>
   <h1 class="sfName"><?= brand.brandName ?></h1>
   <div class="sfBar"><i></i></div>
 </div>
@@ -693,39 +845,58 @@
     <div>Verificando sesión...</div>
   </div>
 
-  <div class="topbar">
-    <div class="brand">
-      <div class="brand-mark" id="brandMarkTop">
-        <? if (brand.brandLogoUrl) { ?>
-          <img src="<?= brand.brandLogoUrl ?>" alt="Logo" onerror="this.parentNode.textContent='<?= String(brand.brandName || 'S').charAt(0).toUpperCase() ?>';" />
-        <? } else { ?>
-          <?= String(brand.brandName || 'S').charAt(0).toUpperCase() ?>
-        <? } ?>
-      </div>
-      <div class="brand-info">
-        <div class="brand-name" id="brandNameTop" title="<?= brand.brandName ?>"><?= brand.brandName ?></div>
-        <div class="brand-sub" id="brandSubTop" title="<?= brand.brandSubname ?>">
-          <?= brand.brandSubname ?><span class="dot">•</span>Panel de administración
+  <!-- ===== Menú lateral (escritorio) / cajón (móvil), igual que el usuario ===== -->
+  <div class="vg-scrim" id="vgScrim"></div>
+  <aside class="vg-side" id="vgSide">
+    <div class="vg-side-head">
+      <div class="vg-brand">
+        <div class="vg-brand-mark" id="brandMarkTop">
+          <? if (brand.brandLogoUrl) { ?>
+            <img src="<?= brand.brandLogoUrl ?>" alt="Logo" onerror="this.parentNode.textContent='<?= String(brand.brandName || 'S').charAt(0).toUpperCase() ?>';" />
+          <? } else { ?>
+            <?= String(brand.brandName || 'S').charAt(0).toUpperCase() ?>
+          <? } ?>
         </div>
+        <div class="vg-brand-name" id="brandNameTop" title="<?= brand.brandName ?>"><?= brand.brandName ?></div>
+        <span id="brandSubTop" hidden title="<?= brand.brandSubname ?>"></span>
       </div>
+      <button type="button" class="vg-collapse" id="vgCollapse" aria-label="Contraer menú"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
     </div>
-    <div class="top-actions">
-      <button class="btn btn-ghost" id="refreshAdminBtn" onclick="refreshAdminData()">🔄 Actualizar</button>
-      <a class="btn btn-outline" href="<?= baseUrl ?>" target="_blank">👁️ Ver como usuario</a>
-      <button class="btn btn-ghost" onclick="openBrandModal()">🎨 Personalizar</button>
-      <button class="btn btn-ghost" onclick="openNotifModal()">🔔 Notificar</button>
-      <button class="btn btn-ghost" onclick="openPasswordModal()">🔒 Contraseña</button>
-      <button class="btn btn-outline" onclick="doLogout()">Salir</button>
+    <div class="vg-nav">
+      <button type="button" class="vg-item active" id="tabContent" data-tab="content" title="Contenido" onclick="switchTab('content'); vgCloseDrawer_();"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg><span>Contenido</span></button>
+      <button type="button" class="vg-item" id="tabUsers" data-tab="users" title="Usuarios" onclick="switchTab('users'); vgCloseDrawer_();"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8"/><path d="M18 14.3c2.2.7 3.5 2.6 3.5 5.7"/></svg><span>Usuarios</span></button>
+      <button type="button" class="vg-item" id="tabAds" data-tab="ads" title="Publicidad" onclick="switchTab('ads'); vgCloseDrawer_();"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l8 4V6L7 10H4a1 1 0 0 0-1 1Z"/><path d="M18.5 9a4 4 0 0 1 0 6"/></svg><span>Publicidad</span></button>
+      <div class="vg-sep vg-mobile-only"></div>
+      <button type="button" class="vg-item vg-mobile-only" onclick="vgCloseDrawer_(); openBrandModal();"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/><path d="M12 22a10 10 0 1 1 10-10c0 3-2.5 3-4 3h-2a2 2 0 0 0-1.5 3.3c.9 1 .5 3.7-2.5 3.7Z"/></svg><span>Personalizar</span></button>
+      <button type="button" class="vg-item vg-mobile-only" onclick="vgCloseDrawer_(); openNotifModal();"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0-6 6v3.5L4 16h16l-2-3.5V9a6 6 0 0 0-6-6z"/><path d="M9.5 19a2.5 2.5 0 0 0 5 0"/></svg><span>Notificar</span></button>
+      <button type="button" class="vg-item vg-mobile-only" onclick="vgCloseDrawer_(); openPasswordModal();"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span>Contraseña</span></button>
+      <a class="vg-item vg-mobile-only" href="<?= baseUrl ?>" target="_blank" onclick="vgCloseDrawer_();"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3"/></svg><span>Ver como usuario</span></a>
+    </div>
+  </aside>
+
+  <div class="nav" id="nav">
+    <div class="nav-logo">
+      <button type="button" class="vg-menu-btn" id="vgMenuBtn" aria-label="Abrir menú"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
+      <div class="nav-logo-name" title="<?= brand.brandName ?>"><?= brand.brandName ?></div>
+    </div>
+    <div class="nav-title">Panel de administración</div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="refreshAdminBtn" aria-label="Actualizar" title="Actualizar" onclick="refreshAdminData()"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></button>
+      <a class="nav-icon-btn nav-secondary" href="<?= baseUrl ?>" target="_blank" aria-label="Ver como usuario" title="Ver como usuario"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3"/></svg></a>
+      <button class="nav-icon-btn nav-secondary" onclick="openBrandModal()" aria-label="Personalizar" title="Personalizar"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/><path d="M12 22a10 10 0 1 1 10-10c0 3-2.5 3-4 3h-2a2 2 0 0 0-1.5 3.3c.9 1 .5 3.7-2.5 3.7Z"/></svg></button>
+      <button class="nav-icon-btn nav-secondary" onclick="openNotifModal()" aria-label="Notificar" title="Notificar"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0-6 6v3.5L4 16h16l-2-3.5V9a6 6 0 0 0-6-6z"/><path d="M9.5 19a2.5 2.5 0 0 0 5 0"/></svg></button>
+      <button class="nav-icon-btn nav-secondary" onclick="openPasswordModal()" aria-label="Contraseña" title="Contraseña"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></button>
+      <button class="nav-logout" onclick="doLogout()" title="Cerrar sesión" aria-label="Cerrar sesión"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg><span>Salir</span></button>
     </div>
   </div>
 
-  <div class="wrap">
+  <nav class="vg-tabs" id="vgTabs" aria-label="Navegación">
+    <button type="button" class="vg-tab active" data-tab="content" onclick="switchTab('content')"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg><span>Contenido</span></button>
+    <button type="button" class="vg-tab" data-tab="users" onclick="switchTab('users')"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8"/><path d="M18 14.3c2.2.7 3.5 2.6 3.5 5.7"/></svg><span>Usuarios</span></button>
+    <button type="button" class="vg-tab" data-tab="ads" onclick="switchTab('ads')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l8 4V6L7 10H4a1 1 0 0 0-1 1Z"/><path d="M18.5 9a4 4 0 0 1 0 6"/></svg><span>Publicidad</span></button>
+  </nav>
 
-    <div class="tabs">
-      <button class="tab active" id="tabContent" onclick="switchTab('content')">🎬 Contenido</button>
-      <button class="tab" id="tabUsers" onclick="switchTab('users')">👥 Usuarios</button>
-      <button class="tab" id="tabAds" onclick="switchTab('ads')">📢 Publicidad</button>
-    </div>
+  <div class="wrap">
 
     <!-- ===== SECCIÓN CONTENIDO ===== -->
     <div id="contentSection">
@@ -1369,9 +1540,9 @@
   // ===== TABS =====
   function switchTab(tab){
     currentTab = tab;
-    document.getElementById('tabContent').classList.toggle('active', tab === 'content');
-    document.getElementById('tabUsers').classList.toggle('active', tab === 'users');
-    document.getElementById('tabAds').classList.toggle('active', tab === 'ads');
+    Array.prototype.forEach.call(document.querySelectorAll('[data-tab]'), function(b){
+      b.classList.toggle('active', b.getAttribute('data-tab') === tab);
+    });
     document.getElementById('contentSection').style.display = tab === 'content' ? '' : 'none';
     document.getElementById('usersSection').style.display = tab === 'users' ? '' : 'none';
     document.getElementById('adsSection').style.display = tab === 'ads' ? '' : 'none';
@@ -1383,9 +1554,9 @@
   // sin necesidad de recargar toda la página.
   function refreshAdminData(){
     var btn = document.getElementById('refreshAdminBtn');
-    if(btn){ btn.disabled = true; btn.textContent = '🔄 Actualizando...'; }
+    if(btn){ btn.disabled = true; btn.classList.add('spinning'); }
     var finish = function(){
-      if(btn){ btn.disabled = false; btn.textContent = '🔄 Actualizar'; }
+      if(btn){ btn.disabled = false; btn.classList.remove('spinning'); }
       toast('Datos actualizados.');
     };
     if(currentTab === 'users'){
@@ -2562,6 +2733,18 @@
   }
 
   bootAdmin();
+</script>
+<script>
+(function(){
+  var body = document.body;
+  window.vgCloseDrawer_ = function(){ body.classList.remove('vg-drawer'); };
+  var col = document.getElementById('vgCollapse');
+  if(col) col.addEventListener('click', function(){ body.classList.toggle('vg-collapsed'); });
+  var menu = document.getElementById('vgMenuBtn');
+  if(menu) menu.addEventListener('click', function(){ body.classList.toggle('vg-drawer'); });
+  var scrim = document.getElementById('vgScrim');
+  if(scrim) scrim.addEventListener('click', window.vgCloseDrawer_);
+})();
 </script>
 </body>
 </html>
