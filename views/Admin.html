@@ -1100,9 +1100,17 @@
                   <option value="radio">📻 Radio</option>
                   <option value="tv">📺 Televisión</option>
                 </select>
-                <button type="button" class="btn btn-outline" id="artSearchBtn" onclick="searchArt()">🔎 Buscar imagen por el nombre</button>
+                <button type="button" class="btn btn-outline" id="artSearchBtn" onclick="searchArt()">🔎 Buscar por el nombre</button>
               </div>
-              <div class="field-hint" id="artStatus">Usa el campo "Nombre" y te muestra opciones; toca una para usarla como miniatura.</div>
+              <div class="art-search-row" style="margin-top:8px;">
+                <select id="artTarget" title="Dónde aplicar la imagen elegida">
+                  <option value="mini">Aplicar imagen a: Miniatura</option>
+                  <option value="carr">Aplicar imagen a: Carrusel</option>
+                  <option value="both">Aplicar imagen a: Ambas</option>
+                </select>
+                <label class="checkbox-row" style="flex:1 1 180px;"><input type="checkbox" id="artFillStream" /> Rellenar también la URL del stream (radio / TV)</label>
+              </div>
+              <div class="field-hint" id="artStatus">Usa el campo "Nombre" y te muestra opciones; toca una para aplicarla.</div>
               <div class="art-grid" id="artGrid"></div>
             </div>
             <div class="field" style="margin-top:14px;">
@@ -1871,7 +1879,7 @@
   }
   function artClear_(msg){
     document.getElementById('artGrid').innerHTML = '';
-    document.getElementById('artStatus').textContent = msg || 'Usa el campo "Nombre" y te muestra opciones; toca una para usarla como miniatura.';
+    document.getElementById('artStatus').textContent = msg || 'Usa el campo "Nombre" y te muestra opciones; toca una para aplicarla.';
   }
   function searchArt(){
     var q = document.getElementById('itemNombre').value.trim();
@@ -1891,26 +1899,49 @@
       list.forEach(function(r){
         var b = document.createElement('button');
         b.type = 'button'; b.className = 'art-opt'; b.title = (r.titulo || '') + (r.subtitulo ? ' — ' + r.subtitulo : '');
-        var img = document.createElement('img');
-        img.alt = ''; img.referrerPolicy = 'no-referrer';
-        img.onerror = function(){
-          if(r.imagenAlt && img.src !== r.imagenAlt){ img.src = r.imagenAlt; }
-          else if(b.parentNode){ b.parentNode.removeChild(b); }
-        };
-        img.src = r.imagen;
+        var img = null;
+        if(r.imagen){
+          img = document.createElement('img');
+          img.alt = ''; img.referrerPolicy = 'no-referrer';
+          img.onerror = function(){
+            if(r.imagenAlt && img.src !== r.imagenAlt){ img.src = r.imagenAlt; }
+            else if(b.parentNode){ b.parentNode.removeChild(b); }
+          };
+          img.src = r.imagen;
+          b.appendChild(img);
+        }
         var t = document.createElement('b'); t.textContent = r.titulo || '';
-        var s2 = document.createElement('span'); s2.textContent = r.subtitulo || '';
-        b.appendChild(img); b.appendChild(t); b.appendChild(s2);
-        b.onclick = function(){
-          document.getElementById('itemMiniatura').value = img.currentSrc || img.src;
-          updateItemMiniaturaPreview();
-          artClear_('Imagen aplicada. Puedes buscar de nuevo si prefieres otra.');
-        };
+        var s2 = document.createElement('span'); s2.textContent = (r.subtitulo || '') + (r.stream ? ' · ▶ stream' : '');
+        b.appendChild(t); b.appendChild(s2);
+        b.onclick = function(){ artApply_(r, img, kind); };
         grid.appendChild(b);
       });
     }).withFailureHandler(function(e){
       btn.disabled = false; status.textContent = 'Error: ' + e.message;
     }).searchArtwork(TOKEN, q, kind);
+  }
+
+  // Aplica el resultado elegido: imagen (miniatura / carrusel) y, si se pidió, la URL del stream
+  function artApply_(r, img, kind){
+    var msg = [];
+    if(img){
+      var url = img.currentSrc || img.src;
+      var target = document.getElementById('artTarget').value;
+      if(target === 'mini' || target === 'both'){ document.getElementById('itemMiniatura').value = url; updateItemMiniaturaPreview(); msg.push('miniatura'); }
+      if(target === 'carr' || target === 'both'){ document.getElementById('itemMiniaturaCarrusel').value = url; updateItemMiniaturaCarruselPreview(); msg.push('carrusel'); }
+    }
+    if(document.getElementById('artFillStream').checked){
+      if(r.stream){
+        document.getElementById('itemUrl').value = r.stream;
+        autoDetect();
+        if(kind === 'radio') document.getElementById('itemTipo').value = 'audio';
+        else if(kind === 'tv') document.getElementById('itemTipo').value = 'video';
+        msg.push('URL del stream' + (r.streamNota ? ' (aviso: ' + r.streamNota + ')' : ''));
+      } else {
+        msg.push('sin URL de stream disponible');
+      }
+    }
+    artClear_('Aplicado: ' + (msg.join(', ') || 'nada (esa opción no trae imagen)') + '.');
   }
 
   function openItemModal(){
