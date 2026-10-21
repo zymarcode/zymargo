@@ -4115,12 +4115,7 @@
       hlsNetRetries = 0;
       spinner.classList.add('show');
       if(currentHls){ try { currentHls.destroy(); } catch(e){} currentHls = null; }
-      // lowLatencyMode apagado: el contenido pasa por el proxy y un colchón normal evita cortes.
-      // capLevelToPlayerSize: no decodifica más resolución de la que el reproductor puede mostrar.
-      currentHls = new Hls({
-        enableWorker:true, lowLatencyMode:false, capLevelToPlayerSize:true, backBufferLength:90,
-        manifestLoadingMaxRetry:4, levelLoadingMaxRetry:4, fragLoadingMaxRetry:6
-      });
+      currentHls = new Hls({ enableWorker:true, lowLatencyMode:true, backBufferLength:90 });
       currentHls.loadSource(url);
       currentHls.attachMedia(v);
 
@@ -4141,11 +4136,12 @@
       });
       currentHls.on(Hls.Events.ERROR, function(event, data){
         if(!data || !data.fatal) return;
-        // Un corte de red momentáneo se reintenta (hasta 3 veces) antes de mostrar el error.
-        if(data.type === Hls.ErrorTypes.NETWORK_ERROR && hlsNetRetries < 3 && currentHls){
+        // Un corte de red momentáneo se reintenta (hasta 2 veces, rápido) antes de mostrar el error.
+        // Solo con el video ya iniciado: si falla al cargar la lista, el error sale de inmediato.
+        if(data.type === Hls.ErrorTypes.NETWORK_ERROR && hlsNetRetries < 2 && currentHls && v.readyState > 0){
           hlsNetRetries++;
           var hlsNow = currentHls;
-          setTimeout(function(){ if(currentHls === hlsNow){ try { hlsNow.startLoad(); } catch(e){} } }, 700 * hlsNetRetries);
+          setTimeout(function(){ if(currentHls === hlsNow){ try { hlsNow.startLoad(); } catch(e){} } }, 400 * hlsNetRetries);
           return;
         }
         // Un error de decodificación se intenta recuperar una vez antes de rendirse.
