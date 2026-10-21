@@ -409,6 +409,105 @@
   }
   body #sfLoad .sfBar{ background:#1c1c1c; }
   body #sfLoad .sfBar i{ background:#fff; }
+
+  /* ============================================================
+     TEMA VEOYGO — panel (Admin), mismo diseño que Usuario.
+     Solo estilos: barra superior, botones, pestañas, tarjetas,
+     filtros, tabla y redes sociales.
+     ============================================================ */
+  :root{ --bg:#141414; --panel:#0d0d0d; --card:#161616; --card-hover:#1d1d1d; --border:#262626; --border-2:#333; --red:#e50914; }
+  html,body{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif; }
+
+  /* --- Barra superior --- */
+  body .topbar{
+    background:#000; border-bottom:1px solid #141414; box-shadow:none;
+    padding:12px clamp(14px,3vw,24px); gap:12px;
+  }
+  body .brand-mark{
+    width:30px; height:30px; border-radius:50%; background:none; box-shadow:none;
+    border:2px solid #fff; color:#fff; font-size:14px; font-weight:800;
+  }
+  body .brand-mark img{ border-radius:50%; }
+  body .brand-name{ font-size:20px; font-weight:800; letter-spacing:.3px; }
+  body .brand-sub{ display:none; }
+  body .top-actions{ gap:12px; }
+
+  /* --- Botones (pastilla, como los botones del nav de usuario) --- */
+  body .btn{ border-radius:999px; font-family:inherit; }
+  body .btn-primary{ background:#fff; color:#000; border:1px solid #fff; }
+  body .btn-primary:hover{ background:#ececec; box-shadow:none; }
+  body .btn-primary:disabled{ background:#1c1c1c; color:#777; border-color:#262626; }
+  body .btn-outline{ background:#1a1a1a; border:1px solid #262626; color:#fff; }
+  body .btn-outline:hover{ background:#242424; border-color:#333; }
+  body .btn-ghost{ background:#1a1a1a; border:1px solid #262626; color:#fff; }
+  body .btn-ghost:hover{ background:#242424; border-color:#333; }
+  body .btn-danger{ background:rgba(229,9,20,.12); border:1px solid rgba(229,9,20,.32); color:#ff8f95; }
+  body .btn-danger:hover{ background:var(--red); border-color:var(--red); color:#fff; }
+  body .topbar .btn{ height:40px; padding:0 16px; }
+  body .topbar .btn-outline:last-child{
+    height:30px; padding:0 14px; font-size:12px;
+    background:rgba(229,9,20,.12); border:1px solid rgba(229,9,20,.32); color:#ff8f95;
+  }
+  body .topbar .btn-outline:last-child:hover{ background:var(--red); border-color:var(--red); color:#fff; }
+  body .modal .btn-primary{ background:#2f2f2f; border:1px solid #3a3a3a; color:#fff; }
+  body .modal .btn-primary:hover{ background:#3a3a3a; }
+
+  /* --- Pestañas = chips de categorías --- */
+  body .tabs{ gap:14px; border-bottom:0; padding:4px 0 4px; margin-bottom:20px; scrollbar-width:none; }
+  body .tabs::-webkit-scrollbar{ display:none; }
+  body .tab{
+    height:46px; padding:0 24px; gap:12px; border-radius:999px; background:#161616; border:1px solid #2a2a2a;
+    color:#fff; font-size:14px; font-weight:700; flex:0 0 auto;
+  }
+  body .tab:hover{ background:#1d1d1d; color:#fff; }
+  body .tab.active{ background:#fff; border-color:#fff; color:#000; }
+
+  /* --- Tarjetas, filtros y chips --- */
+  body .stat-card{ background:#161616; border:1px solid #262626; border-radius:14px; }
+  body .stat-card::before{ background:#fff; opacity:.12; }
+  body .toolbar{ background:#0d0d0d; border:1px solid #262626; border-radius:14px; }
+  body .toolbar input[type=text], body .toolbar select{ background:#0d0d0d; border:1px solid #333; border-radius:999px; padding:10px 16px; }
+  body .toolbar input[type=text]:focus, body .toolbar select:focus{ border-color:#6a6a6a; }
+  body .chip{ background:#161616; border:1px solid #2a2a2a; color:#fff; font-weight:700; padding:9px 20px; }
+  body .chip:hover{ background:#1d1d1d; color:#fff; border-color:#2a2a2a; }
+  body .chip.active{ background:#fff; border-color:#fff; color:#000; box-shadow:none; }
+  body .item-card{ background:#161616; border:1px solid #262626; border-radius:14px; }
+  body .item-card:hover{ background:#1d1d1d; border-color:#333; transform:none; }
+  body .badge-destacado{ background:#fff; color:#000; box-shadow:none; }
+
+  /* --- Tabla de usuarios --- */
+  body .table-scroll{ border:1px solid #262626; border-radius:14px; }
+  body .users-table, body .users-table td:last-child{ background:#0d0d0d; }
+  body .users-table th, body .users-table th:last-child{ background:#0b0b0b; border-bottom-color:#1f1f1f; }
+  body .users-table td{ border-bottom-color:#1a1a1a; }
+  body .users-table tr:hover td, body .users-table tr:hover td:last-child{ background:#141414; }
+  body .user-avatar{ background:linear-gradient(135deg, #8a0410, #e50914); box-shadow:0 0 0 2px rgba(255,255,255,.14); }
+  body .role-admin{ background:rgba(229,9,20,.12); color:#ff8f95; border-color:rgba(229,9,20,.32); }
+  body .device-row{ background:#161616; border-color:#262626; }
+
+  /* --- Redes sociales (pestaña "📱 Redes") = íconos del footer de usuarios --- */
+  #brandModalBody .modal-section-title{ border-top-color:#1f1f1f; color:#9b9b9b; }
+  #brandModalBody .field input[type=url]{
+    background:#0d0d0d; border:1px solid #333; border-radius:999px; padding:12px 18px; font-size:14px;
+  }
+  #brandModalBody .field input[type=url]:focus{ background:#111; border-color:#6a6a6a; }
+  #brandModalBody .field:has(> input[id^="social"]){
+    display:flex; align-items:center; gap:12px; padding:6px 6px 6px 8px;
+    background:#161616; border:1px solid #262626; border-radius:999px;
+  }
+  #brandModalBody .field:has(> input[id^="social"]) label{
+    margin:0; flex:0 0 auto; width:112px; height:36px; display:flex; align-items:center; gap:8px;
+    padding:0 14px; border-radius:999px; background:#1d1d1d; border:1px solid #262626;
+    color:#fff; font-size:13px; font-weight:700; letter-spacing:0;
+  }
+  #brandModalBody .field:has(> input[id^="social"]) input{ flex:1 1 auto; min-width:0; height:36px; padding:0 14px; background:transparent; border:0; border-radius:999px; }
+  #brandModalBody .field:has(> input[id^="social"]) input:focus{ background:#0d0d0d; }
+  @media (max-width:520px){
+    #brandModalBody .field:has(> input[id^="social"]){ flex-wrap:wrap; border-radius:18px; padding:8px; }
+    #brandModalBody .field:has(> input[id^="social"]) label{ width:auto; }
+    #brandModalBody .field:has(> input[id^="social"]) input{ flex:1 1 100%; background:#0d0d0d; border:1px solid #262626; }
+    body .topbar .btn{ padding:0 12px; }
+  }
 </style>
 </head>
 <body>
