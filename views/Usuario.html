@@ -2794,14 +2794,22 @@
 
   var USER_TOKEN = "<?= userToken ?>";
   // El administrador activa/desactiva la descarga por usuario (por defecto: permitida).
-  var USER_CAN_DOWNLOAD = true;
+  var USER_DL_CATS = [];
+  function dlNorm_(s){ return String(s == null ? '' : s).trim().toLowerCase(); }
+  function userCanDownload_(m){
+    if(!USER_TOKEN || !m || !m.url) return false;
+    return USER_DL_CATS.indexOf(dlNorm_(m.categoria || 'General')) !== -1;
+  }
   if(USER_TOKEN){
     try {
       google.script.run.withSuccessHandler(function(res){
         var d = res && (res.descargas !== undefined ? res.descargas : (res.user && res.user.descargas));
-        USER_CAN_DOWNLOAD = (d !== false && d !== 'false' && d !== 0);
+        if(typeof d === 'string') d = d.split(',');
+        USER_DL_CATS = Array.isArray(d) ? d.map(dlNorm_).filter(Boolean) : [];
         var btn = document.getElementById('pcDownloadBtn');
-        if(btn && !USER_CAN_DOWNLOAD) btn.style.display = 'none';
+        if(btn && typeof pcCurrentMedia !== 'undefined' && pcCurrentMedia){
+          btn.style.display = (userCanDownload_(pcCurrentMedia) && !/\.m3u8(\?|#|$)/i.test(pcCurrentMedia.url)) ? '' : 'none';
+        }
       }).withFailureHandler(function(){}).getUserInfo(USER_TOKEN);
     } catch(e){}
   }
@@ -3799,7 +3807,7 @@
 
     document.getElementById('playerHeaderTitle').textContent = m.nombre;
     var dlBtn = document.getElementById('pcDownloadBtn');
-    if(dlBtn) dlBtn.style.display = (USER_TOKEN && USER_CAN_DOWNLOAD && m.url && !/\.m3u8(\?|#|$)/i.test(m.url)) ? '' : 'none';
+    if(dlBtn) dlBtn.style.display = (userCanDownload_(m) && !/\.m3u8(\?|#|$)/i.test(m.url)) ? '' : 'none';
     var tipoLabel = m.tipo === 'video' ? 'Video'
                   : isAudioType(m.tipo) ? 'Audio'
                   : m.tipo === 'image' ? 'Imagen'
@@ -4562,7 +4570,7 @@
   // Descarga del contenido actual (solo usuarios con sesión).
   function playerDownload(){
     var m = pcCurrentMedia;
-    if(!USER_TOKEN || !USER_CAN_DOWNLOAD || !m || !m.url) return;
+    if(!userCanDownload_(m)) return;
     if(pcIsLive){ alert('Este contenido es en vivo y no se puede descargar.'); return; }
     var url = fixMediaUrl_(m.url);
     var a = document.createElement('a');
