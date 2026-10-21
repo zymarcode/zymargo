@@ -267,6 +267,9 @@
   .field textarea{ resize:vertical; min-height:70px; }
   .row-2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
   .checkbox-row{ display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); }
+  /* El check no debe heredar el ancho 100% de ".field input" ni el display:block de ".field label" */
+  .field label.checkbox-row{ display:flex; align-items:center; gap:8px; margin-bottom:0; cursor:pointer; }
+  .modal .field .checkbox-row input[type=checkbox]{ width:16px; height:16px; flex:none; padding:0; margin:0; accent-color:#e50914; cursor:pointer; }
   .modal-footer{ display:flex; justify-content:flex-end; gap:10px; padding:18px 22px; border-top:1px solid var(--border); }
   .form-error{ color:#ff6b6b; font-size:13px; }
   .form-success{ color:#5cd65c; font-size:13px; }
@@ -1952,6 +1955,7 @@
     google.script.run.withSuccessHandler(function(res){
       if(!res.ok){ toast(res.error || 'Error cargando usuarios.'); if(onDone) onDone(); return; }
       allUsers = res.users;
+      allUsers.forEach(function(u){ u.descargas = dlList_(u.descargas); });
       loadDeviceCounts_(onDone);
     }).withFailureHandler(function(e){ toast('Error: ' + e.message); if(onDone) onDone(); }).listUsers(TOKEN);
   }
@@ -2170,16 +2174,27 @@
   }
 
   // Secciones (categorías) que el usuario puede descargar
+  // El servidor puede devolver la lista como arreglo o como texto separado por comas.
+  function dlList_(d){
+    if(typeof d === 'string') d = d.split(',');
+    if(!Array.isArray(d)) return [];
+    return d.map(function(x){ return String(x == null ? '' : x).trim(); }).filter(Boolean);
+  }
   function renderUserDescargas_(selected){
     var cats = {}, hasGeneral = false;
     allMedia.forEach(function(m){ if(m.categoria) cats[m.categoria] = 1; else hasGeneral = true; });
     if(hasGeneral) cats['General'] = 1;
-    (selected || []).forEach(function(c){ cats[c] = 1; });
+    // Una sección guardada solo se añade si no existe ya (sin distinguir mayúsculas)
+    (selected || []).forEach(function(c){
+      var ya = Object.keys(cats).some(function(k){ return k.toLowerCase() === String(c).toLowerCase(); });
+      if(!ya) cats[c] = 1;
+    });
     var names = Object.keys(cats).sort();
+    var selLow = (selected || []).map(function(c){ return String(c).toLowerCase(); });
     var box = document.getElementById('userDescargasBox');
     if(!names.length){ box.innerHTML = '<span class="field-hint">Todavía no hay secciones.</span>'; return; }
     box.innerHTML = names.map(function(c){
-      var on = (selected || []).indexOf(c) !== -1;
+      var on = selLow.indexOf(String(c).toLowerCase()) !== -1;
       return '<label class="dl-cat"><input type="checkbox" value="'+esc(c)+'"'+(on?' checked':'')+' /><span>'+esc(c)+'</span></label>';
     }).join('');
   }
