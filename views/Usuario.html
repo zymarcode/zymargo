@@ -767,10 +767,10 @@
      El logo (círculo) se superpone al extremo izquierdo de una píldora roja.
      Si no es en vivo, solo se ve el logo.
      ============================================================ */
-  .player-stage{ --wm:48px; }
-  @media (min-width:1600px){ .player-stage{ --wm:56px; } }
+  .player-stage{ --wm:58px; }
+  @media (min-width:1600px){ .player-stage{ --wm:68px; } }
   .player-stage:fullscreen,
-  .player-stage:-webkit-full-screen{ --wm:clamp(42px, 6vh, 56px); }
+  .player-stage:-webkit-full-screen{ --wm:clamp(50px, 7vh, 68px); }
   .player-stage .player-badge{
     position:absolute; top:16px; right:16px; z-index:4;
     display:flex; align-items:center; pointer-events:none;
@@ -785,7 +785,7 @@
     height:calc(var(--wm) * .6); box-sizing:border-box;
     margin-left:calc(var(--wm) / -2);
     padding:0 14px 0 calc(var(--wm) / 2 + 9px);
-    font-size:clamp(8px, calc(var(--wm) * .22), 12px);
+    font-size:clamp(9px, calc(var(--wm) * .22), 14px);
     letter-spacing:.8px; line-height:1; white-space:nowrap;
     border-radius:999px;
     background:linear-gradient(135deg, #e50914 0%, #b20710 100%);
@@ -799,7 +799,7 @@
   @media (max-width:640px), (max-height:480px) and (orientation:landscape){
     .player-stage,
     .player-stage:fullscreen,
-    .player-stage:-webkit-full-screen{ --wm:32px; }
+    .player-stage:-webkit-full-screen{ --wm:40px; }
     .player-stage .player-badge{ top:8px; right:8px; }
     .player-stage .player-badge .player-watermark{ border-width:1.5px; box-shadow:0 1px 6px rgba(0,0,0,.4); }
     .player-stage .player-badge .player-watermark img{ padding:4px; }
