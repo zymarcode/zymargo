@@ -2429,7 +2429,6 @@
   body .cm-send:disabled{ background:#2a1214 !important; color:#b98a8d !important; border-color:#3a1a1d !important; box-shadow:none; text-shadow:none; }
   body .hero-arrow:hover{ background:#e50914; color:#fff; border-color:#e50914; box-shadow:0 6px 18px rgba(229,9,20,.4); }
   body .ad-skip:not(:disabled):hover, body .ad-link:hover{ background:#e50914; color:#fff; }
-
 </style>
 </head>
 <body>
@@ -4532,17 +4531,13 @@
 
     var list = document.getElementById('cmList');
     if(!r.comments.length){ list.innerHTML = '<div class="cm-hint">Aún no hay comentarios.</div>'; return; }
-    socialComments_ = {};
     list.innerHTML = r.comments.map(function(c){
-      socialComments_[c.id] = c.texto;
       var d = c.fecha ? new Date(c.fecha).toLocaleDateString() : '';
-      // El usuario solo puede EDITAR su propio comentario (no borrar). Borrar es exclusivo del administrador.
-      return '<div class="cm-item" id="cmItem_' + esc(c.id) + '"><div class="cm-head"><b>' + esc(c.nombre) + '</b><span>' + esc(d) + '</span>' +
-        (c.canDelete ? '<button type="button" class="cm-del" onclick="socialEditComment(\'' + esc(c.id) + '\')">Editar</button>' : '') +
+      return '<div class="cm-item"><div class="cm-head"><b>' + esc(c.nombre) + '</b><span>' + esc(d) + '</span>' +
+        (c.canDelete ? '<button type="button" class="cm-del" onclick="socialDeleteComment(\'' + esc(c.id) + '\')">Borrar</button>' : '') +
         '</div><p class="cm-text">' + esc(c.texto) + '</p></div>';
     }).join('');
   }
-  var socialComments_ = {};
   function socialLoad_(id){
     socialMediaId = id;
     document.getElementById('cmFormWrap').innerHTML = '';
@@ -4564,7 +4559,6 @@
     if(btn.classList.contains('is-busy')) return;
     // Respuesta inmediata en pantalla; luego se corrige con el valor real del servidor
     var was = btn.classList.contains('is-liked');
-    if(was) return; // el usuario no puede quitar el like; solo el administrador
     btn.classList.add('is-busy');
     btn.classList.toggle('is-liked', !was);
     btn.setAttribute('aria-pressed', was ? 'false' : 'true');
@@ -4607,31 +4601,11 @@
     }).withFailureHandler(function(){ btn.disabled = false; })
       .addComment(USER_TOKEN, id, text, name, getDeviceId_());
   }
-  function socialEditComment(cid){
-    var item = document.getElementById('cmItem_' + cid);
-    if(!item) return;
-    var p = item.querySelector('.cm-text');
-    if(!p) return;
-    var cur = socialComments_[cid] || '';
-    p.outerHTML = '<div class="cm-form" id="cmEdit_' + esc(cid) + '">' +
-      '<textarea class="cm-input" id="cmEditInput_' + esc(cid) + '" maxlength="500" rows="2">' + esc(cur) + '</textarea>' +
-      '<button type="button" class="cm-send" onclick="socialSaveComment(\'' + esc(cid) + '\')">Guardar</button>' +
-      '<button type="button" class="cm-del" onclick="socialCancelEdit()">Cancelar</button></div>';
-    var ta = document.getElementById('cmEditInput_' + cid);
-    if(ta){ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
-  }
-  function socialCancelEdit(){
-    if(!socialMediaId) return;
-    socialLoad_(socialMediaId);
-  }
-  function socialSaveComment(cid){
-    var ta = document.getElementById('cmEditInput_' + cid);
-    if(!ta) return;
-    var text = ta.value.trim();
-    if(!text){ ta.focus(); return; }
+  function socialDeleteComment(cid){
+    if(!confirm('¿Borrar este comentario?')) return;
     var id = socialMediaId;
     google.script.run.withSuccessHandler(function(r){ if(socialMediaId === id) socialDone_(r); })
-      .editComment(USER_TOKEN, cid, text, getDeviceId_());
+      .deleteComment(USER_TOKEN, cid, getDeviceId_());
   }
 
   // Descarga del contenido actual (solo usuarios con sesión).
