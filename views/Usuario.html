@@ -1900,6 +1900,249 @@
     .site-footer-text{ flex:0 0 auto; }
     .site-footer-social{ margin-left:0; }
   }
+
+  /* ============================================================
+     TEMA VEOYGO — solo diseño (sidebar, buscador, chips, grilla de
+     canales, barra de reproducción y tabs móviles). No toca la lógica.
+     ============================================================ */
+  body{
+    --bg:#000; --panel:#0b0b0b; --card:#1a1a1a; --border:#2a2a2a;
+    --safe-x:32px; --nav-h:70px;
+    --vg-side:240px; --vg-bar-h:70px; --vg-tabs-h:0px;
+    padding-left:var(--vg-side);
+    padding-top:var(--nav-h);
+    padding-bottom:calc(var(--vg-bar-h) + var(--vg-tabs-h));
+    transition:padding-left .25s ease;
+  }
+  html,body{ background:#000; }
+  @media (min-width:901px){ body.vg-collapsed{ --vg-side:76px; } }
+
+  /* El carrusel de portada no existe en este diseño */
+  body .hero-carousel{ display:none !important; }
+
+  /* ---------- NAV superior ---------- */
+  body .nav, body .nav.scrolled{
+    left:var(--vg-side); height:var(--nav-h); padding:0 24px;
+    background:#000; backdrop-filter:none; -webkit-backdrop-filter:none;
+    border-bottom:1px solid #141414; box-shadow:none;
+    transition:left .25s ease;
+  }
+  body .nav::after{ display:none; }
+  body .nav-right{ gap:12px; }
+  body .nav-search{
+    order:1; flex:0 1 600px; max-width:600px; height:46px; margin:0 auto; padding:0 18px;
+    background:#0d0d0d; border:1px solid #333; box-shadow:none;
+  }
+  body .nav-search:hover{ background:#111; }
+  body .nav-search:focus-within{ background:#111; border-color:#6a6a6a; box-shadow:none; }
+  body .nav-search .nav-ico{ color:#d6d6d6; width:20px; height:20px; }
+  body .nav-search input{ font-size:14px; }
+  body .nav-search-kbd{ order:2; font-size:0; background:none; border:0; padding:0; box-shadow:none; }
+  body .nav-search-kbd::after{
+    content:'\2192\00a0\00a0Buscar'; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif; font-size:13px; font-weight:600; color:#e6e6e6; white-space:nowrap;
+  }
+  body #refreshUsuarioBtn{ order:2; }
+  body .nav-user{ order:3; background:#1a1a1a; border-color:#262626; }
+  body .notif-wrap{ order:4; }
+  body .vg-social{ order:5; display:flex; align-items:center; gap:10px; }
+  body .nav-icon-btn, body .notif-bell{ background:#1a1a1a; border:1px solid #262626; }
+  body .nav-icon-btn:hover, body .notif-bell:hover{ background:#242424; border-color:#333; }
+  body .vg-social a{
+    width:42px; height:42px; border-radius:50%; background:#1d1d1d; color:#fff;
+    display:flex; align-items:center; justify-content:center; transition:background .15s;
+  }
+  body .vg-social a:hover{ background:#2a2a2a; }
+  body .vg-social svg{ width:20px; height:20px; fill:currentColor; display:block; }
+
+  body .nav-logo-mark{
+    width:30px; height:30px; border-radius:50%; background:none; box-shadow:none;
+    border:2px solid #fff; color:#fff; font-size:14px;
+  }
+  body .nav-logo-mark img{ border-radius:50%; }
+  body .nav-logo-sub{ display:none; }
+  body .nav-logo-text{ display:block; }
+  body .nav-logo-name{ font-size:20px; font-weight:800; }
+  body .vg-menu-btn{
+    display:none; width:36px; height:36px; border-radius:50%; border:0; padding:0; cursor:pointer;
+    background:#1c1c1c; color:#cfcfcf; align-items:center; justify-content:center; flex:0 0 auto;
+  }
+  body .vg-menu-btn svg{ width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+  body .nav.search-mode .vg-menu-btn{ display:none; }
+  @media (min-width:901px){
+    body .nav-logo{ display:none; }
+  }
+
+  /* ---------- SIDEBAR ---------- */
+  .vg-side{
+    position:fixed; top:0; left:0; bottom:var(--vg-bar-h); width:var(--vg-side); z-index:120;
+    display:flex; flex-direction:column; padding:18px 12px; overflow-y:auto; overflow-x:hidden;
+    background:#0a0a0a; border-right:1px solid #1c1c1c;
+    transition:width .25s ease, transform .25s ease;
+    scrollbar-width:none;
+  }
+  .vg-side::-webkit-scrollbar{ display:none; }
+  .vg-side-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; height:48px; margin-bottom:14px; padding:0 2px 0 12px; }
+  .vg-brand{ display:flex; align-items:center; gap:12px; min-width:0; }
+  .vg-brand-mark{ width:28px; height:28px; flex:0 0 auto; display:flex; color:#fff; }
+  .vg-brand-mark svg{ width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:2; }
+  .vg-brand-mark img{ width:100%; height:100%; object-fit:cover; border-radius:50%; display:block; }
+  .vg-brand-name{ font-size:20px; font-weight:800; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .vg-collapse{
+    width:36px; height:36px; border-radius:50%; border:0; padding:0; cursor:pointer; flex:0 0 auto;
+    background:#1c1c1c; color:#cfcfcf; display:flex; align-items:center; justify-content:center;
+  }
+  .vg-collapse:hover{ background:#262626; }
+  .vg-collapse svg{ width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; transition:transform .25s; }
+  .vg-nav{ display:flex; flex-direction:column; gap:4px; }
+  .vg-item{
+    display:flex; align-items:center; gap:16px; width:100%; height:46px; padding:0 14px; border:0; border-radius:10px;
+    background:none; color:#e8e8e8; font:600 14px/1 -apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;
+    text-align:left; cursor:pointer; white-space:nowrap; transition:background .15s;
+  }
+  .vg-item svg{ width:24px; height:24px; flex:0 0 auto; stroke:currentColor; fill:none; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+  .vg-item span{ overflow:hidden; text-overflow:ellipsis; }
+  .vg-item:hover{ background:#151515; }
+  .vg-item.active{ background:#1c1c1c; color:#fff; }
+  .vg-sep{ height:1px; background:#222; margin:14px 4px; }
+  .vg-sep:empty + .vg-sep{ display:none; }
+  .vg-sec{ padding:2px 14px 8px; font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:#777; }
+  .vg-scrim{ display:none; }
+  @media (min-width:901px){
+    body.vg-collapsed .vg-brand-name, body.vg-collapsed .vg-item span, body.vg-collapsed .vg-sec{ display:none; }
+    body.vg-collapsed .vg-side-head{ flex-direction:column; height:auto; gap:12px; padding:0; }
+    body.vg-collapsed .vg-item{ justify-content:center; padding:0; }
+    body.vg-collapsed .vg-collapse svg{ transform:rotate(180deg); }
+  }
+
+  /* ---------- CHIPS de categorías ---------- */
+  .vg-chips{ display:flex; gap:14px; padding:26px var(--safe-x) 4px; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+  .vg-chips::-webkit-scrollbar{ display:none; }
+  .vg-chip{
+    flex:0 0 auto; display:inline-flex; align-items:center; gap:12px; height:46px; padding:0 24px;
+    border-radius:999px; background:#161616; border:1px solid #2a2a2a; color:#fff; cursor:pointer; white-space:nowrap;
+    font:700 14px/1 -apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif; transition:background .15s, border-color .15s;
+  }
+  .vg-chip svg{ width:20px; height:20px; flex:0 0 auto; stroke:currentColor; fill:none; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+  .vg-chip em{ font-style:normal; }
+  .vg-chip:hover{ background:#1d1d1d; }
+  .vg-chip.active{ background:#202020; border-color:#5c5c5c; }
+  body.vg-searching .vg-chips{ display:none; }
+
+  /* ---------- FILAS -> GRILLA ---------- */
+  body .rows{ padding:6px 0 24px; }
+  body .row-block{ margin-bottom:6px; }
+  body .row-title{ display:flex; margin:0; padding:20px var(--safe-x) 0; font-size:20px; font-weight:800; letter-spacing:0; }
+  body .row-title::before{ display:none; }
+  body .vg-seeall{
+    position:absolute; top:18px; right:var(--safe-x); height:28px; padding:0 14px; border:0; border-radius:999px;
+    background:#161616; color:#ddd; cursor:pointer; font:600 12px/1 -apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;
+  }
+  body .vg-seeall:hover{ background:#222; color:#fff; }
+  body.vg-filtered .vg-seeall, body.vg-searching .vg-seeall{ display:none; }
+  body .row-track{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(158px,1fr)); gap:16px;
+    overflow:visible; padding:16px var(--safe-x) 8px; scroll-snap-type:none; cursor:default;
+  }
+  body .row-arrow, body .row-track-wrap::before, body .row-track-wrap::after{ display:none !important; }
+
+  /* ---------- TARJETA DE CANAL ---------- */
+  body .card{
+    width:auto; min-width:0; flex:none; align-items:center; justify-content:flex-start; gap:10px;
+    min-height:160px; padding:18px 10px 14px; text-align:center;
+    background:#1a1a1a; border:1px solid #2b2b2b; border-radius:10px;
+    transition:background .15s, border-color .15s, transform .15s;
+  }
+  body .card:hover{ background:#202020; border-color:#3a3a3a; }
+  body .card:active{ transform:scale(.98); }
+  body .card:focus-visible{ outline:2px solid #fff; outline-offset:2px; }
+  body .card-thumb, body .card:hover .card-thumb, body .card:focus-visible .card-thumb{
+    width:76px; height:76px; aspect-ratio:1/1; flex:0 0 auto; border-radius:50%; overflow:visible; background:#0f0f0f; box-shadow:none;
+  }
+  body .card-thumb::before{ border-radius:50%; }
+  body .card img, body .card .placeholder, body .card-preview-video{ border-radius:50%; }
+  body .card .placeholder{ font-size:30px; }
+  body .card-play{ display:none; }
+  body .card-badge{
+    top:-2px; right:-6px; left:auto; font-size:0; padding:3px 5px; gap:0; box-shadow:none;
+  }
+  body .card-badge::before{ content:'\2605'; font-size:11px; line-height:1; }
+  body .card-info{ width:100%; padding:0; }
+  body .card-title{ font-size:13px; font-weight:700; line-height:1.25; color:#fff; text-align:center; }
+  body .card-cat{
+    display:block; margin-top:6px; font-size:11px; font-weight:500; color:#9b9b9b;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+
+  /* ---------- BARRA DE REPRODUCCIÓN INFERIOR ---------- */
+  .vg-bar{
+    position:fixed; left:0; right:0; bottom:var(--vg-tabs-h); height:var(--vg-bar-h); z-index:1100;
+    display:flex; align-items:center; gap:14px; padding:0 16px;
+    background:#0b0b0b; border-top:1px solid #1c1c1c;
+  }
+  .vg-bar-art{ width:48px; height:48px; flex:0 0 auto; border-radius:8px; overflow:hidden; background:#1c1c1c; display:flex; align-items:center; justify-content:center; font-size:22px; }
+  .vg-bar-art img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .vg-bar-info{ flex:1; min-width:0; }
+  .vg-bar-title{ font-size:16px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .vg-bar-sub{ margin-top:3px; font-size:12px; color:#9a9a9a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .vg-bar-ctrl{ display:flex; align-items:center; gap:10px; flex:0 0 auto; }
+  .vg-cbtn{
+    width:44px; height:44px; padding:0; border:0; border-radius:50%; cursor:pointer;
+    background:#262626; color:#fff; display:flex; align-items:center; justify-content:center; transition:background .15s, opacity .15s;
+  }
+  .vg-cbtn svg{ width:20px; height:20px; fill:currentColor; }
+  .vg-cbtn:hover{ background:#333; }
+  .vg-cbtn.play{ width:50px; height:50px; background:#2f2f2f; }
+  .vg-cbtn.play svg{ width:22px; height:22px; }
+  .vg-cbtn.heart.on{ color:#ff4d6d; }
+  .vg-bar:not(.has-media) .vg-cbtn:not(.play){ opacity:.6; }
+
+  /* ---------- TABS MÓVILES ---------- */
+  .vg-tabs{ display:none; }
+
+  /* Reproductor: deja visible la barra inferior y la sidebar */
+  body .player-overlay{ top:0; right:0; left:var(--vg-side); bottom:calc(var(--vg-bar-h) + var(--vg-tabs-h)); }
+  body .media-toast{ display:none; } /* la barra inferior ya muestra lo que suena */
+  body .site-footer{ margin-top:8px; border-top:1px solid #151515; }
+
+  /* ---------- MÓVIL / TABLET ---------- */
+  @media (max-width:900px){
+    body{ --vg-side:0px; --nav-h:60px; --vg-bar-h:64px; --vg-tabs-h:58px; --safe-x:8px; }
+    body .nav, body .nav.scrolled{ left:0; padding:0 12px; }
+    body .nav-search, body .search-toggle-btn, body .vg-social{ display:none; }
+    body .nav-logo{ gap:10px; }
+    body .vg-menu-btn{ display:inline-flex; }
+    .vg-side{ width:260px; bottom:0; z-index:1300; transform:translateX(-105%); box-shadow:none; }
+    body.vg-drawer .vg-side{ transform:none; box-shadow:0 0 40px rgba(0,0,0,.8); }
+    .vg-scrim{ position:fixed; inset:0; z-index:1250; background:rgba(0,0,0,.6); }
+    body.vg-drawer .vg-scrim{ display:block; }
+    .vg-collapse{ display:none; }
+    .vg-chips{ padding-top:14px; gap:10px; }
+    .vg-chip{ height:42px; padding:0 18px; gap:10px; }
+    body .row-title{ font-size:18px; padding-top:16px; }
+    body .vg-seeall{ top:14px; }
+    body .row-track{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; padding:12px var(--safe-x) 6px; }
+    body .card{ min-height:158px; }
+    .vg-bar{ padding:0 10px; gap:10px; }
+    .vg-bar-art{ width:40px; height:40px; }
+    .vg-bar-title{ font-size:15px; }
+    .vg-bar-ctrl{ gap:6px; }
+    .vg-cbtn{ width:40px; height:40px; }
+    .vg-cbtn.play{ width:44px; height:44px; }
+    .vg-tabs{
+      display:flex; position:fixed; left:0; right:0; bottom:0; height:var(--vg-tabs-h); z-index:1100;
+      background:#0b0b0b; border-top:1px solid #1c1c1c;
+    }
+    .vg-tab{
+      flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+      border:0; background:none; color:#8a8a8a; cursor:pointer; padding:0;
+      font:700 10px/1 -apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;
+    }
+    .vg-tab svg{ width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+    .vg-tab.active{ color:#fff; }
+  }
+  @media (max-width:520px){
+    .vg-cbtn.up{ display:none; }
+  }
 </style>
 </head>
 <body>
@@ -1947,6 +2190,29 @@
   </div>
   <? } ?>
 
+  <!-- ===== VEOYGO: sidebar (escritorio) / menú lateral (móvil) ===== -->
+  <div class="vg-scrim" id="vgScrim"></div>
+  <aside class="vg-side" id="vgSide">
+    <div class="vg-side-head">
+      <div class="vg-brand">
+        <div class="vg-brand-mark">
+          <? if (brand.brandLogoUrl) { ?>
+            <img src="<?= brand.brandLogoUrl ?>" alt="" onerror="this.parentNode.innerHTML='<svg viewBox=\'0 0 24 24\'><circle cx=\'12\' cy=\'12\' r=\'9\'/><circle cx=\'12\' cy=\'12\' r=\'3.2\'/></svg>';" />
+          <? } else { ?>
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2"/></svg>
+          <? } ?>
+        </div>
+        <div class="vg-brand-name" title="<?= brand.brandName ?>"><?= brand.brandName ?></div>
+      </div>
+      <button type="button" class="vg-collapse" id="vgCollapse" aria-label="Contraer menú"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
+    </div>
+    <div class="vg-nav" id="vgNav"></div>
+    <div class="vg-sep" id="vgInstallSep" style="display:none;"></div>
+    <div class="vg-nav">
+      <button type="button" class="vg-item" id="vgInstall" style="display:none;"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg><span>Descargar app</span></button>
+    </div>
+  </aside>
+
   <div class="nav" id="nav">
     <div class="nav-logo" id="navLogo">
       <div class="nav-logo-mark" id="navLogoMark">
@@ -1960,6 +2226,7 @@
         <div class="nav-logo-name" title="<?= brand.brandName ?>"><?= brand.brandName ?></div>
         <div class="nav-logo-sub" title="<?= brand.brandSubname ?>"><?= brand.brandSubname ?></div>
       </div>
+      <button type="button" class="vg-menu-btn" id="vgMenuBtn" aria-label="Abrir menú"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
     </div>
 
     <div class="nav-right" id="navRight">
@@ -1968,7 +2235,7 @@
       <!-- Buscador de escritorio: visible siempre en pantallas >900px -->
       <div class="nav-search" id="navSearchBox">
         <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" id="searchInput" placeholder="Títulos, categorías..." autocomplete="off" aria-label="Buscar" oninput="handleSearchInput(this.value)" />
+        <input type="text" id="searchInput" placeholder="Buscar canales o emisoras..." autocomplete="off" aria-label="Buscar" oninput="handleSearchInput(this.value)" />
         <kbd class="nav-search-kbd" aria-hidden="true">/</kbd>
         <button type="button" class="nav-search-clear" aria-label="Limpiar búsqueda" onclick="clearSearchDesktop()"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
       </div>
@@ -2000,7 +2267,7 @@
       <button class="nav-icon-btn" aria-label="Cerrar búsqueda" onclick="closeSearchOverlay()"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></button>
       <div class="nav-search-full">
         <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" id="searchInputMobile" placeholder="Títulos, categorías..." oninput="handleSearchInput(this.value)" />
+        <input type="text" id="searchInputMobile" placeholder="Buscar canales o emisoras..." oninput="handleSearchInput(this.value)" />
       </div>
       <button class="nav-icon-btn" id="searchClearBtn" aria-label="Limpiar búsqueda" onclick="clearSearchMobile()" style="display:none;"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
     </div>
@@ -2014,6 +2281,8 @@
       <div class="hero-progress-bar" id="heroProgressBar"></div>
     </div>
   </div>
+
+  <div class="vg-chips" id="vgChips"></div>
 
   <div class="rows" id="rowsWrap"></div>
 
@@ -2046,6 +2315,23 @@
     </div>
     <? } ?>
   </footer>
+
+  <!-- ===== VEOYGO: barra de reproducción inferior + tabs móviles ===== -->
+  <div class="vg-bar" id="vgBar">
+    <div class="vg-bar-art" id="vgBarArt"></div>
+    <div class="vg-bar-info">
+      <div class="vg-bar-title" id="vgBarTitle">Selecciona un canal</div>
+      <div class="vg-bar-sub" id="vgBarSub">—</div>
+    </div>
+    <div class="vg-bar-ctrl">
+      <button type="button" class="vg-cbtn heart" id="vgBarLike" aria-label="Me gusta"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.7 5 6.1 5c2 0 3.3 1 3.9 2.1h0C10.6 6 11.9 5 13.9 5c3.4 0 5.2 3.4 3.7 6.8C19.5 16.4 12 21 12 21z"/></svg></button>
+      <button type="button" class="vg-cbtn up" id="vgBarUp" aria-label="Pantalla completa"><svg viewBox="0 0 24 24"><path d="m6 15 6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button type="button" class="vg-cbtn prev" id="vgBarPrev" aria-label="Anterior"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
+      <button type="button" class="vg-cbtn play" id="vgBarPlay" aria-label="Play/Pausa"><svg id="vgBarPlayIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+      <button type="button" class="vg-cbtn next" id="vgBarNext" aria-label="Siguiente"><svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg></button>
+    </div>
+  </div>
+  <nav class="vg-tabs" id="vgTabs" aria-label="Navegación"></nav>
 
   <div class="player-overlay" id="playerOverlay">
     <div class="player-box">
@@ -3026,7 +3312,7 @@
     var playIcon = m.tipo !== 'image' ?
       '<div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>' : '';
 
-    var overlay = '<div class="card-info"><span class="card-title">'+esc(m.nombre)+'</span></div>';
+    var overlay = '<div class="card-info"><span class="card-title">'+esc(m.nombre)+'</span><span class="card-cat">'+esc(m.categoria || '')+'</span></div>';
 
     // SIN onclick inline, SIN onkeydown inline — binding por delegation
     return '' +
@@ -5004,5 +5290,294 @@
 })();
 </script>
 <? } ?>
+<script>
+// ============================================================
+//  TEMA VEOYGO — capa de diseño. Solo lee datos y llama a las
+//  funciones que ya existen (renderRows, openPlayerById,
+//  playerTogglePlay, playerNext, playerPrev, socialToggleLike,
+//  playerToggleFullscreen, openSearchOverlay, handleSearchInput).
+// ============================================================
+(function(){
+  var rowsWrap = document.getElementById('rowsWrap');
+  var chipsEl  = document.getElementById('vgChips');
+  var navEl    = document.getElementById('vgNav');
+  var tabsEl   = document.getElementById('vgTabs');
+  var body     = document.body;
+  if(!rowsWrap || !chipsEl || !navEl) return;
+
+  var filter = 'all';          // 'all' | 'kind:tv' | 'kind:radio' | 'cat:<nombre>'
+  var cats = [];               // [{name, count, kind}]
+
+  function h(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function norm(s){
+    s = String(s || '').toLowerCase();
+    try { s = s.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); } catch(e){}
+    return s;
+  }
+
+  // ---------- Íconos ----------
+  var IC = {
+    grid:  '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+    note:  '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+    news:  '<path d="M4 4h13a2 2 0 0 1 2 2v14H6a2 2 0 0 1-2-2z"/><path d="M19 8h2v10a2 2 0 0 1-2 2"/><path d="M8 8h7M8 12h7M8 16h4"/>',
+    film:  '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 3v18M17 3v18M3 8h4M3 12h4M3 16h4M17 8h4M17 12h4M17 16h4"/>',
+    bank:  '<path d="M3 21h18M5 21V10M9 21V10M15 21V10M19 21V10M3 10l9-6 9 6z"/>',
+    dots:  '<circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/>',
+    tv:    '<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
+    radio: '<rect x="3" y="8" width="18" height="12" rx="2"/><path d="m7 8 12-5"/><circle cx="8" cy="14" r="2.5"/><path d="M14 12h5M14 16h5"/>',
+    home:  '<path d="m3 11 9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/>',
+    search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>'
+  };
+  function svg(name){ return '<svg viewBox="0 0 24 24" aria-hidden="true">' + (IC[name] || IC.grid) + '</svg>'; }
+  function iconFor(name){
+    var c = norm(name);
+    if(/musica|music/.test(c)) return 'note';
+    if(/noticia|news/.test(c)) return 'news';
+    if(/entreten|pelicula|serie|cine|video|anime|novela|show/.test(c)) return 'film';
+    if(/cultur/.test(c)) return 'bank';
+    if(/radio|emisora/.test(c)) return 'radio';
+    if(/televis|\btv\b|canal|iptv|en vivo/.test(c)) return 'tv';
+    if(/otro/.test(c)) return 'dots';
+    return 'grid';
+  }
+  function kindOf(name){
+    try {
+      var k = cardKind_({ categoria: name });
+      if(k && k.icon === '\uD83D\uDCFA') return 'tv';
+      if(k && k.icon === '\uD83D\uDCFB') return 'radio';
+    } catch(e){}
+    return '';
+  }
+
+  // ---------- Datos (mismo orden en que renderRows agrupa) ----------
+  function collect(){
+    var map = {}, list = [];
+    (typeof allMedia !== 'undefined' ? allMedia : []).forEach(function(m){
+      var c = m.categoria || 'General';
+      if(!map[c]){ map[c] = { name:c, count:0, kind:kindOf(c) }; list.push(map[c]); }
+      map[c].count++;
+    });
+    cats = list;
+  }
+  function hasKind(k){ return cats.some(function(c){ return c.kind === k; }); }
+  function total(){ return cats.reduce(function(n, c){ return n + c.count; }, 0); }
+
+  function matches(name){
+    if(filter === 'all') return true;
+    if(filter.indexOf('cat:') === 0) return filter.slice(4) === name;
+    if(filter.indexOf('kind:') === 0) return kindOf(name) === filter.slice(5);
+    return true;
+  }
+
+  // ---------- Construcción de chips / sidebar / tabs ----------
+  function buildChips(){
+    var out = '<button type="button" class="vg-chip' + (filter === 'all' ? ' active' : '') + '" data-vg="all">' +
+      svg('grid') + '<span>Todos</span><em>(' + total() + ')</em></button>';
+    cats.forEach(function(c){
+      var key = 'cat:' + c.name;
+      out += '<button type="button" class="vg-chip' + (filter === key ? ' active' : '') + '" data-vg="' + h(key) + '">' +
+        svg(iconFor(c.name)) + '<span>' + h(c.name) + '</span><em>(' + c.count + ')</em></button>';
+    });
+    chipsEl.innerHTML = out;
+  }
+
+  function item(key, icon, label){
+    return '<button type="button" class="vg-item' + (filter === key ? ' active' : '') + '" data-vg="' + h(key) + '" title="' + h(label) + '">' +
+      svg(icon) + '<span>' + h(label) + '</span></button>';
+  }
+  function buildSide(){
+    var out = item('all', 'home', 'Inicio');
+    if(hasKind('tv'))    out += item('kind:tv', 'tv', 'Televisi\u00F3n');
+    if(hasKind('radio')) out += item('kind:radio', 'radio', 'Radio');
+    var others = cats.filter(function(c){ return !c.kind; });
+    if(others.length){
+      out += '<div class="vg-sep"></div><div class="vg-sec">Categor\u00EDas</div>';
+      others.forEach(function(c){ out += item('cat:' + c.name, iconFor(c.name), c.name); });
+    }
+    navEl.innerHTML = out;
+  }
+
+  function tab(key, icon, label, act){
+    return '<button type="button" class="vg-tab' + (filter === key ? ' active' : '') + '" ' +
+      (act ? 'data-vg-act="' + act + '"' : 'data-vg="' + h(key) + '"') + '>' + svg(icon) + '<span>' + label + '</span></button>';
+  }
+  function buildTabs(){
+    if(!tabsEl) return;
+    var out = tab('all', 'home', 'Inicio');
+    if(hasKind('tv'))    out += tab('kind:tv', 'tv', 'TV');
+    if(hasKind('radio')) out += tab('kind:radio', 'radio', 'Radio');
+    out += tab('', 'search', 'Buscar', 'search');
+    tabsEl.innerHTML = out;
+  }
+
+  // ---------- Filtro sobre las filas ya renderizadas ----------
+  function apply(){
+    var inp = document.getElementById('searchInput');
+    var searching = !!(inp && inp.value.trim());
+    body.classList.toggle('vg-searching', searching);
+    body.classList.toggle('vg-filtered', filter !== 'all');
+
+    rowsWrap.querySelectorAll('.row-block').forEach(function(b){
+      var t = b.querySelector('.row-title');
+      var name = t ? t.textContent : '';
+      if(!b.getAttribute('data-vg-cat')) b.setAttribute('data-vg-cat', name);
+      var isSearch = searching || name === 'Resultados de b\u00FAsqueda';
+      b.style.display = (isSearch || matches(name)) ? '' : 'none';
+      if(!isSearch && !b.querySelector('.vg-seeall')){
+        var btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'vg-seeall'; btn.textContent = 'Ver todos';
+        btn.setAttribute('data-vg-see', name);
+        b.appendChild(btn);
+      }
+    });
+  }
+
+  function refreshUi(){
+    buildChips(); buildSide(); buildTabs();
+  }
+  function setFilter(key){
+    filter = key || 'all';
+    refreshUi(); apply();
+  }
+  function rebuild(){
+    collect();
+    // si la categoría seleccionada ya no existe, vuelve a Todos
+    if(filter.indexOf('cat:') === 0 && !cats.some(function(c){ return 'cat:' + c.name === filter; })) filter = 'all';
+    if(filter.indexOf('kind:') === 0 && !hasKind(filter.slice(5))) filter = 'all';
+    refreshUi(); apply();
+  }
+
+  // Cada vez que renderRows() reemplaza el contenido, se reconstruye el diseño
+  new MutationObserver(function(){ rebuild(); }).observe(rowsWrap, { childList:true });
+
+  // La rueda del mouse ya no debe desplazar las filas en horizontal (ahora es una grilla)
+  rowsWrap.addEventListener('wheel', function(e){ e.stopPropagation(); }, { capture:true, passive:true });
+
+  // ---------- Clicks (delegación) ----------
+  function closeDrawer(){ body.classList.remove('vg-drawer'); }
+  function goTo(key){
+    var inp = document.getElementById('searchInput');
+    if(inp && inp.value && typeof handleSearchInput === 'function') handleSearchInput('');
+    try { if(typeof closeSearchOverlay === 'function') closeSearchOverlay(); } catch(e){}
+    setFilter(key);
+    window.scrollTo({ top:0, behavior:'smooth' });
+    closeDrawer();
+  }
+  document.addEventListener('click', function(e){
+    var t = e.target;
+    if(!t.closest) return;
+    var el = t.closest('[data-vg]');
+    if(el && (el.closest('#vgChips') || el.closest('#vgSide') || el.closest('#vgTabs'))){
+      goTo(el.getAttribute('data-vg')); return;
+    }
+    var see = t.closest('.vg-seeall');
+    if(see){ goTo('cat:' + see.getAttribute('data-vg-see')); return; }
+    var act = t.closest('[data-vg-act]');
+    if(act && act.getAttribute('data-vg-act') === 'search'){
+      closeDrawer();
+      if(typeof openSearchOverlay === 'function') openSearchOverlay();
+    }
+  });
+
+  // ---------- Sidebar: contraer / menú móvil ----------
+  var colBtn = document.getElementById('vgCollapse');
+  if(colBtn) colBtn.addEventListener('click', function(){ body.classList.toggle('vg-collapsed'); });
+  var menuBtn = document.getElementById('vgMenuBtn');
+  if(menuBtn) menuBtn.addEventListener('click', function(){ body.classList.toggle('vg-drawer'); });
+  var scrim = document.getElementById('vgScrim');
+  if(scrim) scrim.addEventListener('click', closeDrawer);
+
+  // ---------- Redes sociales del footer -> barra superior ----------
+  (function(){
+    var src = document.querySelectorAll('#siteFooter .site-footer-social a');
+    var navRight = document.getElementById('navRight');
+    if(!src.length || !navRight) return;
+    var box = document.createElement('div');
+    box.className = 'vg-social';
+    src.forEach(function(a){ box.appendChild(a.cloneNode(true)); });
+    navRight.appendChild(box);
+  })();
+
+  // ---------- Descargar app (solo si el navegador permite instalar) ----------
+  var deferredInstall = null;
+  var instBtn = document.getElementById('vgInstall');
+  var instSep = document.getElementById('vgInstallSep');
+  function showInstall(on){
+    if(instBtn) instBtn.style.display = on ? '' : 'none';
+    if(instSep) instSep.style.display = on ? '' : 'none';
+  }
+  window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); deferredInstall = e; showInstall(true); });
+  window.addEventListener('appinstalled', function(){ deferredInstall = null; showInstall(false); });
+  if(instBtn) instBtn.addEventListener('click', function(){
+    if(!deferredInstall) return;
+    deferredInstall.prompt();
+    deferredInstall = null; showInstall(false);
+  });
+
+  // ---------- Barra inferior: refleja y controla el reproductor existente ----------
+  var bar = document.getElementById('vgBar');
+  var barTitle = document.getElementById('vgBarTitle');
+  var barSub = document.getElementById('vgBarSub');
+  var barArt = document.getElementById('vgBarArt');
+  var barPlayIcon = document.getElementById('vgBarPlayIcon');
+  var barLike = document.getElementById('vgBarLike');
+  var lastArtId = null;
+  var PLAY_PATH = 'M8 5v14l11-7z';
+  var PAUSE_PATH = 'M6 5h4v14H6zM14 5h4v14h-4z';
+
+  function curMedia(){ try { return (typeof pcCurrentMedia !== 'undefined') ? pcCurrentMedia : null; } catch(e){ return null; } }
+  function firstVisibleCardId(){
+    var blocks = rowsWrap.querySelectorAll('.row-block');
+    for(var i = 0; i < blocks.length; i++){
+      if(blocks[i].style.display === 'none') continue;
+      var c = blocks[i].querySelector('.card');
+      if(c) return c.getAttribute('data-media-id');
+    }
+    return null;
+  }
+  function syncBar(){
+    var m = curMedia();
+    bar.classList.toggle('has-media', !!m);
+    var title = m ? (m.nombre || '\u2014') : 'Selecciona un canal';
+    var sub = m ? (m.categoria || '') : '\u2014';
+    if(barTitle.textContent !== title) barTitle.textContent = title;
+    if(barSub.textContent !== sub) barSub.textContent = sub;
+    var artId = m ? m.id : '';
+    if(artId !== lastArtId){
+      lastArtId = artId;
+      if(!m) barArt.innerHTML = '';
+      else if(m.miniatura) barArt.innerHTML = '<img src="' + h(m.miniatura) + '" alt="">';
+      else barArt.textContent = (m.tipo === 'video') ? '\uD83C\uDFAC' : '\uD83C\uDFB5';
+    }
+    var playing = false;
+    try { playing = !!(m && typeof pcIsPlaying_ === 'function' && pcIsPlaying_()); } catch(e){}
+    var p = barPlayIcon.firstElementChild;
+    var want = playing ? PAUSE_PATH : PLAY_PATH;
+    if(p && p.getAttribute('d') !== want) p.setAttribute('d', want);
+    var lb = document.getElementById('likeBtn');
+    barLike.classList.toggle('on', !!(m && lb && lb.classList.contains('is-liked')));
+  }
+  setInterval(syncBar, 400);
+
+  document.getElementById('vgBarPlay').addEventListener('click', function(){
+    if(curMedia()){ playerTogglePlay(); return; }
+    var id = firstVisibleCardId();
+    if(id) openPlayerById(id);
+  });
+  document.getElementById('vgBarNext').addEventListener('click', function(){ if(curMedia()) playerNext(); });
+  document.getElementById('vgBarPrev').addEventListener('click', function(){ if(curMedia()) playerPrev(); });
+  document.getElementById('vgBarLike').addEventListener('click', function(){ if(curMedia()) socialToggleLike(); });
+  document.getElementById('vgBarUp').addEventListener('click', function(){ if(curMedia()) playerToggleFullscreen(); });
+
+  // Primer armado (por si el catálogo ya se renderizó antes de cargar este script)
+  rebuild();
+  syncBar();
+})();
+</script>
+
 </body>
 </html>
