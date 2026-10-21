@@ -204,9 +204,11 @@
   .toggle-pass{ right:12px; padding:0; margin:0; width:28px; height:28px; border-radius:50%; }
   .toggle-pass:hover{ background:#1c1c1c; }
   #btn{
-    background:#2f2f2f; border:1px solid #3a3a3a; border-radius:999px; padding:12px;
+    background:linear-gradient(135deg,#f6121d 0%,#e50914 55%,#b20710 100%); border:1px solid #e50914; border-radius:999px; padding:12px;
+    color:#fff; box-shadow:0 8px 22px rgba(229,9,20,.38); text-shadow:0 1px 2px rgba(0,0,0,.25);
   }
-  #btn:hover{ background:#3a3a3a; box-shadow:none; transform:none; }
+  #btn:hover{ background:linear-gradient(135deg,#ff2a35 0%,#f6121d 55%,#c8081a 100%); box-shadow:0 12px 28px rgba(229,9,20,.5); transform:none; }
+  #btn:disabled{ opacity:.75; box-shadow:none; }
   .hint{ color:#9b9b9b; }
 
   /* Tarjeta de credenciales demo */
@@ -221,14 +223,14 @@
   .social-links a{ background:#1d1d1d; border-color:#262626; }
   .social-links a:hover{ background:#2a2a2a; border-color:#333; box-shadow:none; }
   /* --- Pantalla de carga --- */
-  body #sfLoad{ background:#000; }
+  body #sfLoad{ background:radial-gradient(ellipse at 50% 38%,#3a0609 0%,#14070a 45%,#050506 100%); }
   body #sfLoad .sfLogo{ border-radius:50%; }
   body #sfLoad .sfName{
-    color:#fff; background:linear-gradient(100deg,#8a8a8a 20%,#fff 50%,#8a8a8a 80%); background-size:250% 100%;
+    color:#e50914; background:linear-gradient(100deg,#b20710 20%,#ff2a35 40%,#fff 50%,#ff2a35 60%,#b20710 80%); background-size:250% 100%;
     -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
   }
-  body #sfLoad .sfBar{ background:#1c1c1c; }
-  body #sfLoad .sfBar i{ background:#fff; }
+  body #sfLoad .sfBar{ background:rgba(229,9,20,.18); }
+  body #sfLoad .sfBar i{ background:linear-gradient(90deg,#b20710,#e50914,#ff2a35); }
 </style>
 <? if (brand.loginBgUrl) { ?>
 <style>
@@ -242,21 +244,27 @@
 <body>
 <!-- ===== LOADING ===== -->
 <style>
-#sfLoad{position:fixed;top:0;left:0;right:0;bottom:0;z-index:100000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:radial-gradient(ellipse at 50% 40%,#1c0f14 0%,#0a0a0d 65%);transition:opacity .45s ease,visibility .45s ease}
+#sfLoad{position:fixed;top:0;left:0;right:0;bottom:0;z-index:100000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;background:radial-gradient(ellipse at 50% 38%,#3a0609 0%,#14070a 45%,#050506 100%);transition:opacity .45s ease,visibility .45s ease;overflow:hidden}
+#sfLoad::before{content:"";position:absolute;left:50%;top:38%;width:min(520px,90vw);height:min(520px,90vw);transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(229,9,20,.28) 0%,rgba(229,9,20,0) 65%);animation:sfGlow 2.2s ease-in-out infinite;pointer-events:none}
 #sfLoad.sfHide{opacity:0;visibility:hidden}
+#sfLoad .sfMark{position:relative;width:104px;height:104px;display:flex;align-items:center;justify-content:center}
+#sfLoad .sfMark::before{content:"";position:absolute;inset:0;border-radius:50%;border:3px solid rgba(229,9,20,.18)}
+#sfLoad .sfMark::after{content:"";position:absolute;inset:0;border-radius:50%;border:3px solid transparent;border-top-color:#e50914;border-right-color:#ff2a35;box-shadow:0 0 22px rgba(229,9,20,.55);animation:sfRot 1s linear infinite}
 #sfLoad .sfLogo{width:72px;height:72px;object-fit:contain;border-radius:16px;animation:sfPulse 1.4s ease-in-out infinite}
 #sfLoad .sfName{margin:0;font-size:clamp(30px,9vw,54px);font-weight:800;letter-spacing:.14em;text-transform:uppercase;text-align:center;padding:0 16px;
-  color:#e50914;background:linear-gradient(100deg,#e50914 20%,#ff8a3d 40%,#fff 50%,#ff8a3d 60%,#e50914 80%);background-size:250% 100%;
-  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:sfShine 1.8s linear infinite}
-#sfLoad .sfBar{width:min(220px,60vw);height:3px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden}
-#sfLoad .sfBar i{display:block;height:100%;width:40%;border-radius:3px;background:linear-gradient(90deg,#e50914,#ff8a3d);animation:sfSlide 1.1s ease-in-out infinite}
+  color:#e50914;background:linear-gradient(100deg,#b20710 20%,#ff2a35 40%,#fff 50%,#ff2a35 60%,#b20710 80%);background-size:250% 100%;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:sfShine 1.8s linear infinite;text-shadow:none}
+#sfLoad .sfBar{width:min(220px,60vw);height:4px;border-radius:4px;background:rgba(229,9,20,.18);overflow:hidden}
+#sfLoad .sfBar i{display:block;height:100%;width:40%;border-radius:4px;background:linear-gradient(90deg,#b20710,#e50914,#ff2a35);box-shadow:0 0 12px rgba(229,9,20,.8);animation:sfSlide 1.1s ease-in-out infinite}
 @keyframes sfShine{from{background-position:150% 0}to{background-position:-100% 0}}
 @keyframes sfSlide{0%{transform:translateX(-110%)}100%{transform:translateX(280%)}}
 @keyframes sfPulse{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.07);opacity:1}}
-@media (prefers-reduced-motion:reduce){#sfLoad .sfName,#sfLoad .sfBar i,#sfLoad .sfLogo{animation:none}}
+@keyframes sfRot{to{transform:rotate(360deg)}}
+@keyframes sfGlow{0%,100%{opacity:.6;transform:translate(-50%,-50%) scale(.94)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}}
+@media (prefers-reduced-motion:reduce){#sfLoad .sfName,#sfLoad .sfBar i,#sfLoad .sfLogo,#sfLoad .sfMark::after,#sfLoad::before{animation:none}}
 </style>
 <div id="sfLoad">
-<? if (brand.brandLogoUrl) { ?><img class="sfLogo" src="<?= brand.brandLogoUrl ?>" alt="" onerror="this.style.display='none'"><? } ?>
+<div class="sfMark"><? if (brand.brandLogoUrl) { ?><img class="sfLogo" src="<?= brand.brandLogoUrl ?>" alt="" onerror="this.style.display='none'"><? } ?></div>
   <h1 class="sfName"><?= brand.brandName ?></h1>
   <div class="sfBar"><i></i></div>
 </div>
