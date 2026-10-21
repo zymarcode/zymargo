@@ -1151,7 +1151,12 @@
           <div class="field-hint">Si lo desmarcas, este usuario nunca verá anuncios (aunque la publicidad esté activada).</div>
         </div>
         <div class="field">
-          <label>⬇️ Secciones que este usuario puede descargar</label>
+          <label class="checkbox-row"><input type="checkbox" id="userMostrarRedes" checked /> 📱 Mostrar redes sociales a este usuario al ingresar</label>
+          <div class="field-hint">Si lo desmarcas, este usuario no verá la ventana de redes sociales que aparece al inicio de ingresar al sistema.</div>
+        </div>
+        <div class="field">
+          <label class="checkbox-row"><input type="checkbox" id="userDescargasOn" onchange="toggleUserDescargas_()" /> ⬇️ Permitir descargas a este usuario</label>
+          <label style="margin-top:10px;">Secciones que este usuario puede descargar</label>
           <div class="dl-cats" id="userDescargasBox"></div>
           <div class="field-hint">Marca las secciones (categorías) cuyo contenido podrá descargar. Sin ninguna marcada, el usuario no verá el botón de descarga.</div>
         </div>
@@ -2178,7 +2183,20 @@
       return '<label class="dl-cat"><input type="checkbox" value="'+esc(c)+'"'+(on?' checked':'')+' /><span>'+esc(c)+'</span></label>';
     }).join('');
   }
+  // Check general: activa/desactiva las descargas del usuario (y sus secciones)
+  function setUserDescargasOn_(on){
+    document.getElementById('userDescargasOn').checked = !!on;
+    toggleUserDescargas_();
+  }
+  function toggleUserDescargas_(){
+    var on = document.getElementById('userDescargasOn').checked;
+    var box = document.getElementById('userDescargasBox');
+    box.style.opacity = on ? '' : '.4';
+    box.style.pointerEvents = on ? '' : 'none';
+    box.querySelectorAll('input[type=checkbox]').forEach(function(i){ i.disabled = !on; });
+  }
   function getUserDescargas_(){
+    if(!document.getElementById('userDescargasOn').checked) return [];
     var out = [];
     document.querySelectorAll('#userDescargasBox input[type=checkbox]').forEach(function(i){ if(i.checked) out.push(i.value); });
     return out;
@@ -2195,7 +2213,9 @@
     document.getElementById('userEstado').value = 'activo';
     document.getElementById('userDeviceLimit').value = '';
     document.getElementById('userPublicidad').checked = true;
+    document.getElementById('userMostrarRedes').checked = true;
     renderUserDescargas_([]);
+    setUserDescargasOn_(false);
     document.getElementById('userPassLabel').textContent = 'Contraseña';
     document.getElementById('userPassHint').textContent = 'Mínimo 4 caracteres.';
     document.getElementById('userFormError').textContent = '';
@@ -2216,7 +2236,9 @@
     document.getElementById('userEstado').value = u.estado || 'activo';
     document.getElementById('userDeviceLimit').value = (u.limiteDispositivos === null || u.limiteDispositivos === undefined) ? '' : u.limiteDispositivos;
     document.getElementById('userPublicidad').checked = (u.publicidad !== false);
+    document.getElementById('userMostrarRedes').checked = (u.mostrarRedes !== false);
     renderUserDescargas_(Array.isArray(u.descargas) ? u.descargas : []);
+    setUserDescargasOn_(Array.isArray(u.descargas) && u.descargas.length > 0);
     document.getElementById('userPassLabel').textContent = 'Nueva contraseña (opcional)';
     document.getElementById('userPassHint').textContent = 'Deja en blanco para mantener la actual.';
     document.getElementById('userFormError').textContent = '';
@@ -2240,6 +2262,7 @@
       estado: document.getElementById('userEstado').value,
       limiteDispositivos: limitRaw === '' ? '' : Number(limitRaw),
       publicidad: document.getElementById('userPublicidad').checked,
+      mostrarRedes: document.getElementById('userMostrarRedes').checked,
       descargas: getUserDescargas_()
     };
 
