@@ -325,10 +325,13 @@
     display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px;
     text-align:center; padding:10px; line-height:1.5;
   }
-  .art-search{ margin-top:10px; }
-  .art-search-row{ display:flex; gap:8px; flex-wrap:wrap; }
-  .art-search-row select{ flex:1 1 150px; min-width:0; padding:9px 10px; border-radius:8px; border:1px solid #333; background:#0d0d0d; color:#fff; font-size:13px; }
-  .art-search-row .btn{ flex:1 1 180px; }
+  .art-panel{ background:#0d0d0d; border:1px solid #2a2a2a; border-radius:12px; padding:14px; display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
+  .art-title{ font-size:14px; font-weight:800; color:#fff; }
+  .art-step{ font-size:11px; font-weight:700; color:#8a8a8a; text-transform:uppercase; letter-spacing:.6px; margin-top:4px; }
+  .art-query{ display:flex; gap:8px; }
+  .art-query input{ flex:1 1 auto; min-width:0; padding:10px 12px; border-radius:8px; border:1px solid #333; background:#131313; color:#fff; font-size:14px; }
+  .art-query .btn{ flex:none; }
+  .art-status{ font-size:12px; color:#9b9b9b; min-height:16px; }
   .art-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(92px,1fr)); gap:8px; margin-top:8px; }
   .art-opt{ background:#0d0d0d; border:1px solid #2a2a2a; border-radius:8px; padding:6px; cursor:pointer; color:#ddd; text-align:center; font-size:11px; line-height:1.25; }
   .art-opt:hover{ border-color:#fff; }
@@ -1086,33 +1089,35 @@
             </div>
           </div>
           <div class="item-image-col">
+            <div class="art-panel">
+              <div class="art-title">🔎 Buscar imagen automáticamente</div>
+              <div class="art-step">1. ¿Qué buscas?</div>
+              <div class="dl-cats">
+                <label class="dl-cat"><input type="radio" name="artKind" value="auto" checked /><span>Automático</span></label>
+                <label class="dl-cat"><input type="radio" name="artKind" value="musica" /><span>🎵 Música</span></label>
+                <label class="dl-cat"><input type="radio" name="artKind" value="radio" /><span>📻 Radio</span></label>
+                <label class="dl-cat"><input type="radio" name="artKind" value="tv" /><span>📺 TV</span></label>
+              </div>
+              <div class="art-step">2. Nombre a buscar</div>
+              <div class="art-query">
+                <input type="text" id="artQuery" placeholder="Por defecto usa el campo Nombre" onkeydown="if(event.key==='Enter'){event.preventDefault();searchArt();}" />
+                <button type="button" class="btn btn-primary" id="artSearchBtn" onclick="searchArt()">Buscar</button>
+              </div>
+              <div class="art-step">3. Aplicar a</div>
+              <div class="dl-cats">
+                <label class="dl-cat"><input type="checkbox" id="artToMini" checked /><span>Miniatura</span></label>
+                <label class="dl-cat"><input type="checkbox" id="artToCarr" /><span>Carrusel</span></label>
+                <label class="dl-cat"><input type="checkbox" id="artFillStream" /><span>▶ URL del stream (radio/TV)</span></label>
+              </div>
+              <div class="art-status" id="artStatus">Toca una opción de los resultados para aplicarla.</div>
+              <div class="art-grid" id="artGrid"></div>
+            </div>
             <div class="field">
               <label>Imagen / miniatura (URL, opcional)</label>
               <input type="url" id="itemMiniatura" placeholder="https://..." oninput="updateItemMiniaturaPreview()" />
               <div class="field-hint">Se muestra como miniatura del contenido. Déjalo vacío si no quieres imagen.</div>
             </div>
             <div class="item-image-preview" id="itemMiniaturaPreview">Sin imagen</div>
-            <div class="art-search">
-              <div class="art-search-row">
-                <select id="artKind" title="Fuente de la búsqueda">
-                  <option value="auto">Fuente: automática</option>
-                  <option value="musica">🎵 Música / remixes</option>
-                  <option value="radio">📻 Radio</option>
-                  <option value="tv">📺 Televisión</option>
-                </select>
-                <button type="button" class="btn btn-outline" id="artSearchBtn" onclick="searchArt()">🔎 Buscar por el nombre</button>
-              </div>
-              <div class="art-search-row" style="margin-top:8px;">
-                <select id="artTarget" title="Dónde aplicar la imagen elegida">
-                  <option value="mini">Aplicar imagen a: Miniatura</option>
-                  <option value="carr">Aplicar imagen a: Carrusel</option>
-                  <option value="both">Aplicar imagen a: Ambas</option>
-                </select>
-                <label class="checkbox-row" style="flex:1 1 180px;"><input type="checkbox" id="artFillStream" /> Rellenar también la URL del stream (radio / TV)</label>
-              </div>
-              <div class="field-hint" id="artStatus">Usa el campo "Nombre" y te muestra opciones; toca una para aplicarla.</div>
-              <div class="art-grid" id="artGrid"></div>
-            </div>
             <div class="field" style="margin-top:14px;">
               <label>Imagen del carrusel (URL, opcional)</label>
               <input type="url" id="itemMiniaturaCarrusel" placeholder="https://..." oninput="updateItemMiniaturaCarruselPreview()" />
@@ -1879,14 +1884,15 @@
   }
   function artClear_(msg){
     document.getElementById('artGrid').innerHTML = '';
-    document.getElementById('artStatus').textContent = msg || 'Usa el campo "Nombre" y te muestra opciones; toca una para aplicarla.';
+    document.getElementById('artStatus').textContent = msg || 'Toca una opción de los resultados para aplicarla.';
   }
   function searchArt(){
-    var q = document.getElementById('itemNombre').value.trim();
+    var q = document.getElementById('artQuery').value.trim() || document.getElementById('itemNombre').value.trim();
     var status = document.getElementById('artStatus');
     var grid = document.getElementById('artGrid');
     if(q.length < 2){ artClear_('Escribe primero el nombre del contenido (mínimo 2 letras).'); return; }
-    var kind = document.getElementById('artKind').value;
+    var kEl = document.querySelector('input[name=artKind]:checked');
+    var kind = kEl ? kEl.value : 'auto';
     if(kind === 'auto') kind = artGuessKind_();
     var btn = document.getElementById('artSearchBtn');
     btn.disabled = true; grid.innerHTML = ''; status.textContent = 'Buscando…';
@@ -1895,7 +1901,7 @@
       if(!res || !res.ok){ status.textContent = (res && res.error) || 'No se pudo buscar.'; return; }
       var list = res.results || [];
       if(!list.length){ status.textContent = 'Sin resultados para "' + q + '". Prueba con otro nombre o pega la URL a mano.'; return; }
-      status.textContent = 'Toca la imagen que quieres usar:';
+      status.textContent = 'Resultados para "' + q + '": toca el que quieres usar.';
       list.forEach(function(r){
         var b = document.createElement('button');
         b.type = 'button'; b.className = 'art-opt'; b.title = (r.titulo || '') + (r.subtitulo ? ' — ' + r.subtitulo : '');
@@ -1926,9 +1932,8 @@
     var msg = [];
     if(img){
       var url = img.currentSrc || img.src;
-      var target = document.getElementById('artTarget').value;
-      if(target === 'mini' || target === 'both'){ document.getElementById('itemMiniatura').value = url; updateItemMiniaturaPreview(); msg.push('miniatura'); }
-      if(target === 'carr' || target === 'both'){ document.getElementById('itemMiniaturaCarrusel').value = url; updateItemMiniaturaCarruselPreview(); msg.push('carrusel'); }
+      if(document.getElementById('artToMini').checked){ document.getElementById('itemMiniatura').value = url; updateItemMiniaturaPreview(); msg.push('miniatura'); }
+      if(document.getElementById('artToCarr').checked){ document.getElementById('itemMiniaturaCarrusel').value = url; updateItemMiniaturaCarruselPreview(); msg.push('carrusel'); }
     }
     if(document.getElementById('artFillStream').checked){
       if(r.stream){
@@ -1941,7 +1946,7 @@
         msg.push('sin URL de stream disponible');
       }
     }
-    artClear_('Aplicado: ' + (msg.join(', ') || 'nada (esa opción no trae imagen)') + '.');
+    artClear_(msg.length ? '✓ Aplicado en: ' + msg.join(', ') + '.' : 'No se aplicó nada: marca en el paso 3 dónde usarla (o esa opción no trae imagen).');
   }
 
   function openItemModal(){
@@ -1958,7 +1963,7 @@
     document.getElementById('itemOrden').value = 0;
     document.getElementById('itemDestacado').checked = false;
     document.getElementById('itemFormError').textContent = '';
-    artClear_();
+    artClear_(); document.getElementById('artQuery').value = '';
     updateItemMiniaturaPreview();
     updateItemMiniaturaCarruselPreview();
     document.getElementById('itemModalOverlay').classList.add('open');
@@ -1981,7 +1986,7 @@
     document.getElementById('itemOrden').value = m.orden || 0;
     document.getElementById('itemDestacado').checked = !!m.destacado;
     document.getElementById('itemFormError').textContent = '';
-    artClear_();
+    artClear_(); document.getElementById('artQuery').value = '';
     updateItemMiniaturaPreview();
     updateItemMiniaturaCarruselPreview();
     document.getElementById('itemModalOverlay').classList.add('open');
