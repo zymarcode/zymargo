@@ -389,20 +389,38 @@
 
     btn.disabled = true; btn.classList.add('loading'); btnLabel.textContent = 'Verificando...';
 
+    // Un solo login: primero se intenta como usuario; si las credenciales no corresponden
+    // a ningún usuario, se intenta la contraseña de administrador.
+    function fail_(msg){
+      btn.disabled = false; btn.classList.remove('loading'); btnLabel.textContent = 'Entrar';
+      showError(msg);
+    }
+    function tryAdmin_(){
+      google.script.run
+        .withSuccessHandler(function(r){
+          if(r && r.ok){
+            btnLabel.textContent = '¡Listo!';
+            window.top.location.href = BASE_URL + '?page=admin&token=' + r.token;
+          } else {
+            fail_('Usuario o contraseña incorrectos.');
+          }
+        })
+        .withFailureHandler(function(e){ fail_('Error: ' + e.message); })
+        .verifyLogin(pass, getDeviceId_());
+    }
+
     google.script.run
       .withSuccessHandler(function(res){
-        if(res.ok){
+        if(res && res.ok){
           btnLabel.textContent = '¡Listo!';
           window.top.location.href = BASE_URL + '?page=login&utoken=' + res.token;
+        } else if(res && /incorrectos/i.test(res.error || '')){
+          tryAdmin_();
         } else {
-          btn.disabled = false; btn.classList.remove('loading'); btnLabel.textContent = 'Entrar';
-          showError(res.error || 'Error al iniciar sesión.');
+          fail_((res && res.error) || 'Error al iniciar sesión.');
         }
       })
-      .withFailureHandler(function(e){
-        btn.disabled = false; btn.classList.remove('loading'); btnLabel.textContent = 'Entrar';
-        showError('Error: ' + e.message);
-      })
+      .withFailureHandler(function(e){ fail_('Error: ' + e.message); })
       .verifyUserLogin(usuario, pass, getDeviceId_());
   }
 
