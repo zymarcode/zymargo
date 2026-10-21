@@ -744,22 +744,23 @@
     color:#fff; font-size:12px; font-weight:800; letter-spacing:.5px; white-space:nowrap;
   }
 
-  /* Logo a la derecha y "EN VIVO" a la izquierda, siempre en lados opuestos (nunca juntos).
-     En celular queda en 44px; en pantallas grandes y en pantalla completa crece a un tamaño
-     intermedio (ni muy grande ni muy pequeño) y "EN VIVO" se alinea con el centro del logo. */
-  .player-stage{ --wm:44px; }
-  @media (min-width:1024px){ .player-stage{ --wm:54px; } }
-  @media (min-width:1600px){ .player-stage{ --wm:62px; } }
+  /* Logo arriba a la derecha y la etiqueta "EN VIVO" justo debajo de él, en el mismo lado.
+     Tamaño intermedio: en celular 50px; en pantallas grandes y en pantalla completa crece un poco más. */
+  .player-stage{ --wm:50px; }
+  @media (min-width:1024px){ .player-stage{ --wm:62px; } }
+  @media (min-width:1600px){ .player-stage{ --wm:72px; } }
   .player-stage:fullscreen,
-  .player-stage:-webkit-full-screen{ --wm:clamp(44px, 6vh, 62px); }
+  .player-stage:-webkit-full-screen{ --wm:clamp(50px, 7vh, 72px); }
+  .player-watermark{ width:var(--wm); height:var(--wm); top:12px; right:12px; left:auto; }
+  .live-indicator{ top:calc(12px + var(--wm) + 8px); right:12px; left:auto; }
   @media (min-width:1024px){
-    .player-watermark{ width:var(--wm); height:var(--wm); top:16px; right:16px; left:auto; }
-    .live-indicator{ top:calc(16px + var(--wm) / 2 - 12px); left:16px; right:auto; }
+    .player-watermark{ top:16px; right:16px; }
+    .live-indicator{ top:calc(16px + var(--wm) + 8px); right:16px; }
   }
   .player-stage:fullscreen .player-watermark,
-  .player-stage:-webkit-full-screen .player-watermark{ width:var(--wm); height:var(--wm); top:16px; right:16px; left:auto; }
+  .player-stage:-webkit-full-screen .player-watermark{ top:16px; right:16px; }
   .player-stage:fullscreen .live-indicator,
-  .player-stage:-webkit-full-screen .live-indicator{ top:calc(16px + var(--wm) / 2 - 12px); left:16px; right:auto; }
+  .player-stage:-webkit-full-screen .live-indicator{ top:calc(16px + var(--wm) + 8px); right:16px; }
 
   .player-controls{
     position:absolute; left:0; right:0; bottom:0;
