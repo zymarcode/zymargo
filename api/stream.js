@@ -42,13 +42,38 @@ module.exports = async function (req, res) {
   if (req.headers.range) h['Range'] = req.headers.range;
   if (req.headers['icy-metadata']) h['Icy-MetaData'] = req.headers['icy-metadata'];
 
+  const dl = req.query && req.query.dl === '1';
+
+  // Respaldo: hay orígenes que bloquean los servidores de Vercel (restringidos por país/IP,
+  // como algunos canales de operadoras) pero sí responden al navegador del usuario.
+  // Si el origen rechaza o no responde desde aquí, se redirige al navegador al origen real
+  // para que lo pida directamente (igual que antes del cifrado). Solo ocurre cuando el proxy falla.
+  function direct() {
+    if (res.headersSent) return;
+    res.statusCode = 302;
+    res.setHeader('Location', target);
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    res.end();
+  }
+
   let r;
   try {
     r = await fetch(target, { method: 'GET', headers: h, redirect: 'follow', signal: ac.signal });
-  } catch (e) { if (!res.headersSent) res.status(502).end('Origen no disponible'); return; }
+  } catch (e) {
+    if (ac.signal.aborted) return;
+    if (!dl) { direct(); return; }
+    if (!res.headersSent) res.status(502).end('Origen no disponible');
+    return;
+  }
+
+  if (!dl && (r.status === 401 || r.status === 403 || r.status === 451 || r.status >= 500)) {
+    try { if (r.body) r.body.cancel(); } catch (e) {}
+    direct();
+    return;
+  }
 
   const ct = r.headers.get('content-type') || '';
-  const dl = req.query && req.query.dl === '1';
   const pStr = String((req.query && req.query.p) || '');
   const isPl = /mpegurl/i.test(ct) || /\.m3u8$/i.test(pStr) || /\.m3u8(\?|$)/i.test(r.url || '');
 
