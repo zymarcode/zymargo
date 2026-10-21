@@ -3056,7 +3056,7 @@
     if(USER_TOKEN){
       google.script.run.logoutUser(USER_TOKEN);
     }
-    window.top.location.href = BASE_URL + '?page=login';
+    window.top.location.href = BASE_URL;
   }
 
   // ============================================================
@@ -3114,7 +3114,7 @@
           // No coincide el dispositivo: NO se revela el catálogo ni
           // el nombre de usuario, se manda directo al login
           // manteniendo el loader encima todo el tiempo.
-          window.top.location.href = BASE_URL + '?page=login';
+          window.top.location.href = BASE_URL;
           return;
         }
         if(window.sfLoadHide) window.sfLoadHide();
@@ -3122,7 +3122,7 @@
         loadNotificaciones();
       })
       .withFailureHandler(function(){
-        window.top.location.href = BASE_URL + '?page=login';
+        window.top.location.href = BASE_URL;
       })
       .checkSessionDevice(USER_TOKEN, getDeviceId_());
   }
