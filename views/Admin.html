@@ -2251,7 +2251,7 @@
     document.getElementById('userEstado').value = u.estado || 'activo';
     document.getElementById('userDeviceLimit').value = (u.limiteDispositivos === null || u.limiteDispositivos === undefined) ? '' : u.limiteDispositivos;
     document.getElementById('userPublicidad').checked = (u.publicidad !== false);
-    document.getElementById('userMostrarRedes').checked = (u.mostrarRedes !== false);
+    document.getElementById('userMostrarRedes').checked = (u.redes !== false);
     renderUserDescargas_(Array.isArray(u.descargas) ? u.descargas : []);
     setUserDescargasOn_(Array.isArray(u.descargas) && u.descargas.length > 0);
     document.getElementById('userPassLabel').textContent = 'Nueva contraseña (opcional)';
@@ -2277,7 +2277,7 @@
       estado: document.getElementById('userEstado').value,
       limiteDispositivos: limitRaw === '' ? '' : Number(limitRaw),
       publicidad: document.getElementById('userPublicidad').checked,
-      mostrarRedes: document.getElementById('userMostrarRedes').checked,
+      redes: document.getElementById('userMostrarRedes').checked,
       descargas: getUserDescargas_()
     };
 
