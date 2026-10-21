@@ -376,6 +376,39 @@
   .modal-tab:hover{ color:#e8e8ea; }
   .modal-tab.active{ color:#fff; border-bottom-color:var(--red); }
   .mt-hide{ display:none !important; }
+
+  /* ============================================================
+     TEMA VEOYGO — modales y alertas (Admin). Solo estilos.
+     ============================================================ */
+  .device-check-overlay{ background:#000; }
+  .device-check-spinner{ border-color:#2a2a2a; border-top-color:#fff; }
+  .modal{ background:#0b0b0b; border:1px solid #1f1f1f; border-radius:14px; box-shadow:0 30px 80px rgba(0,0,0,.7); }
+  @media (max-width:520px){ .modal{ border-radius:14px 14px 0 0; } }
+  .modal-header, .modal-footer, .confirm-modal-footer, .modal-tabs{ border-color:#1f1f1f; }
+  .modal-header h2{ font-weight:800; }
+  .modal-close{
+    width:32px; height:32px; padding:0; border-radius:50%; background:#1c1c1c; color:#cfcfcf; font-size:20px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .modal-close:hover{ background:#262626; color:#fff; }
+  .modal .field input, .modal .field select, .modal .field textarea{ background:#0d0d0d; border:1px solid #333; border-radius:10px; }
+  .modal .field input:focus, .modal .field select:focus, .modal .field textarea:focus{ border-color:#6a6a6a; }
+  .modal-tab.active{ border-bottom-color:#fff; }
+  .modal .btn{ border-radius:999px; }
+  .modal .btn-primary{ background:#2f2f2f; border:1px solid #3a3a3a; }
+  .modal .btn-primary:hover{ background:#3a3a3a; box-shadow:none; }
+  .modal .btn-outline{ border-color:#333; }
+  .modal .btn-ghost{ background:#161616; border-color:#262626; }
+  .toast{ background:#0b0b0b; border:1px solid #262626; border-radius:12px; box-shadow:0 12px 30px rgba(0,0,0,.6); }
+  /* --- Pantalla de carga --- */
+  body #sfLoad{ background:#000; }
+  body #sfLoad .sfLogo{ border-radius:50%; }
+  body #sfLoad .sfName{
+    color:#fff; background:linear-gradient(100deg,#8a8a8a 20%,#fff 50%,#8a8a8a 80%); background-size:250% 100%;
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  body #sfLoad .sfBar{ background:#1c1c1c; }
+  body #sfLoad .sfBar i{ background:#fff; }
 </style>
 </head>
 <body>

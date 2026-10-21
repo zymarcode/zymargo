@@ -179,6 +179,56 @@
     box-shadow:0 6px 16px rgba(229,9,20,.4);
   }
   .social-links svg{ width:15px; height:15px; fill:currentColor; display:block; }
+
+  /* ============================================================
+     TEMA VEOYGO — login. Solo estilos; formulario y lógica intactos.
+     ============================================================ */
+  body{ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif; background:#000; }
+  body::after{ background:rgba(0,0,0,.55); }
+  .login-card{
+    background:#0b0b0b; border:1px solid #1f1f1f; border-radius:14px;
+    box-shadow:0 30px 80px rgba(0,0,0,.7);
+  }
+  .brand-mark{ background:none; box-shadow:none; border:2px solid #fff; border-radius:50%; color:#fff; font-weight:800; }
+  .brand-mark img{ border-radius:50%; }
+  .brand-title{ font-size:17px; font-weight:800; letter-spacing:.2px; }
+  .brand-sub{ color:#9b9b9b; }
+  h1{ font-weight:800; }
+  .field label{ color:#9b9b9b; }
+  .input-wrap svg.icon{ left:16px; fill:#cfcfcf; }
+  .input-wrap:focus-within svg.icon{ fill:#fff; }
+  input[type=text], input[type=password]{
+    padding-left:42px; background:#0d0d0d; border:1px solid #333; border-radius:999px;
+  }
+  input:focus{ border-color:#6a6a6a; box-shadow:none; }
+  .toggle-pass{ right:12px; padding:0; margin:0; width:28px; height:28px; border-radius:50%; }
+  .toggle-pass:hover{ background:#1c1c1c; }
+  #btn{
+    background:#2f2f2f; border:1px solid #3a3a3a; border-radius:999px; padding:12px;
+  }
+  #btn:hover{ background:#3a3a3a; box-shadow:none; transform:none; }
+  .hint{ color:#9b9b9b; }
+
+  /* Tarjeta de credenciales demo */
+  .creds{ background:#2a2a2a; animation:none; border-radius:10px; }
+  .creds-inner{ background:#0d0d0d; border-radius:9px; }
+  .creds-title{ color:#cfcfcf; }
+  .creds-row{ background:#161616; border-color:#262626; }
+  .creds-copy{ background:#1c1c1c; border-color:#262626; }
+  .creds-copy:hover{ background:#333; color:#fff; }
+
+  /* Redes */
+  .social-links a{ background:#1d1d1d; border-color:#262626; }
+  .social-links a:hover{ background:#2a2a2a; border-color:#333; box-shadow:none; }
+  /* --- Pantalla de carga --- */
+  body #sfLoad{ background:#000; }
+  body #sfLoad .sfLogo{ border-radius:50%; }
+  body #sfLoad .sfName{
+    color:#fff; background:linear-gradient(100deg,#8a8a8a 20%,#fff 50%,#8a8a8a 80%); background-size:250% 100%;
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  body #sfLoad .sfBar{ background:#1c1c1c; }
+  body #sfLoad .sfBar i{ background:#fff; }
 </style>
 <? if (brand.loginBgUrl) { ?>
 <style>
