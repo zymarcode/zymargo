@@ -2061,7 +2061,8 @@
   .vg-item svg{ width:24px; height:24px; flex:0 0 auto; stroke:currentColor; fill:none; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
   .vg-item span{ overflow:hidden; text-overflow:ellipsis; }
   .vg-item:hover{ background:#151515; }
-  .vg-item.active{ background:#1c1c1c; color:#fff; }
+  .vg-item.active{ background:#242424; color:#fff; box-shadow:inset 3px 0 0 #fff; }
+  .vg-item:active, .vg-chip:active, .vg-tab:active{ opacity:.75; }
   .vg-sep{ height:1px; background:#222; margin:14px 4px; }
   .vg-sep:empty + .vg-sep{ display:none; }
   .vg-sec{ padding:2px 14px 8px; font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:#777; }
@@ -2084,7 +2085,8 @@
   .vg-chip svg{ width:20px; height:20px; flex:0 0 auto; stroke:currentColor; fill:none; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
   .vg-chip em{ font-style:normal; }
   .vg-chip:hover{ background:#1d1d1d; }
-  .vg-chip.active{ background:#202020; border-color:#5c5c5c; }
+  .vg-chip.active{ background:#fff; border-color:#fff; color:#000; }
+  .vg-chip.active:hover{ background:#f0f0f0; }
   body.vg-searching .vg-chips{ display:none; }
 
   /* ---------- FILAS -> GRILLA ---------- */
@@ -2196,7 +2198,9 @@
       font:700 10px/1 -apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;
     }
     .vg-tab svg{ width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+    .vg-tab{ position:relative; }
     .vg-tab.active{ color:#fff; }
+    .vg-tab.active::before{ content:''; position:absolute; top:0; left:50%; width:28px; height:3px; margin-left:-14px; border-radius:0 0 3px 3px; background:#fff; }
   }
   @media (max-width:520px){
     .vg-cbtn.up{ display:none; }
@@ -5613,20 +5617,44 @@
     return true;
   }
 
+  // ---------- Qué está "activo" (resaltado) ----------
+  // Un solo criterio para menú lateral, chips y pestañas, así siempre
+  // coinciden: Televisión/Radio resaltan también sus chips; una categoría
+  // de TV o radio resalta también "Televisión"/"Radio"; y mientras se
+  // busca no queda "Inicio" marcado (se marca la pestaña Buscar).
+  var ON = {};
+  function isSearching(){
+    var inp = document.getElementById('searchInput');
+    return !!(inp && inp.value.trim());
+  }
+  function computeActive(){
+    var set = {};
+    if(isSearching()) return set;
+    set[filter] = true;
+    if(filter.indexOf('kind:') === 0){
+      var k = filter.slice(5);
+      cats.forEach(function(c){ if(c.kind === k) set['cat:' + c.name] = true; });
+    } else if(filter.indexOf('cat:') === 0){
+      var kk = kindOf(filter.slice(4));
+      if(kk) set['kind:' + kk] = true;
+    }
+    return set;
+  }
+
   // ---------- Construcción de chips / sidebar / tabs ----------
   function buildChips(){
-    var out = '<button type="button" class="vg-chip' + (filter === 'all' ? ' active' : '') + '" data-vg="all">' +
+    var out = '<button type="button" class="vg-chip' + (ON['all'] ? ' active' : '') + '"' + (ON['all'] ? ' aria-current="true"' : '') + ' data-vg="all">' +
       svg('grid') + '<span>Todos</span><em>(' + total() + ')</em></button>';
     cats.forEach(function(c){
       var key = 'cat:' + c.name;
-      out += '<button type="button" class="vg-chip' + (filter === key ? ' active' : '') + '" data-vg="' + h(key) + '">' +
+      out += '<button type="button" class="vg-chip' + (ON[key] ? ' active' : '') + '"' + (ON[key] ? ' aria-current="true"' : '') + ' data-vg="' + h(key) + '">' +
         svg(iconFor(c.name)) + '<span>' + h(c.name) + '</span><em>(' + c.count + ')</em></button>';
     });
     chipsEl.innerHTML = out;
   }
 
   function item(key, icon, label){
-    return '<button type="button" class="vg-item' + (filter === key ? ' active' : '') + '" data-vg="' + h(key) + '" title="' + h(label) + '">' +
+    return '<button type="button" class="vg-item' + (ON[key] ? ' active' : '') + '"' + (ON[key] ? ' aria-current="page"' : '') + ' data-vg="' + h(key) + '" title="' + h(label) + '">' +
       svg(icon) + '<span>' + h(label) + '</span></button>';
   }
   function buildSide(){
@@ -5642,7 +5670,8 @@
   }
 
   function tab(key, icon, label, act){
-    return '<button type="button" class="vg-tab' + (filter === key ? ' active' : '') + '" ' +
+    var on = act === 'search' ? isSearching() : !!ON[key];
+    return '<button type="button" class="vg-tab' + (on ? ' active' : '') + '"' + (on ? ' aria-current="page"' : '') + ' ' +
       (act ? 'data-vg-act="' + act + '"' : 'data-vg="' + h(key) + '"') + '>' + svg(icon) + '<span>' + label + '</span></button>';
   }
   function buildTabs(){
@@ -5678,18 +5707,27 @@
   }
 
   function refreshUi(){
+    ON = computeActive();
     buildChips(); buildSide(); buildTabs();
+  }
+  // En móvil los chips se desplazan: el activo se centra para que se vea.
+  // Se llama después de apply(), cuando los chips ya son visibles.
+  function centerActiveChip(){
+    var a = chipsEl.querySelector('.vg-chip.active');
+    if(!a || chipsEl.offsetParent === null) return;
+    var left = a.getBoundingClientRect().left - chipsEl.getBoundingClientRect().left + chipsEl.scrollLeft;
+    chipsEl.scrollLeft = Math.max(0, left - (chipsEl.clientWidth - a.offsetWidth) / 2);
   }
   function setFilter(key){
     filter = key || 'all';
-    refreshUi(); apply();
+    refreshUi(); apply(); centerActiveChip();
   }
   function rebuild(){
     collect();
     // si la categoría seleccionada ya no existe, vuelve a Todos
     if(filter.indexOf('cat:') === 0 && !cats.some(function(c){ return 'cat:' + c.name === filter; })) filter = 'all';
     if(filter.indexOf('kind:') === 0 && !hasKind(filter.slice(5))) filter = 'all';
-    refreshUi(); apply();
+    refreshUi(); apply(); centerActiveChip();
   }
 
   // Cada vez que renderRows() reemplaza el contenido, se reconstruye el diseño
