@@ -49,6 +49,7 @@ function appHead(brand) {
 }
 
 // Tema futurista rojo/negro: se inyecta en TODAS las vistas (usuario, admin y logins) para que el sistema se vea igual.
+const USE_FX_THEME = false;
 const FX_FONTS = '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' +
   '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap">';
 const FX_THEME = '<style id="fx-theme">' + String.raw`
@@ -267,8 +268,11 @@ function view(name, ctx) {
   if (/<head[^>]*>/i.test(html)) html = html.replace(/<head[^>]*>/i, function (m) { return m + inject; });
   else html = inject + html;
   // El tema va al final del <head> para ganar a los estilos propios de cada vista.
-  if (/<\/head>/i.test(html)) html = html.replace(/<\/head>/i, function (m) { return FX_FONTS + FX_THEME + m; });
-  else html = html + FX_FONTS + FX_THEME;
+  // USE_FX_THEME = false: se usa el diseño propio de cada vista (sin el tema rojo). Pon true para reactivarlo.
+  if (USE_FX_THEME) {
+    if (/<\/head>/i.test(html)) html = html.replace(/<\/head>/i, function (m) { return FX_FONTS + FX_THEME + m; });
+    else html = html + FX_FONTS + FX_THEME;
+  }
   return html;
 }
 
