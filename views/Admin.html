@@ -1525,7 +1525,7 @@
         if(!match){
           // No coincide el dispositivo: NO se revela el panel, se
           // manda directo al login manteniendo el overlay encima.
-          window.top.location.href = BASE_URL + '?page=admin';
+          window.top.location.href = BASE_URL;
           return;
         }
         var overlay = document.getElementById('deviceCheckOverlay');
@@ -1533,7 +1533,7 @@
         loadAll();
       })
       .withFailureHandler(function(){
-        window.top.location.href = BASE_URL + '?page=admin';
+        window.top.location.href = BASE_URL;
       })
       .checkSessionDevice(TOKEN, getDeviceId_());
   }
@@ -2905,7 +2905,7 @@
   // ===== LOGOUT =====
   function doLogout(){
     google.script.run.logout(TOKEN);
-    window.top.location.href = BASE_URL + '?page=admin';
+    window.top.location.href = BASE_URL;
   }
 
   bootAdmin();
