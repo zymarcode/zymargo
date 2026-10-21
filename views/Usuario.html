@@ -1928,6 +1928,17 @@
   }
   @media (min-width:1800px){ body .hero-carousel{ height:560px; } }
   body.vg-filtered #heroSection, body.vg-searching #heroSection{ display:none !important; }
+
+  /* INICIO = solo el carrusel. Los chips con cantidades y las filas de
+     tarjetas siguen existiendo y se muestran al entrar a una sección
+     (Televisión, Radio, categorías) o al buscar. El carrusel ocupa la
+     pantalla disponible entre el menú superior y la barra inferior. */
+  body.vg-home .vg-chips, body.vg-home .rows{ display:none !important; }
+  body.vg-home .hero-carousel{
+    margin:0; min-height:300px;
+    height:calc(100vh - var(--nav-h) - var(--vg-bar-h) - var(--vg-tabs-h));
+    height:calc(100dvh - var(--nav-h) - var(--vg-bar-h) - var(--vg-tabs-h));
+  }
   body .hero-slide{
     padding-top:0;
     background:radial-gradient(ellipse at 70% 20%, rgba(255,255,255,.08) 0%, transparent 55%), #0b0b0b;
@@ -2944,6 +2955,30 @@
     if (/[?&]dl=0/.test(url)) return url.replace('dl=0', 'dl=1');
     return url + (url.indexOf('?') === -1 ? '?dl=1' : '&dl=1');
   }
+  // Prepara la URL real que se le da al reproductor:
+  //  - Dropbox: fuerza descarga directa (dl=1).
+  //  - Google Drive: convierte enlaces "/file/d/ID/view" o "open?id=ID" en descarga directa.
+  //  - Si esta página es https y el enlace es http://, el navegador lo bloquea
+  //    ("contenido mixto"): se intenta por https://.
+  function fixMediaUrl_(url){
+    url = fixDropbox(url);
+    if(!url) return url;
+    var d = /drive\.google\.com\/file\/d\/([^\/?#]+)/.exec(url) ||
+            /drive\.google\.com\/(?:open|uc)\?(?:[^#]*&)?id=([^&#]+)/.exec(url);
+    if(d && !/export=download/.test(url)) url = 'https://drive.google.com/uc?export=download&id=' + d[1];
+    try {
+      if(location.protocol === 'https:' && /^http:\/\//i.test(url)) url = 'https://' + url.slice(7);
+    } catch(e){}
+    return url;
+  }
+  // Texto del error: si el enlace original es http:// lo dice claramente.
+  function mediaErrorHint_(m, def){
+    try {
+      if(location.protocol === 'https:' && /^http:\/\//i.test((m && m.url) || ''))
+        return 'El enlace es http:// y esta página es https://. Usa la versión https:// del enlace.';
+    } catch(e){}
+    return def;
+  }
   function esc(s){
     return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
       return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
@@ -2987,7 +3022,12 @@
     if(h > 0) return h + ':' + String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
     return m + ':' + String(sec).padStart(2,'0');
   }
-  function isHlsUrl(url){ return /\.m3u8(\?|$)/i.test(url || ''); }
+  // Reconoce .m3u8 aunque la URL siga con ?, #, / o &, y también enlaces
+  // tipo "...?type=m3u8" / "...&output=m3u8".
+  function isHlsUrl(url){
+    url = url || '';
+    return /\.m3u8(?=$|[?#\/&])/i.test(url) || /[?&][a-z_]+=m3u8(?:&|#|$)/i.test(url);
+  }
   function isAudioType(t){ return t === 'audio' || t === 'audio.'; }
   function isIcecastUrl(url){
     if(!url) return false;
@@ -3650,7 +3690,7 @@
     pcPlaylist = buildPlaylistFor_(m);
     pcPlaylistIndex = pcPlaylist.findIndex(function(x){ return x.id === m.id; });
 
-    var url = fixDropbox(m.url);
+    var url = fixMediaUrl_(m.url);
     var stage = document.getElementById('playerStage');
     var mount = document.getElementById('playerMediaMount');
     var controls = document.getElementById('playerControls');
@@ -3883,8 +3923,11 @@
     var qSection = document.getElementById('pcQualitySection');
     if(qSection){ qSection.innerHTML = ''; qSection.style.display = 'none'; }
 
-    if(isHlsUrl(url) && typeof Hls !== 'undefined' && Hls.isSupported()){
+    var hlsTried = false, hlsRecovered = false;
+    function startHls_(){
+      hlsTried = true;
       spinner.classList.add('show');
+      if(currentHls){ try { currentHls.destroy(); } catch(e){} currentHls = null; }
       currentHls = new Hls({ enableWorker:true, lowLatencyMode:true, backBufferLength:90 });
       currentHls.loadSource(url);
       currentHls.attachMedia(v);
@@ -3905,11 +3948,20 @@
         }
       });
       currentHls.on(Hls.Events.ERROR, function(event, data){
-        if(data.fatal){
-          spinner.classList.remove('show');
-          showPlayerMediaError(mount, 'No se pudo cargar este canal.', 'Puede estar fuera de línea o el enlace ya no funciona.', m.id);
+        if(!data || !data.fatal) return;
+        // Un error de decodificación se intenta recuperar una vez antes de rendirse.
+        if(data.type === Hls.ErrorTypes.MEDIA_ERROR && !hlsRecovered && currentHls){
+          hlsRecovered = true;
+          try { currentHls.recoverMediaError(); return; } catch(e){}
         }
+        spinner.classList.remove('show');
+        showPlayerMediaError(mount, 'No se pudo cargar este canal.',
+          mediaErrorHint_(m, 'Puede estar fuera de línea, el enlace ya no funciona o el servidor no permite reproducirlo desde un navegador (CORS).'), m.id);
       });
+    }
+
+    if(isHlsUrl(url) && typeof Hls !== 'undefined' && Hls.isSupported()){
+      startHls_();
     }
     else if(isHlsUrl(url) && v.canPlayType('application/vnd.apple.mpegurl')){
       spinner.classList.add('show');
@@ -3958,8 +4010,16 @@
       playerHandleEnded();
     });
     v.addEventListener('error', function(){
+      // Muchos canales en vivo no terminan en .m3u8 aunque sean HLS: si el
+      // navegador dice "formato no soportado", se prueba con hls.js antes de rendirse.
+      if(!hlsTried && v.error && v.error.code === 4 && typeof Hls !== 'undefined' && Hls.isSupported()){
+        try { v.removeAttribute('src'); v.load(); } catch(e){}
+        startHls_();
+        return;
+      }
       spinner.classList.remove('show');
-      showPlayerMediaError(mount, 'No se pudo cargar el video.', 'El archivo puede no estar disponible o el enlace ya no funciona.', m.id);
+      showPlayerMediaError(mount, 'No se pudo cargar el video.',
+        mediaErrorHint_(m, 'El archivo puede no estar disponible, el enlace ya no funciona o el formato no es compatible con el navegador (usa MP4 H.264/AAC).'), m.id);
     });
 
     pcBindProgressEvents();
@@ -4095,7 +4155,21 @@
     pcBindVolume_(v);
 
     spinner.classList.add('show');
-    v.src = url;
+    if(isHlsUrl(url) && typeof Hls !== 'undefined' && Hls.isSupported()){
+      if(currentHls){ try { currentHls.destroy(); } catch(e){} currentHls = null; }
+      currentHls = new Hls({ enableWorker:true });
+      currentHls.loadSource(url);
+      currentHls.attachMedia(v);
+      currentHls.on(Hls.Events.ERROR, function(ev, data){
+        if(data && data.fatal){
+          spinner.classList.remove('show');
+          var el = document.getElementById('audioNowPlaying');
+          if(el) el.textContent = mediaErrorHint_(m, 'No se pudo cargar el audio.');
+        }
+      });
+    } else {
+      v.src = url;
+    }
 
     v.addEventListener('loadedmetadata', function(){
       spinner.classList.remove('show');
@@ -4125,7 +4199,7 @@
     v.addEventListener('error', function(){
       spinner.classList.remove('show');
       var el = document.getElementById('audioNowPlaying');
-      if(el) el.textContent = 'No se pudo cargar el audio.';
+      if(el) el.textContent = mediaErrorHint_(m, 'No se pudo cargar el audio.');
     });
 
     attachAudioEvents(v, stage, mount, spinner);
@@ -5586,6 +5660,7 @@
     var searching = !!(inp && inp.value.trim());
     body.classList.toggle('vg-searching', searching);
     body.classList.toggle('vg-filtered', filter !== 'all');
+    body.classList.toggle('vg-home', filter === 'all' && !searching);
 
     rowsWrap.querySelectorAll('.row-block').forEach(function(b){
       var t = b.querySelector('.row-title');
