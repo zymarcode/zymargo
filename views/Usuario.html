@@ -1291,23 +1291,29 @@
      Look "look Spotify", sin giro: solo respira con un halo de luz
      al reproducir (ver .audio-cover.spinning más abajo). */
   .audio-cover{
-    width:min(clamp(160px, 26vw, 260px), 60vw, 42vh);
-    aspect-ratio:1/1;
+    width:min(clamp(240px, 40vw, 420px), 88vw, 66vh);
+    aspect-ratio:16/10;
     height:auto;
     max-width:100%;
-    border-radius:18px; position:relative;
+    border-radius:16px; position:relative;
     background: linear-gradient(150deg, #1c1c22 0%, #0d0d10 60%, #050507 100%);
-    border:1px solid rgba(255,255,255,.08);
-    box-shadow:0 26px 70px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.02) inset;
+    /* Contorno más fuerte y llamativo: borde sólido en el verde de acento
+       + anillo exterior separado + resplandor suave. */
+    border:3px solid var(--acc);
+    box-shadow:
+      0 0 0 4px rgba(29,185,84,.22),
+      0 0 26px var(--acc-dim),
+      0 26px 70px rgba(0,0,0,.7),
+      0 0 0 1px rgba(255,255,255,.04) inset;
     display:flex; align-items:center; justify-content:center;
     overflow:hidden;
   }
   .audio-cover.spinning{ animation:coverGlow 3.2s ease-in-out infinite; }
   @keyframes coverGlow{
-    0%, 100%{ box-shadow:0 26px 70px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.02) inset, 0 0 0 rgba(29,185,84,0); }
-    50%{ box-shadow:0 26px 70px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.02) inset, 0 0 46px var(--acc-dim); }
+    0%, 100%{ box-shadow:0 0 0 4px rgba(29,185,84,.22), 0 0 26px var(--acc-dim), 0 26px 70px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.04) inset; }
+    50%{ box-shadow:0 0 0 6px rgba(29,185,84,.38), 0 0 52px var(--acc-dim), 0 26px 70px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.04) inset; }
   }
-  .audio-cover img{ width:100%; height:100%; object-fit:cover; object-position:center; border-radius:17px; }
+  .audio-cover img{ width:100%; height:100%; object-fit:cover; object-position:center; border-radius:12px; }
   .audio-cover .audio-icon-fallback{ font-size:clamp(56px, 9vw, 84px); opacity:.85; }
   .audio-title{
     font-size:clamp(18px, 2.6vw, 24px); font-weight:800; color:#fff;
@@ -1335,11 +1341,11 @@
   .audio-now-playing:empty{ display:none; }
 
   @media (max-width:480px){
-    .audio-cover{ width:min(clamp(140px, 40vw, 220px), 70vw, 36vh); }
+    .audio-cover{ width:min(clamp(220px, 78vw, 340px), 88vw, 50vh); }
   }
   @media (max-height:480px){
     .audio-content{ gap:12px; padding: 14px 20px clamp(90px,12vw,120px); }
-    .audio-cover{ width:min(clamp(100px, 20vh, 200px), 30vw); }
+    .audio-cover{ width:min(clamp(150px, 34vh, 300px), 45vw); }
   }
 
   .player-stage.is-audio .player-controls{
@@ -2480,8 +2486,10 @@
 
   <? if (userToken) { ?>
   <div class="device-check-overlay" id="deviceCheckOverlay">
-    <div class="device-check-spinner"></div>
-    <div>Verificando sesión...</div>
+    <div class="sfMark"><? if (brand.brandLogoUrl) { ?><img class="sfLogo" src="<?= brand.brandLogoUrl ?>" alt="" onerror="this.style.display='none'"><? } ?></div>
+    <h1 class="sfName"><?= brand.brandName ?></h1>
+    <div class="sfBar"><i></i></div>
+    <div class="dc-msg">Verificando sesión...</div>
   </div>
   <? } ?>
 
