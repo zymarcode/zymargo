@@ -294,7 +294,6 @@ function view(name, ctx) {
 module.exports = async function (req, res) {
   try {
     const params = req.query || {};
-    const page = params.page || 'user';
     const host = req.headers['x-forwarded-host'] || req.headers.host;
     const baseUrl = 'https://' + host + '/';
     const brandRaw = await S.getBrandConfig();
@@ -302,19 +301,16 @@ module.exports = async function (req, res) {
     const brand = S.protectBrand(brandRaw);
     let html;
 
-    if (page === 'admin') {
-      const token = params.token || '';
-      if (token && await S.isValidSession_(token)) html = view('Admin', { baseUrl: baseUrl, token: token, brand: brandRaw, userToken: '', userName: '' });
-      else html = view('LoginUsuario', { baseUrl: baseUrl, brand: brand });
-    } else if (page === 'login') {
-      const utoken = params.utoken || '';
-      if (utoken && await S.isValidUserSession_(utoken)) {
-        html = view('Usuario', { baseUrl: baseUrl, brand: brand, userToken: utoken, userName: await S.getUserNameByToken_(utoken) });
-      } else {
-        html = view('LoginUsuario', { baseUrl: baseUrl, brand: brand });
-      }
+    // Una sola URL para todos: sin sesión válida siempre se muestra el login único.
+    // Con sesión de administrador (token) abre el panel; con sesión de usuario (utoken) abre la página de usuario.
+    const token = params.token || '';
+    const utoken = params.utoken || '';
+    if (token && await S.isValidSession_(token)) {
+      html = view('Admin', { baseUrl: baseUrl, token: token, brand: brandRaw, userToken: '', userName: '' });
+    } else if (utoken && await S.isValidUserSession_(utoken)) {
+      html = view('Usuario', { baseUrl: baseUrl, brand: brand, userToken: utoken, userName: await S.getUserNameByToken_(utoken) });
     } else {
-      html = view('Usuario', { baseUrl: baseUrl, brand: brand, userToken: '', userName: '' });
+      html = view('LoginUsuario', { baseUrl: baseUrl, brand: brand });
     }
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'no-store');
