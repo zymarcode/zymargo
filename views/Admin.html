@@ -844,8 +844,10 @@
 
 
   <div class="device-check-overlay" id="deviceCheckOverlay">
-    <div class="device-check-spinner"></div>
-    <div>Verificando sesión...</div>
+    <div class="sfMark"><? if (brand.brandLogoUrl) { ?><img class="sfLogo" src="<?= brand.brandLogoUrl ?>" alt="" onerror="this.style.display='none'"><? } ?></div>
+    <h1 class="sfName"><?= brand.brandName ?></h1>
+    <div class="sfBar"><i></i></div>
+    <div class="dc-msg">Verificando sesión...</div>
   </div>
 
   <!-- ===== Menú lateral (escritorio) / cajón (móvil), igual que el usuario ===== -->
