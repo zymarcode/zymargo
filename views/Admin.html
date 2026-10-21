@@ -605,6 +605,58 @@
   body #brandModalBody .field:has(> input[id^="social"]) input{ background:transparent; border:0; color:#161a33; }
   body #brandModalBody .field:has(> input[id^="social"]) input::placeholder{ color:#7b83b0; }
   body #brandModalBody .field:has(> input[id^="social"]) input:focus{ background:#fff; }
+  /* --- Pulido visual (Admin) --- */
+  html, body{ background:#0b0d14; }
+  body{ background:radial-gradient(1200px 520px at 50% -120px, rgba(79,70,229,.28), transparent 70%), #0b0d14; background-attachment:fixed; }
+  body .topbar{ background:rgba(8,9,15,.92); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); border-bottom:1px solid #22263a; }
+  body .topbar .btn{ height:38px; padding:0 15px; font-size:13px; font-weight:700; }
+  body .brand-name{ font-size:21px; }
+  body .wrap{ padding-top:26px; }
+
+  /* Pestañas y chips: más compactos y ordenados */
+  body .tabs{ gap:10px; margin-bottom:22px; }
+  body .tab{ height:42px; padding:0 20px; font-size:14px; }
+  body .chip-row{ gap:10px; margin-bottom:22px; }
+  body .chip{ padding:9px 18px; font-size:13px; }
+
+  /* Estadísticas: número grande, color por tarjeta */
+  body .stats{ gap:14px; margin-bottom:24px; }
+  body .stat-card{ padding:18px 20px 16px; border-radius:16px; border:1px solid #d5daf7; }
+  body .stat-value{ font-size:clamp(26px,3.2vw,34px); font-weight:800; color:#161a33; letter-spacing:-1px; line-height:1; }
+  body .stat-label{ font-size:11px; font-weight:700; letter-spacing:1.2px; margin-top:10px; color:#6a719f; }
+  body .stat-card:nth-child(6n+1)::before{ background:linear-gradient(90deg,#4f46e5,#818cf8); }
+  body .stat-card:nth-child(6n+2)::before{ background:linear-gradient(90deg,#0ea5e9,#67e8f9); }
+  body .stat-card:nth-child(6n+3)::before{ background:linear-gradient(90deg,#10b981,#6ee7b7); }
+  body .stat-card:nth-child(6n+4)::before{ background:linear-gradient(90deg,#f59e0b,#fcd34d); }
+  body .stat-card:nth-child(6n+5)::before{ background:linear-gradient(90deg,#ec4899,#f9a8d4); }
+  body .stat-card:nth-child(6n+6)::before{ background:linear-gradient(90deg,#e5484d,#fca5a5); }
+
+  /* Barra de filtros */
+  body .toolbar{ padding:14px; gap:10px; border-radius:16px; background:#e9ecfc; }
+  body .toolbar input[type=text]{ flex:2 1 260px; }
+  body .toolbar select{ flex:1 1 170px; }
+  body .toolbar .btn{ height:40px; }
+  body .toolbar > .field-hint, body .wrap > #contentSection > .field-hint{ color:#9ba3d4; }
+
+  /* Tarjetas de contenido */
+  body .grid{ gap:18px; grid-template-columns:repeat(auto-fill,minmax(min(210px,100%),1fr)); }
+  body .item-card{ border-radius:16px; border:1px solid #d5daf7; overflow:hidden; }
+  body .item-thumb{ height:150px; }
+  body .item-body{ padding:14px 16px 10px; gap:5px; }
+  body .item-name{ font-size:14.5px; font-weight:800; }
+  body .item-meta{ font-size:12px; font-weight:600; color:#6a719f; }
+  body .item-actions{ padding:4px 16px 16px; gap:8px; flex-wrap:nowrap; }
+  body .item-actions .btn{ flex:1 1 0; min-width:0; justify-content:center; height:34px; padding:0 8px; font-size:12.5px; white-space:nowrap; }
+  body .badge-tipo, body .badge-external{
+    background:rgba(255,255,255,.94); color:#161a33; font-weight:700; border:0; backdrop-filter:none;
+    box-shadow:0 2px 8px rgba(0,0,0,.25);
+  }
+  body .badge-destacado{ background:#4f46e5; color:#fff; box-shadow:0 2px 8px rgba(79,70,229,.45); }
+
+  /* Tabla de usuarios */
+  body .users-table th{ font-size:11px; letter-spacing:1px; }
+  body .users-table td{ padding:14px 16px; }
+  body .user-avatar{ background:linear-gradient(135deg,#4f46e5,#7c3aed); }
 </style>
 </head>
 <body>
