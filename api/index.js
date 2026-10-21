@@ -63,12 +63,14 @@ module.exports = async function (req, res) {
     const page = params.page || 'user';
     const host = req.headers['x-forwarded-host'] || req.headers.host;
     const baseUrl = 'https://' + host + '/';
-    const brand = await S.getBrandConfig();
+    const brandRaw = await S.getBrandConfig();
+    // Las páginas públicas reciben las URLs de imagen de la marca cifradas; solo el panel admin usa las reales.
+    const brand = S.protectBrand(brandRaw);
     let html;
 
     if (page === 'admin') {
       const token = params.token || '';
-      if (token && await S.isValidSession_(token)) html = view('Admin', { baseUrl: baseUrl, token: token, brand: brand, userToken: '', userName: '' });
+      if (token && await S.isValidSession_(token)) html = view('Admin', { baseUrl: baseUrl, token: token, brand: brandRaw, userToken: '', userName: '' });
       else html = view('Login', { baseUrl: baseUrl, brand: brand });
     } else if (page === 'login') {
       const utoken = params.utoken || '';
