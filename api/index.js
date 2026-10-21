@@ -40,6 +40,17 @@ function appHead(brand) {
     'html{-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;text-size-adjust:100%}' +
     'html body{overflow-x:visible;overflow-x:clip;overflow-y:visible}' +
     'html body .row-track{touch-action:pan-x pan-y}' +
+    '/* Loader general y transparente: logo + nombre del sistema sobre el contenido desenfocado */' +
+    'html body #sfLoad{background:rgba(5,5,6,.22);-webkit-backdrop-filter:blur(22px) saturate(1.15);backdrop-filter:blur(22px) saturate(1.15)}' +
+    'html body #sfLoad::before{opacity:.8}' +
+    'html body .device-check-overlay{background:rgba(5,5,6,.6);-webkit-backdrop-filter:blur(34px) saturate(1.15);backdrop-filter:blur(34px) saturate(1.15);gap:18px;color:#cfcfd4;letter-spacing:.04em}' +
+    'html body .dc-brand{display:flex;flex-direction:column;align-items:center;gap:14px;margin-bottom:4px}' +
+    'html body .dc-logo{width:72px;height:72px;object-fit:contain;border-radius:16px;animation:dcPulse 1.4s ease-in-out infinite}' +
+    'html body .dc-name{margin:0;padding:0 16px;text-align:center;font-size:clamp(24px,7vw,40px);font-weight:800;letter-spacing:.14em;text-transform:uppercase;' +
+    'color:#e50914;background:linear-gradient(100deg,#b20710 20%,#ff2a35 40%,#fff 50%,#ff2a35 60%,#b20710 80%);background-size:250% 100%;' +
+    '-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:sfShine 1.8s linear infinite}' +
+    '@keyframes dcPulse{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.07);opacity:1}}' +
+    '@media (prefers-reduced-motion:reduce){html body .dc-logo,html body .dc-name{animation:none}}' +
     '@media (display-mode:standalone){' +
     'body{-webkit-touch-callout:none}' +
     'body :not(input):not(textarea):not([contenteditable]){-webkit-user-select:none;user-select:none}' +
