@@ -762,6 +762,31 @@
   .player-stage:fullscreen .live-indicator,
   .player-stage:-webkit-full-screen .live-indicator{ top:calc(16px + var(--wm) + 8px); right:16px; }
 
+  /* Solo estética: el logo y "EN VIVO" se ven como una sola pieza (el logo queda encima del extremo derecho de la píldora roja). */
+  #playerStage{ --wm:58px; --edge:16px; }
+  @media (min-width:1600px){ #playerStage{ --wm:68px; } }
+  #playerStage:fullscreen,
+  #playerStage:-webkit-full-screen{ --wm:clamp(50px, 7vh, 68px); --edge:16px; }
+  @media (max-width:640px), (max-height:480px) and (orientation:landscape){
+    #playerStage,
+    #playerStage:fullscreen,
+    #playerStage:-webkit-full-screen{ --wm:40px; --edge:8px; }
+  }
+  #playerStage .player-watermark{ top:var(--edge); right:var(--edge); left:auto; width:var(--wm); height:var(--wm); }
+  #playerStage .live-indicator{
+    top:calc(var(--edge) + var(--wm) * .2); right:calc(var(--edge) + var(--wm) / 2); left:auto;
+    height:calc(var(--wm) * .6); box-sizing:border-box;
+    padding:0 calc(var(--wm) / 2 + 8px) 0 12px;
+    font-size:clamp(9px, calc(var(--wm) * .22), 14px); letter-spacing:.8px; line-height:1;
+    border-radius:999px; align-items:center; gap:6px;
+    background:linear-gradient(135deg, #e50914 0%, #b20710 100%);
+    box-shadow:0 3px 12px rgba(229,9,20,.45);
+  }
+  #playerStage .live-indicator .live-dot{ width:calc(var(--wm) * .15); height:calc(var(--wm) * .15); min-width:5px; min-height:5px; }
+  @media (max-width:640px), (max-height:480px) and (orientation:landscape){
+    #playerStage .live-indicator{ padding:0 calc(var(--wm) / 2 + 6px) 0 9px; letter-spacing:.5px; gap:4px; }
+  }
+
   .player-controls{
     position:absolute; left:0; right:0; bottom:0;
     padding:40px 18px 14px;
