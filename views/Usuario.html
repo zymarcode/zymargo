@@ -1579,6 +1579,37 @@
   }
   @keyframes dcspin{ to{ transform:rotate(360deg); } }
 
+  /* ===== Modal "Copiar enlace" (reemplaza window.prompt) ===== */
+  .share-modal-overlay{
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,.82); backdrop-filter:blur(4px);
+    z-index:9998; align-items:center; justify-content:center; padding:16px;
+  }
+  .share-modal-overlay.open{ display:flex; animation:smfade .2s ease; }
+  @keyframes smfade{ from{opacity:0} to{opacity:1} }
+  .share-modal{
+    background:linear-gradient(180deg, #17171c, #181818);
+    border-radius:12px; width:100%; max-width:420px;
+    border:1px solid var(--border); box-shadow:0 30px 80px rgba(0,0,0,.7);
+    padding:24px;
+  }
+  .share-modal h3{ margin:0 0 6px; font-size:17px; font-weight:700; color:var(--text); }
+  .share-modal p{ margin:0 0 16px; font-size:13px; color:var(--muted); line-height:1.5; }
+  .share-modal-row{ display:flex; gap:8px; }
+  .share-modal-row input{
+    flex:1; min-width:0; padding:12px 14px; border-radius:8px; border:1px solid var(--border);
+    background:#141414; color:var(--text); font-size:13px;
+  }
+  .share-modal-row input:focus{ outline:none; border-color:var(--red); }
+  .share-modal-copy{
+    padding:12px 16px; border:none; border-radius:8px; background:var(--red); color:#fff;
+    font-weight:700; font-size:13px; cursor:pointer; transition:.15s; white-space:nowrap;
+  }
+  .share-modal-copy:hover{ background:var(--red-hover); }
+  .share-modal-close{
+    display:block; margin:16px auto 0; background:none; border:none; color:var(--muted);
+    font-size:13px; cursor:pointer; text-decoration:underline;
+  }
+  .share-modal-close:hover{ color:#fff; }
   /* ============================================================
      AJUSTES MÓVIL / PANTALLA PEQUEÑA
      Bloque agregado al final para refinar la experiencia en celular
@@ -1886,8 +1917,58 @@
   html,body{ background:#000; }
   @media (min-width:901px){ body.vg-collapsed{ --vg-side:76px; } }
 
-  /* El carrusel de portada no existe en este diseño */
-  body .hero-carousel{ display:none !important; }
+  /* ============================================================
+     CARRUSEL DE PORTADA — el mismo carrusel del sistema, adaptado
+     al tema: queda debajo del menú superior (que ya es fijo), se
+     ajusta a PC, tablet, móvil y móvil horizontal, y solo se ve en
+     "Inicio" (se oculta al buscar o filtrar por categoría).
+     ============================================================ */
+  body .hero-carousel{
+    height:clamp(300px, 34vw, 500px); margin:0 0 6px; isolation:isolate; background:#000;
+  }
+  @media (min-width:1800px){ body .hero-carousel{ height:560px; } }
+  body.vg-filtered #heroSection, body.vg-searching #heroSection{ display:none !important; }
+  body .hero-slide{
+    padding-top:0;
+    background:radial-gradient(ellipse at 70% 20%, rgba(255,255,255,.08) 0%, transparent 55%), #0b0b0b;
+  }
+  body .hero-slide.is-audio-slide{
+    background:radial-gradient(ellipse at 72% 30%, rgba(255,255,255,.08) 0%, transparent 58%), #0b0b0b;
+  }
+  body .hero-slide.fit-contain .hero-bg{ top:0; height:100%; }
+  body .hero-fallback{ top:0; }
+  body .hero-content{
+    padding:0 var(--safe-x) clamp(44px, 5vw, 64px); max-width:min(640px, 92%);
+  }
+  body .hero-title{ font-size:clamp(22px, 3.4vw, 44px); margin:0 0 18px; }
+  body .hero-tag, body .hero-slide.is-audio-slide .hero-tag{
+    background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.2); color:#fff; box-shadow:none;
+    -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+  }
+  body .btn{ border-radius:999px; }
+  body .hero-slide.active .btn-play{ animation:none; }
+  body .hero-arrow:hover{ background:#fff; color:#000; border-color:#fff; box-shadow:none; }
+  body .hero-dot.active{ background:#fff; box-shadow:none; }
+  body .hero-progress-bar{ background:#fff; box-shadow:none; }
+
+  @media (max-width:900px){
+    body .hero-carousel{ height:clamp(260px, 62vw, 400px); }
+    body .hero-content{ padding:0 16px 46px; max-width:100%; }
+    body .hero-title{ font-size:clamp(20px, 5.6vw, 30px); margin-bottom:14px; }
+    body .hero-dots{ bottom:12px; }
+  }
+  @media (max-width:768px){
+    body .hero-fallback{ top:8px; }
+  }
+  @media (max-width:640px){
+    body .hero-arrow{ display:none; }          /* en móvil se desliza con el dedo */
+    body .btn{ padding:11px 22px; font-size:14px; }
+  }
+  @media (max-height:480px) and (orientation:landscape){
+    body .hero-carousel{ height:clamp(200px, 58vh, 300px); }
+    body .hero-title{ font-size:clamp(16px, 3.4vw, 22px); margin-bottom:8px; }
+    body .hero-content{ padding-bottom:32px; }
+  }
 
   /* ---------- NAV superior ---------- */
   body .nav, body .nav.scrolled{
@@ -2116,6 +2197,14 @@
   .device-check-overlay{ background:#000; }
   .device-check-spinner{ border-color:#2a2a2a; border-top-color:#fff; }
 
+  /* Modal "Compartir enlace" */
+  .share-modal{ background:#0b0b0b; border:1px solid #1f1f1f; border-radius:14px; box-shadow:0 30px 80px rgba(0,0,0,.7); }
+  .share-modal h3{ font-weight:800; }
+  .share-modal-row input{ background:#0d0d0d; border:1px solid #333; border-radius:999px; padding:12px 16px; }
+  .share-modal-row input:focus{ border-color:#6a6a6a; }
+  .share-modal-copy{ background:#2f2f2f; border:1px solid #3a3a3a; border-radius:999px; padding:12px 18px; }
+  .share-modal-copy:hover{ background:#3a3a3a; }
+
   /* Ventana del reproductor y visor de imagen */
   body .player-box{ background:#0b0b0b; border:1px solid #1f1f1f; border-radius:14px; }
   body .img-lightbox-close{ background:#1c1c1c; border-color:#2a2a2a; }
@@ -2156,31 +2245,63 @@
   body .player-title{ display:none; }
 
   /* ============================================================
-     REPRODUCTOR INTEGRADO — sin modal ni capa flotante.
-     Es una sección más de la página (arriba, bajo el menú); el
-     catálogo sigue debajo y el reproductor no se tapa ni se corta.
+     MODAL DEL REPRODUCTOR (mejorado)
+     - PC: ventana centrada con fondo difuminado; el video mantiene
+       su proporción 16:9 y cabe siempre en pantalla.
+     - Móvil / tablet: hoja a pantalla completa que sube desde abajo.
+     - El video queda fijo arriba; descripción, "me gusta" y
+       comentarios se desplazan por debajo.
+     - Se cierra con ×, Esc o tocando el fondo. La página de atrás
+       no se desplaza mientras está abierto.
      ============================================================ */
   body .player-overlay{
-    position:static; inset:auto; z-index:auto; display:none;
-    padding:0; overflow:visible; background:none;
-    -webkit-backdrop-filter:none; backdrop-filter:none; animation:none;
+    top:0; right:0; bottom:0; left:0; z-index:1400;
+    padding:clamp(12px, 2.4vw, 28px); overflow:hidden; overscroll-behavior:contain;
+    background:rgba(0,0,0,.82);
+    -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
   }
-  body .player-overlay.open{ display:block; animation:none; }
-  body .player-overlay.open .player-box{ animation:none; }
+  body:has(#playerOverlay.open){ overflow:hidden; }
   body .player-box{
-    max-width:none; max-height:none; min-height:0; margin:0;
-    border:0; border-bottom:1px solid #1a1a1a; border-radius:0;
-    background:#0b0b0b; box-shadow:none;
+    width:min(100%, 1040px, calc((100vh - 250px) * 16 / 9));
+    width:min(100%, 1040px, calc((100dvh - 250px) * 16 / 9));
+    max-height:100%; min-height:0; margin:0;
+    background:#0b0b0b; border:1px solid #232323; border-radius:18px;
+    box-shadow:0 40px 120px rgba(0,0,0,.85);
   }
-  body .player-content{ overflow:visible; }
-  body .player-main{ overflow:visible; }
-  @media (min-width:901px){
-    body .player-stage.is-video, body .player-stage.is-live{ max-width:980px; margin:0 auto; }
-    body .player-info{ max-width:980px; margin:0 auto; }
+  body .player-content{ flex-direction:row; overflow:hidden; }
+  body .player-main{ overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
+  body .player-stage.is-video{ position:sticky; top:0; z-index:5; }
+  body .player-header{ padding:10px 12px 10px 18px; background:#0b0b0b; border-bottom:1px solid #1a1a1a; }
+  body .player-header-title{ font-size:15px; font-weight:700; }
+  body .player-close{
+    width:40px; height:40px; border-radius:50%; background:#1f1f1f; border:1px solid #2a2a2a;
+    color:#fff; font-size:24px; line-height:1; padding:0;
   }
+  body .player-close:hover{ background:#333; color:#fff; }
+  body .player-hdr-btn{ height:40px; border-radius:999px; }
+  body .player-info{ background:#0b0b0b; border-top:0; }
+
   @media (max-width:900px){
-    body .player-header{ padding:10px var(--safe-x); }
-    body .player-info{ padding:14px var(--safe-x) 20px; }
+    body .player-overlay{ padding:0; align-items:stretch; background:#000; -webkit-backdrop-filter:none; backdrop-filter:none; }
+    body .player-box{ width:100%; height:100%; max-height:none; border:0; border-radius:0; box-shadow:none; }
+    body .player-header{ padding:calc(8px + env(safe-area-inset-top, 0px)) 10px 8px 14px; }
+    body .player-info{ padding:14px 16px calc(28px + env(safe-area-inset-bottom, 0px)); }
+    body .player-overlay.open .player-box{ animation:vgSheetUp .3s cubic-bezier(.2,.8,.3,1); }
+  }
+  @keyframes vgSheetUp{ from{ opacity:0; transform:translateY(44px); } to{ opacity:1; transform:none; } }
+  @media (prefers-reduced-motion:reduce){ body .player-overlay.open .player-box{ animation:none; } }
+
+  /* Celular en horizontal: video a la izquierda, información a la derecha */
+  @media (max-height:480px) and (orientation:landscape){
+    body .player-header{ padding:6px 10px 6px 14px; }
+    body .player-header-meta{ display:none; }
+    body .player-main{ display:flex; flex-direction:row; align-items:flex-start; }
+    body .player-stage.is-video, body .player-stage.is-live{
+      position:relative; flex:0 0 auto; aspect-ratio:auto;
+      height:calc(100vh - 52px); width:min(calc((100vh - 52px) * 16 / 9), 66%);
+    }
+    body .player-info{ flex:1 1 0; min-width:0; }
+    body .pc-skip-btn, body .pc-time{ display:none; }
   }
 
   /* Redes sociales: solo en el footer */
@@ -2326,7 +2447,57 @@
     </div>
   </div>
 
-  <!-- ===== REPRODUCTOR integrado en la página (sin modal) ===== -->
+  <div class="vg-chips" id="vgChips"></div>
+
+  <div class="rows" id="rowsWrap"></div>
+
+  <!-- ===== FOOTER: derechos de autor + nombre del sistema + texto editable + redes ===== -->
+  <footer class="site-footer" id="siteFooter">
+    <div class="site-footer-text">
+      <? if (brand.footerText) { ?><div><?= brand.footerText ?></div><? } ?>
+      <div>© <?= new Date().getFullYear() ?> <b><?= brand.brandName ?></b>. Todos los derechos reservados.</div>
+    </div>
+    <? if (brand.socialYoutubeUrl || brand.socialFacebookUrl || brand.socialWhatsappUrl || brand.socialTelegramUrl || brand.socialTiktokUrl || brand.socialInstagramUrl) { ?>
+    <div class="site-footer-social">
+  <? if (brand.socialYoutubeUrl) { ?>
+    <a href="<?= brand.socialYoutubeUrl ?>" target="_blank" rel="noopener" title="YouTube"><svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.7 15.5V8.5L15.8 12Z"/></svg></a>
+  <? } ?>
+  <? if (brand.socialFacebookUrl) { ?>
+    <a href="<?= brand.socialFacebookUrl ?>" target="_blank" rel="noopener" title="Facebook"><svg viewBox="0 0 24 24"><path d="M13.5 21v-7.9h2.6l.4-3.1h-3V8.1c0-.9.2-1.5 1.6-1.5h1.6V3.8C15.9 3.7 15 3.6 13.9 3.6c-2.5 0-4.1 1.5-4.1 4.2v2.3H7.2v3.1h2.6V21Z"/></svg></a>
+  <? } ?>
+  <? if (brand.socialWhatsappUrl) { ?>
+    <a href="<?= brand.socialWhatsappUrl ?>" target="_blank" rel="noopener" title="WhatsApp"><svg viewBox="0 0 24 24"><path d="M17 14.2c-.3-.1-1.6-.8-1.9-.9-.2-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.3-.1-1.2-.4-2.2-1.4-.8-.7-1.4-1.6-1.5-1.9-.2-.3 0-.4.1-.6l.4-.5c.1-.1.2-.3.2-.4.1-.2 0-.3 0-.5-.1-.1-.6-1.5-.9-2-.2-.5-.5-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.6-.7 1.9-1.3.2-.6.2-1.1.1-1.3-.1-.1-.3-.2-.6-.3ZM12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.5A10 10 0 1 0 12 2Zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-2.9.9.9-2.8-.2-.3A8.2 8.2 0 1 1 12 20.2Z"/></svg></a>
+  <? } ?>
+  <? if (brand.socialTelegramUrl) { ?>
+    <a href="<?= brand.socialTelegramUrl ?>" target="_blank" rel="noopener" title="Telegram"><svg viewBox="0 0 24 24"><path d="M21.9 4.3 2.7 11.7c-.9.3-.9.9-.2 1.1l4.9 1.5 1.9 5.8c.2.6.4.8.9.8.4 0 .6-.2.9-.5l2.1-2 4.4 3.2c.8.5 1.3.2 1.5-.7l2.8-13.2c.3-1.2-.4-1.7-1-1.4ZM8.7 14.6l-1.3-.4L18 7l-8.5 7c-.2.1-.3.3-.8.6Zm2 5.1-1-3.1 6.8-5.6-5.8 8.7Z"/></svg></a>
+  <? } ?>
+  <? if (brand.socialTiktokUrl) { ?>
+    <a href="<?= brand.socialTiktokUrl ?>" target="_blank" rel="noopener" title="TikTok"><svg viewBox="0 0 24 24"><path d="M16.6 2h-3.2v13.7c0 1.5-1.2 2.7-2.7 2.7a2.7 2.7 0 0 1-2.7-2.7 2.7 2.7 0 0 1 2.7-2.7c.3 0 .6 0 .8.1V9.8c-.3 0-.5-.1-.8-.1a5.9 5.9 0 0 0-5.9 5.9A5.9 5.9 0 0 0 10.7 21a5.9 5.9 0 0 0 5.9-5.9V8.4a8.2 8.2 0 0 0 4.8 1.5V6.7a4.8 4.8 0 0 1-4.8-4.7Z"/></svg></a>
+  <? } ?>
+  <? if (brand.socialInstagramUrl) { ?>
+    <a href="<?= brand.socialInstagramUrl ?>" target="_blank" rel="noopener" title="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 2 .3 2.4.5.6.2 1 .5 1.5 1 .4.4.7.9 1 1.5.2.5.4 1.2.5 2.4.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 2-.5 2.4-.2.6-.6 1-1 1.5-.5.4-.9.7-1.5 1-.5.2-1.2.4-2.4.5-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-2-.3-2.4-.5-.6-.3-1-.6-1.5-1-.4-.5-.8-.9-1-1.5-.3-.5-.4-1.2-.5-2.4-.1-1.3-.1-1.7-.1-4.9s0-3.6.1-4.9c.1-1.2.2-2 .5-2.4.2-.6.6-1 1-1.5.5-.4.9-.8 1.5-1 .5-.2 1.2-.4 2.4-.5 1.3-.1 1.7-.1 4.9-.1Zm0 1.8c-3.2 0-3.5 0-4.7.1-1 0-1.6.2-1.9.4-.5.1-.8.3-1.2.7-.3.3-.5.6-.7 1.1-.2.4-.3 1-.4 2-.1 1.1-.1 1.4-.1 4.7s0 3.5.1 4.7c0 1 .2 1.6.4 2 .2.4.4.8.7 1.1.4.3.7.5 1.2.7.3.1.9.3 1.9.4 1.2 0 1.5.1 4.7.1s3.5 0 4.7-.1c1-.1 1.6-.2 2-.4.4-.2.8-.4 1.1-.7.3-.3.5-.6.7-1.1.2-.4.3-1 .4-2 .1-1.2.1-1.5.1-4.7s0-3.5-.1-4.7c-.1-1-.2-1.6-.4-2-.2-.4-.4-.8-.7-1.1-.3-.4-.7-.6-1.1-.7-.4-.2-1-.4-2-.4-1.2-.1-1.5-.1-4.7-.1Zm0 3.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Zm0 1.8a2.7 2.7 0 1 0 0 5.4 2.7 2.7 0 0 0 0-5.4Zm5.6-2a1 1 0 1 1-2.1 0 1 1 0 0 1 2 0Z"/></svg></a>
+  <? } ?>
+    </div>
+    <? } ?>
+  </footer>
+
+  <!-- ===== VEOYGO: barra de reproducción inferior + tabs móviles ===== -->
+  <div class="vg-bar" id="vgBar">
+    <div class="vg-bar-art" id="vgBarArt"></div>
+    <div class="vg-bar-info">
+      <div class="vg-bar-title" id="vgBarTitle">Selecciona un canal</div>
+      <div class="vg-bar-sub" id="vgBarSub">—</div>
+    </div>
+    <div class="vg-bar-ctrl">
+      <button type="button" class="vg-cbtn heart" id="vgBarLike" aria-label="Me gusta"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.7 5 6.1 5c2 0 3.3 1 3.9 2.1h0C10.6 6 11.9 5 13.9 5c3.4 0 5.2 3.4 3.7 6.8C19.5 16.4 12 21 12 21z"/></svg></button>
+      <button type="button" class="vg-cbtn up" id="vgBarUp" aria-label="Pantalla completa"><svg viewBox="0 0 24 24"><path d="m6 15 6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button type="button" class="vg-cbtn prev" id="vgBarPrev" aria-label="Anterior"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
+      <button type="button" class="vg-cbtn play" id="vgBarPlay" aria-label="Play/Pausa"><svg id="vgBarPlayIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+      <button type="button" class="vg-cbtn next" id="vgBarNext" aria-label="Siguiente"><svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg></button>
+    </div>
+  </div>
+  <nav class="vg-tabs" id="vgTabs" aria-label="Navegación"></nav>
+
   <div class="player-overlay" id="playerOverlay">
     <div class="player-box">
 
@@ -2471,57 +2642,6 @@
     </div>
   </div>
 
-  <div class="vg-chips" id="vgChips"></div>
-
-  <div class="rows" id="rowsWrap"></div>
-
-  <!-- ===== FOOTER: derechos de autor + nombre del sistema + texto editable + redes ===== -->
-  <footer class="site-footer" id="siteFooter">
-    <div class="site-footer-text">
-      <? if (brand.footerText) { ?><div><?= brand.footerText ?></div><? } ?>
-      <div>© <?= new Date().getFullYear() ?> <b><?= brand.brandName ?></b>. Todos los derechos reservados.</div>
-    </div>
-    <? if (brand.socialYoutubeUrl || brand.socialFacebookUrl || brand.socialWhatsappUrl || brand.socialTelegramUrl || brand.socialTiktokUrl || brand.socialInstagramUrl) { ?>
-    <div class="site-footer-social">
-  <? if (brand.socialYoutubeUrl) { ?>
-    <a href="<?= brand.socialYoutubeUrl ?>" target="_blank" rel="noopener" title="YouTube"><svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.7 15.5V8.5L15.8 12Z"/></svg></a>
-  <? } ?>
-  <? if (brand.socialFacebookUrl) { ?>
-    <a href="<?= brand.socialFacebookUrl ?>" target="_blank" rel="noopener" title="Facebook"><svg viewBox="0 0 24 24"><path d="M13.5 21v-7.9h2.6l.4-3.1h-3V8.1c0-.9.2-1.5 1.6-1.5h1.6V3.8C15.9 3.7 15 3.6 13.9 3.6c-2.5 0-4.1 1.5-4.1 4.2v2.3H7.2v3.1h2.6V21Z"/></svg></a>
-  <? } ?>
-  <? if (brand.socialWhatsappUrl) { ?>
-    <a href="<?= brand.socialWhatsappUrl ?>" target="_blank" rel="noopener" title="WhatsApp"><svg viewBox="0 0 24 24"><path d="M17 14.2c-.3-.1-1.6-.8-1.9-.9-.2-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.3-.1-1.2-.4-2.2-1.4-.8-.7-1.4-1.6-1.5-1.9-.2-.3 0-.4.1-.6l.4-.5c.1-.1.2-.3.2-.4.1-.2 0-.3 0-.5-.1-.1-.6-1.5-.9-2-.2-.5-.5-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.6-.7 1.9-1.3.2-.6.2-1.1.1-1.3-.1-.1-.3-.2-.6-.3ZM12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.5A10 10 0 1 0 12 2Zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-2.9.9.9-2.8-.2-.3A8.2 8.2 0 1 1 12 20.2Z"/></svg></a>
-  <? } ?>
-  <? if (brand.socialTelegramUrl) { ?>
-    <a href="<?= brand.socialTelegramUrl ?>" target="_blank" rel="noopener" title="Telegram"><svg viewBox="0 0 24 24"><path d="M21.9 4.3 2.7 11.7c-.9.3-.9.9-.2 1.1l4.9 1.5 1.9 5.8c.2.6.4.8.9.8.4 0 .6-.2.9-.5l2.1-2 4.4 3.2c.8.5 1.3.2 1.5-.7l2.8-13.2c.3-1.2-.4-1.7-1-1.4ZM8.7 14.6l-1.3-.4L18 7l-8.5 7c-.2.1-.3.3-.8.6Zm2 5.1-1-3.1 6.8-5.6-5.8 8.7Z"/></svg></a>
-  <? } ?>
-  <? if (brand.socialTiktokUrl) { ?>
-    <a href="<?= brand.socialTiktokUrl ?>" target="_blank" rel="noopener" title="TikTok"><svg viewBox="0 0 24 24"><path d="M16.6 2h-3.2v13.7c0 1.5-1.2 2.7-2.7 2.7a2.7 2.7 0 0 1-2.7-2.7 2.7 2.7 0 0 1 2.7-2.7c.3 0 .6 0 .8.1V9.8c-.3 0-.5-.1-.8-.1a5.9 5.9 0 0 0-5.9 5.9A5.9 5.9 0 0 0 10.7 21a5.9 5.9 0 0 0 5.9-5.9V8.4a8.2 8.2 0 0 0 4.8 1.5V6.7a4.8 4.8 0 0 1-4.8-4.7Z"/></svg></a>
-  <? } ?>
-  <? if (brand.socialInstagramUrl) { ?>
-    <a href="<?= brand.socialInstagramUrl ?>" target="_blank" rel="noopener" title="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 2 .3 2.4.5.6.2 1 .5 1.5 1 .4.4.7.9 1 1.5.2.5.4 1.2.5 2.4.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 2-.5 2.4-.2.6-.6 1-1 1.5-.5.4-.9.7-1.5 1-.5.2-1.2.4-2.4.5-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-2-.3-2.4-.5-.6-.3-1-.6-1.5-1-.4-.5-.8-.9-1-1.5-.3-.5-.4-1.2-.5-2.4-.1-1.3-.1-1.7-.1-4.9s0-3.6.1-4.9c.1-1.2.2-2 .5-2.4.2-.6.6-1 1-1.5.5-.4.9-.8 1.5-1 .5-.2 1.2-.4 2.4-.5 1.3-.1 1.7-.1 4.9-.1Zm0 1.8c-3.2 0-3.5 0-4.7.1-1 0-1.6.2-1.9.4-.5.1-.8.3-1.2.7-.3.3-.5.6-.7 1.1-.2.4-.3 1-.4 2-.1 1.1-.1 1.4-.1 4.7s0 3.5.1 4.7c0 1 .2 1.6.4 2 .2.4.4.8.7 1.1.4.3.7.5 1.2.7.3.1.9.3 1.9.4 1.2 0 1.5.1 4.7.1s3.5 0 4.7-.1c1-.1 1.6-.2 2-.4.4-.2.8-.4 1.1-.7.3-.3.5-.6.7-1.1.2-.4.3-1 .4-2 .1-1.2.1-1.5.1-4.7s0-3.5-.1-4.7c-.1-1-.2-1.6-.4-2-.2-.4-.4-.8-.7-1.1-.3-.4-.7-.6-1.1-.7-.4-.2-1-.4-2-.4-1.2-.1-1.5-.1-4.7-.1Zm0 3.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Zm0 1.8a2.7 2.7 0 1 0 0 5.4 2.7 2.7 0 0 0 0-5.4Zm5.6-2a1 1 0 1 1-2.1 0 1 1 0 0 1 2 0Z"/></svg></a>
-  <? } ?>
-    </div>
-    <? } ?>
-  </footer>
-
-  <!-- ===== VEOYGO: barra de reproducción inferior + tabs móviles ===== -->
-  <div class="vg-bar" id="vgBar">
-    <div class="vg-bar-art" id="vgBarArt"></div>
-    <div class="vg-bar-info">
-      <div class="vg-bar-title" id="vgBarTitle">Selecciona un canal</div>
-      <div class="vg-bar-sub" id="vgBarSub">—</div>
-    </div>
-    <div class="vg-bar-ctrl">
-      <button type="button" class="vg-cbtn heart" id="vgBarLike" aria-label="Me gusta"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.7 5 6.1 5c2 0 3.3 1 3.9 2.1h0C10.6 6 11.9 5 13.9 5c3.4 0 5.2 3.4 3.7 6.8C19.5 16.4 12 21 12 21z"/></svg></button>
-      <button type="button" class="vg-cbtn up" id="vgBarUp" aria-label="Pantalla completa"><svg viewBox="0 0 24 24"><path d="m6 15 6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-      <button type="button" class="vg-cbtn prev" id="vgBarPrev" aria-label="Anterior"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
-      <button type="button" class="vg-cbtn play" id="vgBarPlay" aria-label="Play/Pausa"><svg id="vgBarPlayIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
-      <button type="button" class="vg-cbtn next" id="vgBarNext" aria-label="Siguiente"><svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg></button>
-    </div>
-  </div>
-  <nav class="vg-tabs" id="vgTabs" aria-label="Navegación"></nav>
-
   <div class="img-lightbox" id="imgLightbox" onclick="closeImgLightbox(event)">
     <button class="img-lightbox-close" onclick="closeImgLightbox(event)" aria-label="Cerrar">×</button>
     <div class="img-lightbox-scroll" id="imgLightboxScroll">
@@ -2538,6 +2658,18 @@
     <button class="media-toast-btn" onclick="mediaToastTogglePlay()" aria-label="Play/Pausa">
       <svg id="mediaToastIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
     </button>
+  </div>
+
+  <div class="share-modal-overlay" id="shareModalOverlay">
+    <div class="share-modal">
+      <h3>Compartir enlace</h3>
+      <p>Copia el enlace para compartirlo donde quieras.</p>
+      <div class="share-modal-row">
+        <input type="text" id="shareModalInput" readonly onclick="this.select()" />
+        <button class="share-modal-copy" id="shareModalCopyBtn" onclick="shareModalCopy()">Copiar</button>
+      </div>
+      <button class="share-modal-close" onclick="closeShareModal()">Cerrar</button>
+    </div>
   </div>
 
 <script>
@@ -3510,17 +3642,6 @@
     }
   }
 
-  // El reproductor vive dentro de la página: al elegir contenido se sube a él.
-  function scrollToPlayer_(){
-    var el = document.getElementById('playerOverlay');
-    if(!el) return;
-    var navH = (document.getElementById('nav') || {}).offsetHeight || 0;
-    var top = el.getBoundingClientRect().top + window.pageYOffset - navH;
-    if(Math.abs(window.pageYOffset - top) < 4) return;
-    try { window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' }); }
-    catch(e){ window.scrollTo(0, Math.max(0, top)); }
-  }
-
   function reallyOpenPlayerById_(m){
     pcCurrentMedia = m;
     pcIsLive = false;
@@ -3590,7 +3711,7 @@
     }
 
     document.getElementById('playerOverlay').classList.add('open');
-    try { scrollToPlayer_(); } catch(e){}
+    try { var pm_ = document.querySelector('#playerOverlay .player-main'); if(pm_) pm_.scrollTop = 0; } catch(e){}
     try { pcShowControls(true); } catch(e){}
     try { showMediaToast(m); } catch(e){}
     try { updateMediaSession(m); } catch(e){}
@@ -3696,7 +3817,16 @@
         // otro (mismo breakpoint que ya usa el CSS: <=1080px). Ahí,
         // tras elegir un ítem, subimos la vista hasta el reproductor
         // para que el contenido se vea de una, sin scrollear a mano.
-        scrollToPlayer_();
+        if(window.innerWidth <= 1080){
+          var overlay = document.getElementById('playerOverlay');
+          if(overlay){
+            if(typeof overlay.scrollTo === 'function'){
+              overlay.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+              overlay.scrollTop = 0;
+            }
+          }
+        }
       });
     }
 
@@ -4743,16 +4873,41 @@
         }
       }).catch(function(){});
     } else {
-      var ta = document.createElement('textarea');
-      ta.value = url; ta.setAttribute('readonly','');
-      ta.style.cssText = 'position:fixed;opacity:0;pointer-events:none;';
-      document.body.appendChild(ta);
-      ta.select();
-      try { document.execCommand('copy'); } catch(e){}
-      document.body.removeChild(ta);
+      openShareModal(url);
     }
   }
 
+  // ============================================================
+  //  MODAL "COMPARTIR ENLACE" (reemplaza window.prompt, que se ve
+  //  como un popup feo del navegador).
+  // ============================================================
+  function openShareModal(url){
+    var input = document.getElementById('shareModalInput');
+    input.value = url;
+    document.getElementById('shareModalCopyBtn').textContent = 'Copiar';
+    document.getElementById('shareModalOverlay').classList.add('open');
+    setTimeout(function(){ input.focus(); input.select(); }, 50);
+  }
+  function closeShareModal(){
+    document.getElementById('shareModalOverlay').classList.remove('open');
+  }
+  function shareModalCopy(){
+    var input = document.getElementById('shareModalInput');
+    var btn = document.getElementById('shareModalCopyBtn');
+    input.select();
+    input.setSelectionRange(0, 99999);
+    function done(ok){
+      btn.textContent = ok ? '✓ Copiado' : 'Copiar';
+      setTimeout(function(){ btn.textContent = 'Copiar'; }, 1500);
+    }
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(input.value).then(function(){ done(true); }).catch(function(){
+        try{ done(document.execCommand('copy')); }catch(e){ done(false); }
+      });
+    } else {
+      try{ done(document.execCommand('copy')); }catch(e){ done(false); }
+    }
+  }
 
   function pcUpdateProgress(){
     if(!pcVideo) return;
@@ -4867,6 +5022,9 @@
     }
   });
 
+  document.getElementById('playerOverlay').addEventListener('click', function(e){
+    if(e.target.id === 'playerOverlay') closePlayer();
+  });
   document.getElementById('playerOverlay').addEventListener('click', function(e){
     if(e.target.id === 'playerStage' && (pcVideo || radioPlayerInstance)){ playerTogglePlay(); }
   });
