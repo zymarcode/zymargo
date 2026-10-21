@@ -1940,24 +1940,34 @@
 
   // Aplica el resultado elegido: imagen (miniatura / carrusel) y, si se pidió, la URL del stream
   function artApply_(r, img, kind){
-    var msg = [];
-    if(img){
-      var url = img.currentSrc || img.src;
-      if(document.getElementById('artToMini').checked){ document.getElementById('itemMiniatura').value = url; updateItemMiniaturaPreview(); msg.push('miniatura'); }
-      if(document.getElementById('artToCarr').checked){ document.getElementById('itemMiniaturaCarrusel').value = url; updateItemMiniaturaCarruselPreview(); msg.push('carrusel'); }
+    var done = [], notes = [];
+    var wantMini = document.getElementById('artToMini').checked;
+    var wantCarr = document.getElementById('artToCarr').checked;
+    var wantStream = document.getElementById('artFillStream').checked;
+    if(!wantMini && !wantCarr && !wantStream){ artClear_('⚠️ Marca en "Aplicar a" qué quieres rellenar (Miniatura, Carrusel o URL del stream).'); return; }
+    if(wantMini || wantCarr){
+      if(img){
+        var url = img.currentSrc || img.src;
+        if(wantMini){ document.getElementById('itemMiniatura').value = url; updateItemMiniaturaPreview(); done.push('miniatura'); }
+        if(wantCarr){ document.getElementById('itemMiniaturaCarrusel').value = url; updateItemMiniaturaCarruselPreview(); done.push('carrusel'); }
+      } else {
+        notes.push('esta opción no trae imagen');
+      }
     }
-    if(document.getElementById('artFillStream').checked){
+    if(wantStream){
       if(r.stream){
         document.getElementById('itemUrl').value = r.stream;
         autoDetect();
         if(kind === 'radio') document.getElementById('itemTipo').value = 'audio';
         else if(kind === 'tv') document.getElementById('itemTipo').value = 'video';
-        msg.push('URL del stream' + (r.streamNota ? ' (aviso: ' + r.streamNota + ')' : ''));
+        done.push('URL del stream' + (r.streamNota ? ' (aviso: ' + r.streamNota + ')' : ''));
       } else {
-        msg.push('sin URL de stream disponible');
+        notes.push('esta opción no trae URL de stream (solo radio y TV lo tienen)');
       }
     }
-    artClear_(msg.length ? '✓ Aplicado en: ' + msg.join(', ') + '.' : 'No se aplicó nada: marca en el paso 3 dónde usarla (o esa opción no trae imagen).');
+    var txt = done.length ? '✓ Aplicado en: ' + done.join(', ') + '.' : '⚠️ No se aplicó nada.';
+    if(notes.length) txt += ' Aviso: ' + notes.join('; ') + '.';
+    artClear_(txt);
   }
 
   function openItemModal(){
