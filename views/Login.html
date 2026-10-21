@@ -172,14 +172,17 @@
   }
   .social-links svg{ width:15px; height:15px; fill:currentColor; display:block; }
   /* --- Pantalla de carga --- */
-  body #sfLoad{ background:radial-gradient(ellipse at 50% 38%,#3a0609 0%,#14070a 45%,#050506 100%); }
+  body #sfLoad{ background:rgba(8,8,8,.55); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); }
+  body #sfLoad::before{ display:none; }
+  body #sfLoad .sfMark::before{ border:3px solid rgba(255,255,255,.14); animation:none; }
+  body #sfLoad .sfMark::after{ border-top-color:#fff; border-right-color:rgba(255,255,255,.55); box-shadow:none; }
   body #sfLoad .sfLogo{ border-radius:50%; }
   body #sfLoad .sfName{
-    color:#e50914; background:linear-gradient(100deg,#b20710 20%,#ff2a35 40%,#fff 50%,#ff2a35 60%,#b20710 80%); background-size:250% 100%;
-    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+    color:#fff; background:none; -webkit-background-clip:border-box; background-clip:border-box;
+    -webkit-text-fill-color:#fff; animation:none; text-shadow:0 2px 14px rgba(0,0,0,.6);
   }
-  body #sfLoad .sfBar{ background:rgba(229,9,20,.18); }
-  body #sfLoad .sfBar i{ background:linear-gradient(90deg,#b20710,#e50914,#ff2a35); }
+  body #sfLoad .sfBar{ background:rgba(255,255,255,.16); }
+  body #sfLoad .sfBar i{ background:#fff; box-shadow:none; }
 </style>
 <? if (brand.loginBgUrl) { ?>
 <style>
