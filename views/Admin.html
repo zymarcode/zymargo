@@ -570,6 +570,8 @@
     body .item-actions{ flex-direction:column; }
     body .item-actions .btn{ flex:none; width:100%; }
   }
+  /* Rojo + blanco: secciones marcadas */
+  .dl-cats .dl-cat input:checked + span{ background:linear-gradient(135deg,#f6121d,#b20710); border-color:#e50914; color:#fff; box-shadow:0 4px 14px rgba(229,9,20,.35); }
 </style>
 </head>
 <body>
@@ -1331,7 +1333,7 @@
     }).withFailureHandler(function(e){
       toast('Error cargando datos: ' + e.message);
       if(onDone) onDone();
-    }).getMedia();
+    }).getMedia(TOKEN);
   }
 
   function renderStats(){
