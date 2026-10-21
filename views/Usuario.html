@@ -6097,5 +6097,167 @@
 })();
 </script>
 
+<style id="tvNavStyles">
+  /* Control remoto (Smart TV / TV Box / Android TV): el elemento enfocado se ve claramente */
+  html.is-tv *:focus{ outline:3px solid #fff !important; outline-offset:2px !important; }
+  html.is-tv .card:focus{ transform:scale(1.05); position:relative; z-index:2; }
+  html.is-tv .pc-btn:focus, html.is-tv .vg-item:focus, html.is-tv .vg-chip:focus, html.is-tv .vg-cbtn:focus{ background:rgba(255,255,255,.22); }
+  html.is-tv .card, html.is-tv .vg-chip, html.is-tv .pc-btn, html.is-tv .vg-item{ scroll-margin:110px 0 150px; }
+</style>
+<script>
+/* ============================================================
+   CONTROL REMOTO / FLECHAS (Smart TV, TV Box, Android TV)
+   - Flechas: mueven el foco entre tarjetas, menús y botones.
+   - OK/Enter: abre la tarjeta o pulsa el botón enfocado (ya funcionaba); con el video a la vista, pausa/reproduce.
+   - Atrás (Tizen 10009, webOS 461, GoBack/BrowserBack): sale de pantalla completa o cierra el reproductor.
+   - Teclas multimedia de TV: reproducir, pausa, adelantar y retroceder.
+   Solo actúa en TV o en dispositivos sin mouse; en PC con mouse no cambia nada.
+   ============================================================ */
+(function(){
+  var ua = navigator.userAgent || '';
+  var uaTV = /SMART-TV|SmartTV|Tizen|Web0S|WebOS|NetCast|HbbTV|BRAVIA|Android TV|GoogleTV|Google TV|\bAFT[A-Z]+\b|MiBOX|Roku|CrKey|AppleTV/i.test(ua);
+  if(uaTV) document.documentElement.classList.add('is-tv');
+
+  function tvMode(){
+    if(uaTV) return true;
+    try { return !!(window.matchMedia && window.matchMedia('(hover:none)').matches); } catch(e){ return false; }
+  }
+  function isText(t){
+    return !!(t && (t.tagName === 'TEXTAREA' || t.isContentEditable ||
+      (t.tagName === 'INPUT' && !/^(range|checkbox|radio|button|submit)$/i.test(t.type))));
+  }
+  var SEL = 'a[href],button:not([disabled]),input:not([disabled]):not([type=hidden]),textarea:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])';
+
+  function usable(el){
+    var r = el.getBoundingClientRect();
+    if(r.width < 1 || r.height < 1) return false;
+    if(r.right <= 0 || r.left >= window.innerWidth) return false;
+    var cs = window.getComputedStyle(el);
+    if(cs.visibility === 'hidden' || cs.display === 'none') return false;
+    // Si está en pantalla, debe ser el elemento que realmente se ve arriba (no tapado por un modal).
+    var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    if(cy > 0 && cy < window.innerHeight){
+      var top = document.elementFromPoint(cx, cy);
+      if(top && !(el === top || el.contains(top) || top.contains(el))) return false;
+    }
+    return true;
+  }
+  function focusEl(el){
+    try { el.focus({ preventScroll:true }); } catch(e){ try { el.focus(); } catch(x){} }
+    try { el.scrollIntoView({ block:'nearest', inline:'nearest' }); } catch(e){ try { el.scrollIntoView(false); } catch(x){} }
+  }
+  // Mueve el foco al elemento más cercano en esa dirección. Devuelve true si se movió.
+  function move(dir, root, cur){
+    var hasCur = cur && cur !== document.body && cur !== document.documentElement;
+    var list = Array.prototype.filter.call(root.querySelectorAll(SEL), function(el){ return el !== cur && usable(el); });
+    if(!list.length) return false;
+    var best = null, bestScore = Infinity, i, r;
+    if(!hasCur){
+      for(i = 0; i < list.length; i++){
+        r = list[i].getBoundingClientRect();
+        var inView = r.top >= 0 && r.bottom <= window.innerHeight;
+        var sc = (inView ? 0 : 1e6) + Math.max(0, r.top) * 100 + r.left;
+        if(sc < bestScore){ bestScore = sc; best = list[i]; }
+      }
+    } else {
+      var cr = cur.getBoundingClientRect();
+      var cx = cr.left + cr.width / 2, cy = cr.top + cr.height / 2;
+      for(i = 0; i < list.length; i++){
+        r = list[i].getBoundingClientRect();
+        var dx = r.left + r.width / 2 - cx, dy = r.top + r.height / 2 - cy;
+        var primary, secondary, w;
+        if(dir === 'right'){ if(dx <= 1) continue; primary = Math.max(0, r.left - cr.right); secondary = Math.abs(dy); w = 3; }
+        else if(dir === 'left'){ if(dx >= -1) continue; primary = Math.max(0, cr.left - r.right); secondary = Math.abs(dy); w = 3; }
+        else if(dir === 'down'){ if(dy <= 1) continue; primary = Math.max(0, r.top - cr.bottom); secondary = Math.abs(dx); w = 2; }
+        else { if(dy >= -1) continue; primary = Math.max(0, cr.top - r.bottom); secondary = Math.abs(dx); w = 2; }
+        var score = primary + w * secondary;
+        if(score < bestScore){ bestScore = score; best = list[i]; }
+      }
+    }
+    if(!best) return false;
+    focusEl(best);
+    return true;
+  }
+
+  function isFs(){ return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+  function playing(){ try { return !!pcIsPlaying_(); } catch(e){ return false; } }
+  function canPlay(){ return !!(pcVideo || radioPlayerInstance); }
+  function stopKey(e){ e.preventDefault(); e.stopImmediatePropagation(); }
+
+  // En fase de captura: se ejecuta antes que los atajos existentes del reproductor.
+  document.addEventListener('keydown', function(e){
+    if(e.ctrlKey || e.metaKey || e.altKey) return;
+    var k = e.key, kc = e.keyCode;
+    var overlay = document.getElementById('playerOverlay');
+    var playerOpen = !!(overlay && overlay.classList.contains('open'));
+
+    // Botón Atrás del control remoto
+    if(k === 'GoBack' || k === 'BrowserBack' || kc === 10009 || kc === 461){
+      if(playerOpen){
+        stopKey(e);
+        if(isFs()){ try { (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch(x){} }
+        else closePlayer();
+      }
+      return;
+    }
+
+    // Teclas multimedia del control de TV
+    if(playerOpen && (kc === 415 || kc === 19 || kc === 10252 || kc === 417 || kc === 412)){
+      if(!canPlay()) return;
+      stopKey(e);
+      if(kc === 415){ if(!playing()) playerTogglePlay(); }
+      else if(kc === 19){ if(playing()) playerTogglePlay(); }
+      else if(kc === 10252){ playerTogglePlay(); }
+      else if(pcVideo && !pcIsLive){ playerSkip(kc === 417 ? 10 : -10); }
+      return;
+    }
+
+    var dir = ({ ArrowLeft:'left', ArrowRight:'right', ArrowUp:'up', ArrowDown:'down' })[k];
+    if(!dir && !(k === 'Enter' && playerOpen)) return;
+    if(!tvMode()) return;
+    document.documentElement.classList.add('is-tv');
+
+    var t = e.target;
+    var ae = document.activeElement;
+
+    // Controles deslizantes (volumen): izquierda/derecha los ajustan, sin adelantar el video a la vez.
+    if(t && t.tagName === 'INPUT' && t.type === 'range' && (dir === 'left' || dir === 'right')){ e.stopImmediatePropagation(); return; }
+    // Campos de texto: izquierda/derecha mueven el cursor; arriba/abajo salen del campo (en comentarios solo si está vacío).
+    if(isText(t)){
+      if(dir === 'left' || dir === 'right' || !dir) return;
+      if(t.tagName === 'TEXTAREA' && t.value) return;
+    }
+
+    if(playerOpen){
+      // El foco quedó en la tarjeta que está detrás: se suelta para operar el reproductor.
+      if(ae && ae !== document.body && !overlay.contains(ae)){ try { ae.blur(); } catch(x){} ae = document.body; }
+      var inCtl = !!(ae && ae !== document.body && overlay.contains(ae));
+
+      if(k === 'Enter'){
+        // OK con el video a la vista: pausa/reproduce. Con un botón enfocado, lo pulsa (comportamiento normal).
+        if(!inCtl && canPlay()){ stopKey(e); try { pcShowControls(true); } catch(x){} playerTogglePlay(); }
+        return;
+      }
+      if(!inCtl){
+        // Abajo: lleva el foco a los botones. Izquierda/derecha/arriba siguen adelantando, retrocediendo y subiendo volumen.
+        if(dir === 'down'){
+          var pb = document.getElementById('pcPlay');
+          if(pb){ stopKey(e); try { pcShowControls(true); } catch(x){} focusEl(pb); }
+        }
+        return;
+      }
+      // Foco dentro del reproductor: las flechas se mueven entre sus botones.
+      stopKey(e);
+      try { pcShowControls(true); } catch(x){}
+      if(!move(dir, overlay, ae) && dir === 'up'){ try { ae.blur(); } catch(x){} }
+      return;
+    }
+
+    // Fuera del reproductor: navegación entre tarjetas, menú, categorías y botones.
+    if(move(dir, document.body, ae)) stopKey(e);
+  }, true);
+})();
+</script>
+
 </body>
 </html>
