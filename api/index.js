@@ -54,15 +54,11 @@ const FX_FONTS = '<link rel="preconnect" href="https://fonts.googleapis.com"><li
 const FX_THEME = '<style id="fx-theme">' + String.raw`
 :root{
   --fx-red:#e50914; --fx-hot:#ff2a35; --fx-deep:#7a030a; --fx-bg:#030304; --fx-panel:#0a0a0d; --fx-panel2:#101015;
-  --fx-line:rgba(229,9,20,.30); --fx-line-soft:rgba(229,9,20,.16); --fx-glow:0 0 18px rgba(229,9,20,.38);
+  --fx-line:transparent; --fx-line-soft:transparent; --fx-glow:0 0 18px rgba(229,9,20,.38);
   --fx-font:'Rajdhani','Segoe UI',-apple-system,BlinkMacSystemFont,Arial,sans-serif;
   --fx-head:'Orbitron','Rajdhani','Segoe UI',Arial,sans-serif;
   --fx-grad:linear-gradient(135deg,#ff2a35 0%,#e50914 50%,#8a0410 100%);
-  --fx-br:
-    linear-gradient(#ff2a35,#ff2a35) left top/14px 2px no-repeat, linear-gradient(#ff2a35,#ff2a35) left top/2px 14px no-repeat,
-    linear-gradient(#ff2a35,#ff2a35) right top/14px 2px no-repeat, linear-gradient(#ff2a35,#ff2a35) right top/2px 14px no-repeat,
-    linear-gradient(#ff2a35,#ff2a35) left bottom/14px 2px no-repeat, linear-gradient(#ff2a35,#ff2a35) left bottom/2px 14px no-repeat,
-    linear-gradient(#ff2a35,#ff2a35) right bottom/14px 2px no-repeat, linear-gradient(#ff2a35,#ff2a35) right bottom/2px 14px no-repeat;
+  --fx-br:linear-gradient(transparent,transparent);
 }
 /* ---------- Base: fondo negro con rejilla roja, tipografía técnica ---------- */
 html{ background:var(--fx-bg) !important; color-scheme:dark; scrollbar-color:#8a0410 #050506; }
@@ -258,6 +254,7 @@ html body #sfLoad .sfBar i{ border-radius:0; box-shadow:0 0 14px var(--fx-hot); 
 @keyframes fxRev{ to{ transform:rotate(-360deg); } }
 html body .device-check-overlay{ background:radial-gradient(ellipse at 50% 40%,rgba(229,9,20,.25) 0%,#030304 70%); letter-spacing:.2em; text-transform:uppercase; }
 @media (prefers-reduced-motion:reduce){ html body #sfLoad .sfMark::before{ animation:none; } }
+html body .hero-tag, html body .hero-slide.is-audio-slide .hero-tag{ border-color:transparent; }
 ` + '</style>';
 
 function view(name, ctx) {
