@@ -2,17 +2,41 @@ const fs = require('fs');
 const path = require('path');
 const { render } = require('../lib/template');
 const S = require('../lib/server');
+const compat = require('../lib/compat');
 
 // Reemplazo de google.script.run: cada llamada va a /api/rpc.
-const SHIM = '<script>(function(){function mk(s,f){return new Proxy({},{get:function(_,n){' +
-  'if(n==="withSuccessHandler")return function(h){return mk(h,f)};' +
-  'if(n==="withFailureHandler")return function(h){return mk(s,h)};' +
-  'if(typeof n!=="string"||n==="then")return undefined;' +
-  'return function(){var a=Array.prototype.slice.call(arguments);' +
-  'fetch("/api/rpc",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({fn:n,args:a})})' +
-  '.then(function(r){return r.json()}).then(function(j){if(j.error){if(f)f({message:j.error});else console.error(j.error)}else if(s)s(j.result)})' +
-  '.catch(function(e){if(f)f({message:e.message})})}}})}' +
-  'window.google={script:{run:mk(null,null)}};})();</script>';
+// Compatible con WebView / navegadores antiguos (TV Box Android sin certificar):
+// no usa Proxy ni fetch (se usa XMLHttpRequest y una lista fija de funciones) y
+// muestra un mensaje claro si el firewall de Vercel bloquea la solicitud.
+function buildShim() {
+  return '<script>(function(){' +
+    'var N=' + JSON.stringify(S.NAMES) + ';' +
+    'function fail(f,m){if(f)f({message:m});else if(window.console)console.error(m)}' +
+    'function call(fn,args,s,f){' +
+      'var x=new XMLHttpRequest();' +
+      'x.open("POST","/api/rpc",true);' +
+      'x.setRequestHeader("Content-Type","application/json");' +
+      'x.onreadystatechange=function(){' +
+        'if(x.readyState!==4)return;' +
+        'if(x.status===0){fail(f,"Sin conexión con el servidor");return}' +
+        'var j=null;try{j=JSON.parse(x.responseText)}catch(e){}' +
+        'if(!j){fail(f,(x.status===403||x.status===429)?' +
+          '"El firewall de Vercel bloqueó la solicitud (HTTP "+x.status+"). Revisa Firewall / Attack Challenge Mode en Vercel.":' +
+          '"Respuesta no válida del servidor (HTTP "+x.status+")");return}' +
+        'if(j.error){fail(f,j.error);return}' +
+        'if(s)s(j.result)' +
+      '};' +
+      'try{x.send(JSON.stringify({fn:fn,args:args}))}catch(e){fail(f,e.message)}' +
+    '}' +
+    'function mk(s,f){' +
+      'var o={withSuccessHandler:function(h){return mk(h,f)},withFailureHandler:function(h){return mk(s,h)}};' +
+      'for(var i=0;i<N.length;i++)(function(n){o[n]=function(){call(n,Array.prototype.slice.call(arguments),s,f)}})(N[i]);' +
+      'return o' +
+    '}' +
+    'window.google={script:{run:mk(null,null)}};' +
+  '})();</script>';
+}
+const SHIM = buildShim();
 
 // Apps Script agregaba solo el viewport y mostraba la página como app.
 // En Vercel hay que declararlo: viewport, tema, modo app instalable (PWA) y estilos táctiles.
@@ -288,7 +312,8 @@ function view(name, ctx) {
     if (/<\/head>/i.test(html)) html = html.replace(/<\/head>/i, function (m) { return FX_FONTS + FX_THEME + m; });
     else html = html + FX_FONTS + FX_THEME;
   }
-  return html;
+  // Compatibilidad con WebView antiguos: respaldos de CSS para inset / clamp / min / max.
+  return compat.lowerHtml(html);
 }
 
 module.exports = async function (req, res) {
