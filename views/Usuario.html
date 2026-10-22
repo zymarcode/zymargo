@@ -6019,6 +6019,15 @@
     gate.style.display = "flex";
     document.body.style.overflow = "hidden";
   }
+  // Smart TV / Android TV / TV Box (sin pantalla táctil): ahí no se muestra la puerta, porque
+  // el control remoto no puede abrir otra pestaña y volver, y el usuario quedaba atrapado.
+  // En celular, tablet y PC todo sigue igual.
+  function isTvDevice() {
+    var ua = navigator.userAgent || "";
+    if (/SMART-TV|SmartTV|Tizen|Web0S|WebOS|NetCast|HbbTV|BRAVIA|Android TV|GoogleTV|Google TV|\bAFT[A-Z]+\b|MiBOX|Roku|CrKey|AppleTV/i.test(ua)) return true;
+    return /Android/i.test(ua) && !(navigator.maxTouchPoints > 0) && !("ontouchstart" in window);
+  }
+  if (isTvDevice()) return;
   // El servidor decide si ESTE usuario debe ver el modal (lo configura el admin por usuario).
   try {
     google.script.run
