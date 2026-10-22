@@ -2677,60 +2677,6 @@
   @media (prefers-reduced-motion:reduce){
     body .card, body .card:hover, body .card:focus-visible{ transition:none; transform:none; }
   }
-
-  /* ============================================================
-     REPRODUCTOR ADAPTABLE (solo estilos)
-     1) Audio: el escenario tenía una altura fija (380-520px) que no
-        se adaptaba a la pantalla. En celular horizontal y ventanas
-        bajas los controles quedaban fuera de pantalla; en pantallas
-        grandes quedaba una franja pequeña. Ahora la altura sigue al
-        alto de la pantalla y la carátula crece en proporción.
-     2) Pantallas anchas: el video queda centrado, pero la descripción
-        y los comentarios quedaban pegados a la izquierda. Ahora se
-        alinean con el video.
-     (Se declara primero con vh y luego con dvh para que navegadores
-     viejos, como los de algunos Smart TV, usen la primera.)
-     ============================================================ */
-  body .player-stage.is-audio{
-    min-height:min(clamp(380px, 55vw, 520px), calc(100vh - 62px));
-    min-height:min(clamp(380px, 55vw, 520px), calc(100dvh - 62px));
-  }
-  @media (max-width:640px){
-    body .player-stage.is-audio{
-      min-height:min(clamp(360px, 92vw, 460px), calc(100vh - 62px));
-      min-height:min(clamp(360px, 92vw, 460px), calc(100dvh - 62px));
-    }
-  }
-
-  /* Computadoras, monitores y TV */
-  @media (min-width:901px) and (min-height:481px){
-    body .player-stage.is-audio{
-      width:min(100%, calc((100vh - 62px) * 16 / 9));
-      width:min(100%, calc((100dvh - 62px) * 16 / 9));
-      margin:0 auto;
-      min-height:min(clamp(520px, 56vh, 1300px), calc(100vh - 62px));
-      min-height:min(clamp(520px, 56dvh, 1300px), calc(100dvh - 62px));
-    }
-    body .player-stage.is-audio .audio-cover{
-      width:min(clamp(240px, 40vw, 1100px), calc((min(clamp(520px, 56vh, 1300px), calc(100vh - 62px)) - 260px) * 1.6), 88vw);
-      width:min(clamp(240px, 40vw, 1100px), calc((min(clamp(520px, 56dvh, 1300px), calc(100dvh - 62px)) - 260px) * 1.6), 88vw);
-    }
-    body .player-main > .player-info{
-      width:min(100%, calc((100vh - 62px) * 16 / 9));
-      width:min(100%, calc((100dvh - 62px) * 16 / 9));
-      margin-left:auto; margin-right:auto;
-    }
-  }
-
-  /* Celular en horizontal / ventana baja: el audio ocupa la pantalla
-     (igual que el video) y los controles siempre quedan a la vista */
-  @media (max-height:480px) and (orientation:landscape){
-    body .player-stage.is-audio{
-      flex:0 0 auto; aspect-ratio:auto; min-height:0; width:100%;
-      height:calc(100vh - 53px);
-      height:calc(100dvh - 53px);
-    }
-  }
 </style>
 </head>
 <body>
