@@ -6364,9 +6364,11 @@
   var uaTV = /SMART-TV|SmartTV|Tizen|Web0S|WebOS|NetCast|HbbTV|BRAVIA|Android TV|GoogleTV|Google TV|\bAFT[A-Z]+\b|MiBOX|Roku|CrKey|AppleTV/i.test(ua);
   if(uaTV) document.documentElement.classList.add('is-tv');
 
+  var mqNoHover = null;
+  try { mqNoHover = window.matchMedia ? window.matchMedia('(hover:none)') : null; } catch(e){}
   function tvMode(){
     if(uaTV) return true;
-    try { return !!(window.matchMedia && window.matchMedia('(hover:none)').matches); } catch(e){ return false; }
+    return !!(mqNoHover && mqNoHover.matches);
   }
   function isText(t){
     return !!(t && (t.tagName === 'TEXTAREA' || t.isContentEditable ||
@@ -6374,10 +6376,8 @@
   }
   var SEL = 'a[href],button:not([disabled]),input:not([disabled]):not([type=hidden]),textarea:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
-  function usable(el){
-    var r = el.getBoundingClientRect();
-    if(r.width < 1 || r.height < 1) return false;
-    if(r.right <= 0 || r.left >= window.innerWidth) return false;
+  // Comprobación costosa (estilos + elementFromPoint): solo se aplica a los mejores candidatos.
+  function visibleOnTop(el, r){
     var cs = window.getComputedStyle(el);
     if(cs.visibility === 'hidden' || cs.display === 'none') return false;
     // Si está en pantalla, debe ser el elemento que realmente se ve arriba (no tapado por un modal).
@@ -6393,36 +6393,57 @@
     try { el.scrollIntoView({ block:'nearest', inline:'nearest' }); } catch(e){ try { el.scrollIntoView(false); } catch(x){} }
   }
   // Mueve el foco al elemento más cercano en esa dirección. Devuelve true si se movió.
+  // Optimizado: una sola pasada de lecturas de geometría (sin escrituras intercaladas),
+  // puntuación barata de todos, y validación costosa solo del mejor candidato (y siguientes si falla).
   function move(dir, root, cur){
     var hasCur = cur && cur !== document.body && cur !== document.documentElement;
-    var list = Array.prototype.filter.call(root.querySelectorAll(SEL), function(el){ return el !== cur && usable(el); });
-    if(!list.length) return false;
-    var best = null, bestScore = Infinity, i, r;
+    var nodes = root.querySelectorAll(SEL);
+    var iw = window.innerWidth, ih = window.innerHeight;
+    var cands = [], i, r, el;
     if(!hasCur){
-      for(i = 0; i < list.length; i++){
-        r = list[i].getBoundingClientRect();
-        var inView = r.top >= 0 && r.bottom <= window.innerHeight;
-        var sc = (inView ? 0 : 1e6) + Math.max(0, r.top) * 100 + r.left;
-        if(sc < bestScore){ bestScore = sc; best = list[i]; }
+      for(i = 0; i < nodes.length; i++){
+        el = nodes[i];
+        if(el === cur) continue;
+        r = el.getBoundingClientRect();
+        if(r.width < 1 || r.height < 1 || r.right <= 0 || r.left >= iw) continue;
+        var inView = r.top >= 0 && r.bottom <= ih;
+        cands.push({ el:el, r:r, s:(inView ? 0 : 1e6) + Math.max(0, r.top) * 100 + r.left });
       }
     } else {
       var cr = cur.getBoundingClientRect();
-      var cx = cr.left + cr.width / 2, cy = cr.top + cr.height / 2;
-      for(i = 0; i < list.length; i++){
-        r = list[i].getBoundingClientRect();
-        var dx = r.left + r.width / 2 - cx, dy = r.top + r.height / 2 - cy;
+      var ccx = cr.left + cr.width / 2, ccy = cr.top + cr.height / 2;
+      for(i = 0; i < nodes.length; i++){
+        el = nodes[i];
+        if(el === cur) continue;
+        r = el.getBoundingClientRect();
+        if(r.width < 1 || r.height < 1 || r.right <= 0 || r.left >= iw) continue;
+        var dx = r.left + r.width / 2 - ccx, dy = r.top + r.height / 2 - ccy;
         var primary, secondary, w;
         if(dir === 'right'){ if(dx <= 1) continue; primary = Math.max(0, r.left - cr.right); secondary = Math.abs(dy); w = 3; }
         else if(dir === 'left'){ if(dx >= -1) continue; primary = Math.max(0, cr.left - r.right); secondary = Math.abs(dy); w = 3; }
         else if(dir === 'down'){ if(dy <= 1) continue; primary = Math.max(0, r.top - cr.bottom); secondary = Math.abs(dx); w = 2; }
         else { if(dy >= -1) continue; primary = Math.max(0, cr.top - r.bottom); secondary = Math.abs(dx); w = 2; }
-        var score = primary + w * secondary;
-        if(score < bestScore){ bestScore = score; best = list[i]; }
+        cands.push({ el:el, r:r, s:primary + w * secondary });
       }
     }
-    if(!best) return false;
-    focusEl(best);
-    return true;
+    if(!cands.length) return false;
+    // Se prueba el mejor candidato; si está oculto/tapado, el siguiente (máx. 12 intentos).
+    for(var n = 0; n < 12 && cands.length; n++){
+      var bi = 0;
+      for(i = 1; i < cands.length; i++){ if(cands[i].s < cands[bi].s) bi = i; }
+      var c = cands.splice(bi, 1)[0];
+      if(visibleOnTop(c.el, c.r)){ focusEl(c.el); return true; }
+    }
+    return false;
+  }
+  // Al mantener presionada una flecha, evita saturar el TV: máx. un movimiento cada ~70 ms.
+  var lastMoveAt = 0;
+  function moveThrottled(e, dir, root, cur){
+    var now = Date.now();
+    if(e.repeat && now - lastMoveAt < 70) return true; // evento absorbido (se cuenta como manejado)
+    var ok = move(dir, root, cur);
+    if(ok) lastMoveAt = now;
+    return ok;
   }
 
   function isFs(){ return !!(document.fullscreenElement || document.webkitFullscreenElement); }
@@ -6495,12 +6516,12 @@
       // Foco dentro del reproductor: las flechas se mueven entre sus botones.
       stopKey(e);
       try { pcShowControls(true); } catch(x){}
-      if(!move(dir, overlay, ae) && dir === 'up'){ try { ae.blur(); } catch(x){} }
+      if(!moveThrottled(e, dir, overlay, ae) && dir === 'up'){ try { ae.blur(); } catch(x){} }
       return;
     }
 
     // Fuera del reproductor: navegación entre tarjetas, menú, categorías y botones.
-    if(move(dir, document.body, ae)) stopKey(e);
+    if(moveThrottled(e, dir, document.body, ae)) stopKey(e);
   }, true);
 })();
 </script>
