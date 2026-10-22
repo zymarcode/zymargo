@@ -2415,12 +2415,18 @@
     body .player-header{ padding:10px 16px 10px 24px; }
     body .player-sidebar{ flex:0 0 clamp(320px, 26vw, 480px); width:clamp(320px, 26vw, 480px); max-width:none; }
     body .player-playlist-list{ max-height:none; }
-    /* El video se ve completo en 16:9 y ocupa como máximo ~la mitad del alto de la pantalla, para que debajo se vean botones, descripción y comentarios */
+    /* El video se ve completo en 16:9 y ocupa como máximo ~2/3 del alto de la pantalla, para que debajo se vean botones, descripción y comentarios */
     body .player-stage.is-video, body .player-stage.is-live{
-      width:min(100%, calc(52vh * 16 / 9));
-      width:min(100%, calc(52dvh * 16 / 9));
+      width:min(100%, calc(66vh * 16 / 9));
+      width:min(100%, calc(66dvh * 16 / 9));
       margin:0 auto;
       position:relative; top:auto;
+    }
+    /* Smart TV / Android TV / TV Box (se detectan por el navegador): imagen
+       más grande, porque se mira de lejos y se maneja con control remoto. */
+    html.is-tv body .player-stage.is-video, html.is-tv body .player-stage.is-live{
+      width:min(100%, calc(80vh * 16 / 9));
+      width:min(100%, calc(80dvh * 16 / 9));
     }
   }
   @media (min-width:1600px) and (min-height:481px){
