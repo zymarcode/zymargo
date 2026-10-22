@@ -2333,11 +2333,10 @@
   body #sfLoad .sfBar i{ background:#fff; box-shadow:none; }
 
   /* ============================================================
-     UN SOLO REPRODUCTOR — la lista de contenido ya está en la página,
-     así que el modal muestra solo el reproductor. Siguiente/anterior y
-     reproducción automática siguen funcionando (usan la misma cola).
+     UN SOLO REPRODUCTOR — el modal muestra el reproductor y, junto a él,
+     tu contenido (Reviews, Canales y demás categorías). Siguiente/anterior
+     y reproducción automática siguen funcionando (usan la misma cola).
      ============================================================ */
-  body #playerSidebar{ display:none !important; }
   body .player-title{ display:none; }
 
   /* ============================================================
@@ -2402,6 +2401,61 @@
     body .player-stage.is-video video{ object-fit:contain; }
     body .player-info{ flex:0 0 auto; width:100%; min-width:0; padding:12px 16px calc(24px + env(safe-area-inset-bottom, 0px)); }
     body .pc-skip-btn, body .pc-time{ display:none; }
+  }
+
+  /* ============================================================
+     PANTALLAS GRANDES (Smart TV, computadoras, monitores):
+     el modal ocupa TODA la pantalla. Video a la izquierda y tu contenido
+     (Reviews, Canales, etc.) a la derecha. Es justo lo contrario del
+     breakpoint móvil de arriba (<=900px o celular horizontal).
+     ============================================================ */
+  @media (min-width:901px) and (min-height:481px){
+    body .player-overlay{ padding:0; align-items:stretch; background:#000; -webkit-backdrop-filter:none; backdrop-filter:none; }
+    body .player-box{ width:100%; height:100%; max-height:none; border:0; border-radius:0; box-shadow:none; }
+    body .player-header{ padding:10px 16px 10px 24px; }
+    body .player-sidebar{ flex:0 0 clamp(320px, 26vw, 480px); width:clamp(320px, 26vw, 480px); max-width:none; }
+    body .player-playlist-list{ max-height:none; }
+    /* El video se ve completo en 16:9 sin pasarse del alto de la pantalla */
+    body .player-stage.is-video, body .player-stage.is-live{
+      width:min(100%, calc((100vh - 64px) * 16 / 9));
+      width:min(100%, calc((100dvh - 64px) * 16 / 9));
+      margin:0 auto;
+    }
+  }
+  @media (min-width:1600px) and (min-height:481px){
+    body .player-playlist{ padding:24px 26px 26px; }
+    body .pl-item-thumb{ width:96px; height:56px; }
+    body .pl-item-title{ font-size:15px; }
+    body .pl-item-sub{ font-size:12px; }
+    body .pl-cat{ font-size:14px; padding:9px 18px; }
+  }
+
+  /* Categorías dentro de la lista de contenido */
+  .player-playlist-cats{
+    display:flex; gap:8px; flex:0 0 auto; margin-bottom:12px; padding-bottom:2px;
+    overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;
+  }
+  .player-playlist-cats::-webkit-scrollbar{ display:none; }
+  .pl-cat{
+    flex:0 0 auto; padding:7px 14px; border-radius:999px; background:#161616; border:1px solid #2a2a2a;
+    color:#fff; cursor:pointer; white-space:nowrap; font:700 12px/1 -apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;
+    transition:background .15s, border-color .15s;
+  }
+  .pl-cat:hover{ background:#1d1d1d; }
+  .pl-cat.is-active{ background:#fff; border-color:#fff; color:#000; }
+  .pl-item-num:empty{ visibility:hidden; }
+
+  /* Celular / tablet vertical: el video queda fijo arriba y todo lo demás
+     (descripción, comentarios y tu contenido) se desplaza por debajo. */
+  @media (max-width:900px), (max-height:480px) and (orientation:landscape){
+    body .player-content{ flex-direction:column; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
+    body .player-main{ display:contents; }
+    body .player-sidebar{
+      flex:0 0 auto; width:100%; max-width:100%; overflow:visible;
+      border-left:0; border-top:1px solid #1f1f1f;
+    }
+    body .player-playlist{ flex:0 0 auto; padding:16px 14px calc(24px + env(safe-area-inset-bottom, 0px)); }
+    body .player-playlist-list{ flex:0 0 auto; max-height:none; overflow:visible; }
   }
 
   /* Celular en horizontal: barras más bajas y portada que cabe en lo que queda de pantalla */
@@ -2837,7 +2891,7 @@
       <div class="player-sidebar" id="playerSidebar" style="display:none;">
         <div class="player-playlist" id="playerPlaylist">
           <div class="player-playlist-head">
-            <span class="player-playlist-title">📃 A continuación</span>
+            <span class="player-playlist-title">📃 Contenido</span>
             <label class="pc-autoplay-toggle">
               <input type="checkbox" id="pcAutoplayToggle" checked onchange="playerSetAutoplay(this.checked)" />
               <span class="switch"></span>
@@ -2846,6 +2900,7 @@
           </div>
           <input type="text" class="player-playlist-search" id="playerPlaylistSearch"
                  placeholder="Buscar en la lista..." oninput="filterPlayerPlaylist(this.value)" />
+          <div class="player-playlist-cats" id="playerPlaylistCats"></div>
           <div class="player-playlist-list" id="playerPlaylistList"></div>
         </div>
       </div>
@@ -3978,6 +4033,7 @@
 
     document.getElementById('playerOverlay').classList.add('open');
     try { var pm_ = document.querySelector('#playerOverlay .player-main'); if(pm_) pm_.scrollTop = 0; } catch(e){}
+    try { var pc_ = document.getElementById('playerContent'); if(pc_) pc_.scrollTop = 0; } catch(e){}
     try { pcShowControls(true); } catch(e){}
     try { showMediaToast(m); } catch(e){}
     try { updateMediaSession(m); } catch(e){}
@@ -4025,9 +4081,15 @@
     if(checkbox) checkbox.checked = pcAutoplayNext;
   }
 
+  // Categoría seleccionada en la lista de contenido del reproductor
+  // ('*' = todo). null = aún no elegida: al abrir arranca en la categoría
+  // del título que se está reproduciendo.
+  var plCatFilter = null;
+
   function renderPlayerPlaylist(){
     var wrap = document.getElementById('playerSidebar');
     var list = document.getElementById('playerPlaylistList');
+    var catsEl = document.getElementById('playerPlaylistCats');
     var prevBtn = document.getElementById('pcPrevBtn');
     var nextBtn = document.getElementById('pcNextBtn');
     if(!wrap || !list) return;
@@ -4039,27 +4101,64 @@
     var searchInput = document.getElementById('playerPlaylistSearch');
     if(searchInput) searchInput.value = '';
 
-    if(!hasQueue){
+    // Se muestra todo el contenido; las categorías (Reviews, Canales, etc.) lo filtran.
+    var items = allMedia || [];
+    if(items.length < 2){
       wrap.style.display = 'none';
       list.innerHTML = '';
+      if(catsEl) catsEl.innerHTML = '';
       return;
     }
     wrap.style.display = '';
 
+    var curCat = pcCurrentMedia ? (pcCurrentMedia.categoria || 'General') : '*';
+    if(plCatFilter === null) plCatFilter = curCat;
+
+    var cats = [];
+    items.forEach(function(it){
+      var c = it.categoria || 'General';
+      if(cats.indexOf(c) === -1) cats.push(c);
+    });
+    if(plCatFilter !== '*' && cats.indexOf(plCatFilter) === -1) plCatFilter = '*';
+
+    if(catsEl){
+      var chips = '<button type="button" class="pl-cat'+(plCatFilter === '*' ? ' is-active' : '')+'" data-cat="*">Todo</button>';
+      cats.forEach(function(c){
+        chips += '<button type="button" class="pl-cat'+(plCatFilter === c ? ' is-active' : '')+'" data-cat="'+esc(c)+'">'+esc(c)+'</button>';
+      });
+      catsEl.innerHTML = chips;
+      if(!catsEl.dataset.clickBound){
+        catsEl.dataset.clickBound = '1';
+        catsEl.addEventListener('click', function(e){
+          var chip = e.target.closest('.pl-cat');
+          if(!chip) return;
+          plCatFilter = chip.getAttribute('data-cat');
+          var all = catsEl.querySelectorAll('.pl-cat');
+          for(var k = 0; k < all.length; k++) all[k].classList.toggle('is-active', all[k] === chip);
+          var si = document.getElementById('playerPlaylistSearch');
+          filterPlayerPlaylist(si ? si.value : '');
+          var lst = document.getElementById('playerPlaylistList');
+          if(lst) lst.scrollTop = 0;
+        });
+      }
+    }
+
     var html = '';
-    for(var i = 0; i < pcPlaylist.length; i++){
-      var it = pcPlaylist[i];
+    for(var i = 0; i < items.length; i++){
+      var it = items[i];
       var active = pcCurrentMedia && it.id === pcCurrentMedia.id;
+      var kd = null;
+      try { kd = cardKind_(it); } catch(e){}
       var thumbInner = it.miniatura
         ? '<img src="'+esc(it.miniatura)+'" alt="" loading="lazy" />'
-        : '<span>' + (isAudioType(it.tipo) ? '🎵' : it.tipo === 'video' ? '🎬' : '📄') + '</span>';
+        : '<span>' + ((kd && kd.icon) || (isAudioType(it.tipo) ? '🎵' : it.tipo === 'video' ? '🎬' : '📄')) + '</span>';
       var numInner = active
         ? '<svg class="pl-playing-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>'
-        : (i + 1);
+        : '';
 
       html +=
         '<button type="button" class="player-playlist-item'+(active ? ' is-active' : '')+'" ' +
-          'data-media-id="'+esc(it.id)+'" '+(active ? 'disabled' : '')+' aria-current="'+(active ? 'true' : 'false')+'">' +
+          'data-media-id="'+esc(it.id)+'" data-cat="'+esc(it.categoria || 'General')+'" '+(active ? 'disabled' : '')+' aria-current="'+(active ? 'true' : 'false')+'">' +
           '<span class="pl-item-num">'+numInner+'</span>' +
           '<span class="pl-item-thumb">'+thumbInner+'</span>' +
           '<span class="pl-item-info">' +
@@ -4069,6 +4168,7 @@
         '</button>';
     }
     list.innerHTML = html;
+    filterPlayerPlaylist('');
 
     if(!list.dataset.clickBound){
       list.dataset.clickBound = '1';
@@ -4079,33 +4179,39 @@
         if(!mediaId) return;
         openPlayerById(mediaId);
 
-        // En móvil/tablet el video y la lista quedan uno debajo del
-        // otro (mismo breakpoint que ya usa el CSS: <=1080px). Ahí,
-        // tras elegir un ítem, subimos la vista hasta el reproductor
-        // para que el contenido se vea de una, sin scrollear a mano.
-        if(window.innerWidth <= 1080){
-          var overlay = document.getElementById('playerOverlay');
-          if(overlay){
-            if(typeof overlay.scrollTo === 'function'){
-              overlay.scrollTo({ top: 0, behavior: 'smooth' });
+        // En móvil/tablet vertical el video queda arriba y la lista
+        // debajo (mismo breakpoint del CSS). Tras elegir un ítem se
+        // sube hasta el reproductor para verlo de una.
+        if(window.matchMedia('(max-width:900px), (max-height:480px) and (orientation:landscape)').matches){
+          var pc = document.getElementById('playerContent');
+          if(pc){
+            if(typeof pc.scrollTo === 'function'){
+              pc.scrollTo({ top: 0, behavior: 'smooth' });
             } else {
-              overlay.scrollTop = 0;
+              pc.scrollTop = 0;
             }
           }
         }
       });
     }
 
+    // Deja el título en reproducción a la vista dentro de la lista (sin
+    // mover el resto del modal, por eso no se usa scrollIntoView).
     var activeEl = list.querySelector('.is-active');
-    if(activeEl) activeEl.scrollIntoView({ block: 'nearest' });
+    if(activeEl && activeEl.offsetParent !== null){
+      var lr = list.getBoundingClientRect(), ar = activeEl.getBoundingClientRect();
+      list.scrollTop += (ar.top - lr.top) - Math.max(0, (list.clientHeight - ar.height) / 2);
+    }
   }
 
-  // Filtra en tiempo real los ítems de la lista "A continuación"
-  // por título o categoría, sin tocar pcPlaylist ni volver a pedir datos.
+  // Filtra en tiempo real los ítems de la lista de contenido por
+  // categoría seleccionada y por título/categoría escritos, sin tocar
+  // pcPlaylist ni volver a pedir datos.
   function filterPlayerPlaylist(query){
     var list = document.getElementById('playerPlaylistList');
     if(!list) return;
     var q = (query || '').toLowerCase().trim();
+    var catSel = (plCatFilter === null || plCatFilter === '*') ? '' : plCatFilter;
     var items = list.querySelectorAll('.player-playlist-item');
     var visibleCount = 0;
 
@@ -4114,7 +4220,7 @@
       var titleEl = item.querySelector('.pl-item-title');
       var subEl = item.querySelector('.pl-item-sub');
       var text = ((titleEl ? titleEl.textContent : '') + ' ' + (subEl ? subEl.textContent : '')).toLowerCase();
-      var match = !q || text.indexOf(q) !== -1;
+      var match = (!q || text.indexOf(q) !== -1) && (!catSel || item.getAttribute('data-cat') === catSel);
       item.style.display = match ? '' : 'none';
       if(match) visibleCount++;
     }
@@ -4126,7 +4232,7 @@
       empty.textContent = 'Sin resultados.';
       list.appendChild(empty);
     }
-    empty.style.display = (q && visibleCount === 0) ? '' : 'none';
+    empty.style.display = ((q || catSel) && visibleCount === 0) ? '' : 'none';
   }
 
   // ============================================================
@@ -4751,6 +4857,7 @@
     pcPlaylistIndex = -1;
     var plWrap = document.getElementById('playerSidebar');
     if(plWrap) plWrap.style.display = 'none';
+    plCatFilter = null;
 
     try { hideMediaToast(); } catch(e){}
     try { clearMediaSession(); } catch(e){}
