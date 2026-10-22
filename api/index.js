@@ -10,7 +10,7 @@ const compat = require('../lib/compat');
 // muestra un mensaje claro si el firewall de Vercel bloquea la solicitud.
 function buildShim() {
   return '<script>(function(){' +
-    'var N=' + JSON.stringify(S.NAMES) + ';' +
+    'var N=' + JSON.stringify(S.NAMES || []) + ';' +
     'function fail(f,m){if(f)f({message:m});else if(window.console)console.error(m)}' +
     'function call(fn,args,s,f){' +
       'var x=new XMLHttpRequest();' +
@@ -31,6 +31,13 @@ function buildShim() {
     'function mk(s,f){' +
       'var o={withSuccessHandler:function(h){return mk(h,f)},withFailureHandler:function(h){return mk(s,h)}};' +
       'for(var i=0;i<N.length;i++)(function(n){o[n]=function(){call(n,Array.prototype.slice.call(arguments),s,f)}})(N[i]);' +
+      // Si el navegador tiene Proxy, cualquier función del servidor funciona aunque no esté en la lista N;
+      // sin Proxy (WebView muy antiguo) se usa solo la lista.
+      'if(typeof Proxy!=="undefined"){return new Proxy(o,{get:function(t,n){' +
+        'if(n in t)return t[n];' +
+        'if(typeof n!=="string"||n==="then")return undefined;' +
+        'return function(){call(n,Array.prototype.slice.call(arguments),s,f)}' +
+      '}})}' +
       'return o' +
     '}' +
     'window.google={script:{run:mk(null,null)}};' +
