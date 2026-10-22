@@ -2319,6 +2319,7 @@
   #sfGateEnter{ border-radius:999px !important; }
   #sfGateEnter:disabled{ background:#1c1c1c !important; color:#777 !important; }
   #sfGateEnter:not(:disabled){ background:#fff !important; color:#000 !important; }
+  #sfGateClose:hover, #sfGateClose:focus{ background:rgba(255,255,255,.2) !important; color:#fff !important; outline:none; }
   /* --- Pantalla de carga: se ve la página detrás, borrosa, con logo y nombre del sistema --- */
   body #sfLoad{ background:rgba(8,8,8,.55); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); }
   body #sfLoad::before{ display:none; }
@@ -5996,7 +5997,8 @@
 <? if (brand.gateEnabled !== false) { ?>
 <!-- ===== PUERTA SOCIAL: pide visitar las redes antes de entrar ===== -->
 <div id="sfGate" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:rgba(0,0,0,.92);align-items:center;justify-content:center;padding:18px;overflow:auto">
-  <div style="max-width:380px;width:100%;background:linear-gradient(180deg,#1b1b1f,#101013);border:1px solid #2c2c34;border-radius:18px;padding:28px 22px;color:#fff;text-align:center;font-family:inherit;box-shadow:0 20px 60px rgba(0,0,0,.6)">
+  <div style="position:relative;max-width:380px;width:100%;background:linear-gradient(180deg,#1b1b1f,#101013);border:1px solid #2c2c34;border-radius:18px;padding:28px 22px;color:#fff;text-align:center;font-family:inherit;box-shadow:0 20px 60px rgba(0,0,0,.6)">
+    <button id="sfGateClose" type="button" aria-label="Cerrar" title="Cerrar" style="position:absolute;top:10px;right:10px;width:28px;height:28px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.08);color:#bbb;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div style="font-size:38px;line-height:1;margin-bottom:8px">🎬</div>
     <h2 style="margin:0 0 6px;font-size:22px">Bienvenido</h2>
     <p style="margin:0 0 20px;color:#a9a9b3;font-size:14px;line-height:1.45">Toca nuestras redes para apoyarnos y luego pulsa <b>Entrar</b>.</p>
@@ -6066,9 +6068,17 @@
   });
   enter.onclick = function () {
     if (enter.disabled) return;
+    closeGate();
+  };
+  function closeGate() {
     gate.style.display = "none";
     document.body.style.overflow = "";
-  };
+  }
+  var closeBtn = document.getElementById("sfGateClose");
+  if (closeBtn) closeBtn.onclick = closeGate;
+  document.addEventListener("keydown", function (e) {
+    if ((e.key === "Escape" || e.keyCode === 27) && gate.style.display !== "none") closeGate();
+  });
   function openGate() {
     gate.style.display = "flex";
     document.body.style.overflow = "hidden";
