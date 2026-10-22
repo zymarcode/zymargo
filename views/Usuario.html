@@ -3445,6 +3445,27 @@
     var cleaned = text.split(found).join('').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
     return { text: cleaned, imageUrl: found };
   }
+  // Redes sociales configuradas por el administrador (Admin > Redes sociales).
+  // En una descripción se escribe {whatsapp}, {telegram}, {youtube}, {facebook}, {instagram} o {tiktok}
+  // y se reemplaza por el enlace configurado: al cambiarlo en el panel, cambia en TODAS las descripciones.
+  // Si esa red no está configurada, se quita la línea que la menciona.
+  var SOCIAL_LINKS = {
+    whatsapp:  "<?= brand.socialWhatsappUrl ?>",
+    telegram:  "<?= brand.socialTelegramUrl ?>",
+    youtube:   "<?= brand.socialYoutubeUrl ?>",
+    facebook:  "<?= brand.socialFacebookUrl ?>",
+    instagram: "<?= brand.socialInstagramUrl ?>",
+    tiktok:    "<?= brand.socialTiktokUrl ?>"
+  };
+  function expandSocialTokens(text){
+    if(!text || String(text).indexOf('{') === -1) return text;
+    var re = /\{(whatsapp|telegram|youtube|facebook|instagram|tiktok)\}/gi;
+    return String(text).split('\n').filter(function(line){
+      var ok = true;
+      line.replace(re, function(m, k){ if(!SOCIAL_LINKS[k.toLowerCase()]) ok = false; return m; });
+      return ok;
+    }).join('\n').replace(re, function(m, k){ return SOCIAL_LINKS[k.toLowerCase()]; });
+  }
   function linkifyDescription(text){
     if(!text) return 'Sin descripción.';
     var safe = esc(text);
@@ -4231,7 +4252,7 @@
     document.getElementById('playerTitle').textContent = m.nombre;
     document.getElementById('playerTitle').title = m.nombre;
     document.getElementById('playerTitle').style.display = isAudioType(m.tipo) ? 'none' : '';
-    var descInfo = extractDescImage(m.descripcion);
+    var descInfo = extractDescImage(expandSocialTokens(m.descripcion));
     document.getElementById('playerDesc').innerHTML = linkifyDescription(descInfo.text);
     resolveWaLinks(document.getElementById('playerDesc'));
     var descImgBox = document.getElementById('playerDescImageBox');
