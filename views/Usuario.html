@@ -3454,9 +3454,57 @@
       if(isImageUrl.test(cleanUrl)){
         return '<img src="'+cleanUrl+'" alt="" class="desc-img" loading="lazy" referrerpolicy="no-referrer" onclick="event.stopPropagation();openImgLightbox(this.src)" onerror="descImgError(this,this.src)" />';
       }
-      return '<a href="' + cleanUrl + '" target="_blank" rel="noopener">' + cleanUrl + '</a>';
+      return '<a href="' + cleanUrl + '" target="_blank" rel="noopener">' + esc(friendlyLinkLabel(cleanUrl)) + '</a>';
     });
     return linked.replace(/\n/g, '<br>');
+  }
+  // Texto legible para un enlace de la descripción (el enlace sigue abriendo la URL real).
+  // WhatsApp -> número / "Canal" / "Grupo"; Telegram, Instagram, TikTok, YouTube, Facebook -> red + usuario;
+  // cualquier otro sitio -> solo su dominio (sin "https://" ni rutas largas).
+  function friendlyLinkLabel(raw){
+    var u = String(raw).replace(/&amp;/g, '&');
+    var m = /^https?:\/\/([^\/?#]+)([^?#]*)(?:\?([^#]*))?/i.exec(u);
+    if(!m) return u;
+    var host = m[1].toLowerCase().replace(/^(www|m|api|web)\./, '');
+    var path = m[2] || '', q = m[3] || '';
+    var segs = path.split('/').filter(function(x){ return x; }).map(function(x){
+      try { return decodeURIComponent(x); } catch(e){ return x; }
+    });
+    function phone(d){
+      d = String(d || '').replace(/\D/g, '');
+      if(!d) return '';
+      if(/^51\d{9}$/.test(d)) return '+51 ' + d.slice(2,5) + ' ' + d.slice(5,8) + ' ' + d.slice(8);
+      return '+' + d;
+    }
+    function param(name){
+      var r = new RegExp('(?:^|&)' + name + '=([^&]*)').exec(q);
+      if(!r) return '';
+      try { return decodeURIComponent(r[1]); } catch(e){ return r[1]; }
+    }
+    var first = segs[0] || '';
+    if(host === 'wa.me'){
+      var n1 = phone(first);
+      return n1 ? 'WhatsApp ' + n1 : 'WhatsApp';
+    }
+    if(host === 'chat.whatsapp.com') return 'Grupo de WhatsApp';
+    if(host === 'whatsapp.com'){
+      if(first === 'channel') return 'Canal de WhatsApp';
+      var n2 = phone(param('phone'));
+      return n2 ? 'WhatsApp ' + n2 : 'WhatsApp';
+    }
+    if(host === 't.me' || host === 'telegram.me'){
+      if(!first) return 'Telegram';
+      if(first.charAt(0) === '+' || first === 'joinchat') return 'Grupo de Telegram';
+      return 'Telegram @' + first.replace(/^@/, '');
+    }
+    if(host === 'instagram.com'){
+      if(first && !/^(p|reel|reels|tv|stories|explore|accounts)$/i.test(first)) return 'Instagram @' + first.replace(/^@/, '');
+      return 'Instagram';
+    }
+    if(host === 'tiktok.com') return first.charAt(0) === '@' ? 'TikTok ' + first : 'TikTok';
+    if(host === 'facebook.com' || host === 'fb.com' || host === 'fb.watch' || host === 'fb.me') return 'Facebook';
+    if(host === 'youtu.be' || host === 'youtube.com') return first.charAt(0) === '@' ? 'YouTube ' + first : 'YouTube';
+    return host;
   }
   function fmtTime(s){
     if(!isFinite(s) || s < 0) s = 0;
