@@ -2567,6 +2567,116 @@
   body .cm-send:disabled{ background:#2a1214 !important; color:#b98a8d !important; border-color:#3a1a1d !important; box-shadow:none; text-shadow:none; }
   body .hero-arrow:hover{ background:#e50914; color:#fff; border-color:#e50914; box-shadow:0 6px 18px rgba(229,9,20,.4); }
   body .ad-skip:not(:disabled):hover, body .ad-link:hover{ background:#e50914; color:#fff; }
+
+  /* ============================================================
+     MEJORA DE DISEÑO — página de Usuario (solo estilos; no toca la
+     lógica ni el HTML). Pensado para celulares pequeños, tablets,
+     monitores y pantallas grandes (Smart TV, Android TV, TV Box):
+     tarjetas con más presencia, tamaños que crecen con la pantalla
+     y foco bien visible para control remoto.
+     ============================================================ */
+  html{ scrollbar-width:thin; scrollbar-color:#2e2e2e #000; }
+  body{ --vg-thumb:76px; --vg-card-min:158px; --vg-card-h:164px; --vg-card-fs:13px; }
+
+  /* Tarjetas: superficie con degradado, borde suave y relieve */
+  body .card{
+    min-height:var(--vg-card-h);
+    background:linear-gradient(180deg,#1f1f23 0%,#141416 100%);
+    border:1px solid #2a2a30; border-radius:16px;
+    box-shadow:0 6px 18px rgba(0,0,0,.35);
+    transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease, background .2s ease;
+  }
+  body .card-thumb, body .card:hover .card-thumb, body .card:focus-visible .card-thumb{
+    width:var(--vg-thumb); height:var(--vg-thumb);
+    box-shadow:0 0 0 2px rgba(255,255,255,.07), 0 8px 20px rgba(0,0,0,.55);
+  }
+  body .card-title{
+    display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden;
+    white-space:normal; text-overflow:clip; font-size:var(--vg-card-fs);
+  }
+  body .card-cat{ font-size:calc(var(--vg-card-fs) - 2px); letter-spacing:.3px; }
+  @media (hover:hover) and (pointer:fine){
+    body .card:hover{
+      transform:translateY(-4px); border-color:#45454e;
+      background:linear-gradient(180deg,#27272d 0%,#18181b 100%);
+      box-shadow:0 16px 34px rgba(0,0,0,.55);
+    }
+  }
+  body .card:focus-visible{ transform:scale(1.04); border-color:#fff; box-shadow:0 18px 40px rgba(0,0,0,.6); }
+  body .card:active{ transform:scale(.97); }
+
+  /* Títulos de sección con acento */
+  body .row-title{ align-items:center; font-size:clamp(18px,1.35vw,28px); }
+  body .row-title::before{ display:block; content:''; flex:0 0 auto; width:4px; height:1em; margin-right:10px; border-radius:3px; background:var(--red); }
+
+  /* Categorías (chips) y menú: transiciones más suaves */
+  .vg-chip, .vg-item, .vg-cbtn{ transition:background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease; }
+  .vg-chip:hover{ border-color:#3c3c44; }
+
+  /* Tablet vertical y celulares grandes: más columnas que las 2 fijas */
+  @media (min-width:560px) and (max-width:900px){
+    body .row-track{ grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; }
+  }
+  /* Celulares muy pequeños */
+  @media (max-width:380px){
+    body{ --vg-thumb:64px; --vg-card-h:148px; --vg-card-fs:12px; }
+    body .card{ padding:14px 8px 12px; border-radius:14px; }
+    body .row-title{ font-size:17px; }
+  }
+
+  /* Computadoras y monitores */
+  @media (min-width:901px) and (min-height:481px){
+    body .row-track{ grid-template-columns:repeat(auto-fill,minmax(var(--vg-card-min),1fr)); }
+  }
+  @media (min-width:1280px) and (min-height:481px){
+    body{ --vg-thumb:84px; --vg-card-min:178px; --vg-card-h:178px; --vg-card-fs:14px; }
+  }
+  /* Monitores grandes y Smart TV Full HD */
+  @media (min-width:1600px) and (min-height:481px){
+    body{
+      --vg-side:280px; --nav-h:78px; --vg-bar-h:84px; --safe-x:44px;
+      --vg-thumb:104px; --vg-card-min:214px; --vg-card-h:212px; --vg-card-fs:16px;
+    }
+    body .row-track{ gap:22px; }
+    body .nav-search{ height:52px; flex-basis:680px; max-width:680px; }
+    body .nav-search input{ font-size:16px; }
+    body .nav-icon-btn, body .notif-bell{ width:46px; height:46px; }
+    .vg-item{ height:54px; font-size:16px; gap:18px; border-radius:12px; }
+    .vg-item svg{ width:26px; height:26px; }
+    .vg-sec{ font-size:12px; }
+    .vg-brand-name{ font-size:22px; }
+    .vg-chips{ gap:16px; padding-top:30px; }
+    .vg-chip{ height:54px; padding:0 28px; font-size:16px; }
+    body .row-title{ padding-top:26px; }
+    body .vg-seeall{ height:34px; font-size:14px; top:24px; }
+    .vg-bar-art{ width:58px; height:58px; }
+    .vg-bar-title{ font-size:19px; }
+    .vg-bar-sub{ font-size:14px; }
+    .vg-cbtn{ width:52px; height:52px; }
+    .vg-cbtn.play{ width:60px; height:60px; }
+    .vg-cbtn svg{ width:24px; height:24px; }
+    body .hero-title{ font-size:clamp(40px, 3vw, 64px); }
+    body .hero-content{ max-width:min(820px, 92%); }
+  }
+  /* Pantallas 4K */
+  @media (min-width:2400px) and (min-height:481px){
+    body{
+      --vg-side:340px; --nav-h:96px; --vg-bar-h:104px; --safe-x:64px;
+      --vg-thumb:140px; --vg-card-min:290px; --vg-card-h:280px; --vg-card-fs:20px;
+    }
+    body .row-track{ gap:30px; }
+    body .row-title{ font-size:32px; }
+    body .nav-search{ height:60px; flex-basis:820px; max-width:820px; }
+    .vg-item{ height:64px; font-size:20px; }
+    .vg-item svg{ width:30px; height:30px; }
+    .vg-chip{ height:64px; font-size:20px; padding:0 34px; }
+    .vg-bar-title{ font-size:24px; }
+    .vg-cbtn{ width:62px; height:62px; }
+    .vg-cbtn.play{ width:72px; height:72px; }
+  }
+  @media (prefers-reduced-motion:reduce){
+    body .card, body .card:hover, body .card:focus-visible{ transition:none; transform:none; }
+  }
 </style>
 </head>
 <body>
