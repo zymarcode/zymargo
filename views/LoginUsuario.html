@@ -234,6 +234,55 @@
   }
   body #sfLoad .sfBar{ background:rgba(255,255,255,.16); }
   body #sfLoad .sfBar i{ background:#fff; box-shadow:none; }
+
+  /* ============================================================
+     PANTALLAS GRANDES (PC, laptop, TV): login más ancho y con textos más grandes.
+     Solo aplica desde 1024px de ancho; en celulares y pantallas pequeñas
+     no cambia nada (se mantiene la estructura móvil de arriba).
+     ============================================================ */
+  @media (min-width:1024px){
+    .login-card{ max-width:460px; padding:44px 42px; border-radius:18px; margin:24px; }
+    .brand{ gap:14px; margin-bottom:30px; }
+    .brand-mark{ width:54px; height:54px; font-size:24px; }
+    .brand-title{ font-size:23px; }
+    .brand-sub{ font-size:11px; margin-top:3px; }
+    h1{ font-size:25px; margin-bottom:24px; }
+    .field{ margin-bottom:18px; }
+    .field label{ font-size:13px; margin-bottom:8px; }
+    .input-wrap svg.icon{ width:18px; height:18px; left:20px; }
+    input[type=text], input[type=password]{ padding-top:15px; padding-bottom:15px; padding-left:52px; font-size:16px; }
+    #pass{ padding-right:52px !important; }
+    .toggle-pass{ right:12px; width:36px; height:36px; }
+    .toggle-pass svg{ width:18px; height:18px; }
+    #btn{ padding:15px; font-size:17px; margin-top:10px; }
+    .error{ font-size:14px; margin-top:14px; }
+    .hint{ font-size:14px; margin-top:26px; }
+    .creds-inner{ padding:12px 13px; }
+    .creds-title{ font-size:10px; gap:6px; margin-bottom:8px; }
+    .creds-title .dot{ width:6px; height:6px; }
+    .creds-row{ padding:8px 10px; gap:8px; }
+    .creds-row + .creds-row{ margin-top:7px; }
+    .creds-label{ font-size:9.5px; }
+    .creds-value{ font-size:14px; }
+    .creds-copy{ width:28px; height:28px; }
+    .creds-copy svg{ width:13px; height:13px; }
+    .creds-note{ font-size:11px; margin-top:8px; }
+    .social-links{ gap:12px; margin-top:22px; }
+    .social-links a{ width:42px; height:42px; }
+    .social-links svg{ width:19px; height:19px; }
+  }
+  @media (min-width:1600px){
+    .login-card{ max-width:540px; padding:54px 50px; }
+    .brand-mark{ width:62px; height:62px; font-size:28px; }
+    .brand-title{ font-size:27px; }
+    h1{ font-size:29px; }
+    .field label{ font-size:14px; }
+    input[type=text], input[type=password]{ padding-top:17px; padding-bottom:17px; font-size:18px; }
+    #btn{ padding:17px; font-size:19px; }
+    .hint, .error{ font-size:15px; }
+    .creds-value{ font-size:16px; }
+    .creds-label{ font-size:10.5px; }
+  }
 </style>
 <? if (brand.loginBgUrl) { ?>
 <style>
