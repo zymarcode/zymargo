@@ -21,7 +21,7 @@ function buildShim() {
         'if(x.status===0){fail(f,"Sin conexión con el servidor");return}' +
         'var j=null;try{j=JSON.parse(x.responseText)}catch(e){}' +
         'if(!j){fail(f,(x.status===403||x.status===429)?' +
-          '"El firewall de Vercel bloqueó la solicitud (HTTP "+x.status+"). Revisa Firewall / Attack Challenge Mode en Vercel.":' +
+          '"El firewall del hosting (Vercel o Cloudflare) bloqueó la solicitud (HTTP "+x.status+"). Revisa las reglas de Firewall / WAF y el modo de desafío.":' +
           '"Respuesta no válida del servidor (HTTP "+x.status+")");return}' +
         'if(j.error){fail(f,j.error);return}' +
         'if(s)s(j.result)' +
