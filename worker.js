@@ -100,6 +100,10 @@ class NodeRes extends Writable {
 
 export default {
   async fetch(request, env, ctx) {
+    // Respaldo: asegura que lib/ vea las variables aunque process.env no se haya poblado solo.
+    if (env) ['APPS_SCRIPT_URL', 'APPS_SCRIPT_SECRET'].forEach(function (k) {
+      if (typeof env[k] === 'string' && env[k]) process.env[k] = env[k];
+    });
     const url = new URL(request.url);
     const handler = url.pathname.indexOf('/s/') === 0 ? streamHandler : ROUTES[url.pathname];
     // Lo que no es una ruta de la app (p. ej. /icons/*) lo sirve Cloudflare desde /public.
