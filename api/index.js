@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { render } = require('../lib/template');
+const { render, has } = require('../lib/template');
 const S = require('../lib/server');
 const compat = require('../lib/compat');
 
@@ -308,7 +308,8 @@ html body .device-check-overlay{ background:radial-gradient(ellipse at 50% 40%,r
 ` + '</style>';
 
 function view(name, ctx) {
-  const src = fs.readFileSync(path.join(process.cwd(), 'views', name + '.html'), 'utf8');
+  // En Cloudflare las vistas ya vienen precompiladas (worker.js) y no hay sistema de archivos que leer.
+  const src = has(name) ? '' : fs.readFileSync(path.join(process.cwd(), 'views', name + '.html'), 'utf8');
   let html = render(name, src, ctx);
   const inject = appHead(ctx && ctx.brand) + SHIM;
   if (/<head[^>]*>/i.test(html)) html = html.replace(/<head[^>]*>/i, function (m) { return m + inject; });
