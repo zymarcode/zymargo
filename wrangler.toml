@@ -8,6 +8,10 @@ compatibility_date = "2026-01-01"
 # nodejs_compat: crypto (AES-GCM), stream, Buffer y process.env que usan lib/ y api/.
 compatibility_flags = ["nodejs_compat"]
 
+# Importante con despliegue desde Git: sin esto, cada deploy BORRA las variables de tipo "Texto"
+# puestas en el panel de Cloudflare (los Secrets no se borran). Aquí no se definen variables.
+keep_vars = true
+
 # /public (iconos) se sirve como archivos estáticos, igual que en Vercel.
 [assets]
 directory = "./public"
